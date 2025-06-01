@@ -1,24 +1,14 @@
 
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowDown, Sparkles, Code, Zap } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Sparkles, Rocket, Zap, Code2 } from "lucide-react";
 
 const Hero = () => {
-  const [particles, setParticles] = useState<Array<{id: number, x: number, y: number, delay: number, size: number}>>([]);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const newParticles = Array.from({ length: 100 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      delay: Math.random() * 8,
-      size: Math.random() * 3 + 1
-    }));
-    setParticles(newParticles);
-  }, []);
-
-  useEffect(() => {
+    setIsVisible(true);
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
@@ -27,180 +17,150 @@ const Hero = () => {
   }, []);
 
   const scrollToContact = () => {
-    const element = document.getElementById('contact');
-    element?.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <section className="pt-20 min-h-screen relative overflow-hidden bg-black">
-      {/* Holographic Grid Background */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.15)_1px,transparent_1px)] bg-[size:40px_40px] md:bg-[size:80px_80px] animate-pulse opacity-30"></div>
-      
-      {/* Dynamic Gradient Orbs */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-48 h-48 md:w-96 md:h-96 bg-gradient-to-r from-cyan-500/30 to-blue-500/30 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute top-1/3 right-1/4 w-40 h-40 md:w-80 md:h-80 bg-gradient-to-r from-purple-500/30 to-pink-500/30 rounded-full blur-3xl animate-float" style={{animationDelay: '2s'}}></div>
-        <div className="absolute bottom-1/4 left-1/3 w-36 h-36 md:w-72 md:h-72 bg-gradient-to-r from-green-500/30 to-cyan-500/30 rounded-full blur-3xl animate-float" style={{animationDelay: '4s'}}></div>
-      </div>
-
-      {/* Interactive Floating Particles */}
-      <div className="absolute inset-0 pointer-events-none">
-        {particles.map((particle) => (
+    <section className="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden flex items-center">
+      {/* Background Effects */}
+      <div className="absolute inset-0">
+        <div className="absolute top-20 left-10 w-32 h-32 md:w-64 md:h-64 bg-purple-500/20 rounded-full blur-3xl animate-pulse-glow"></div>
+        <div className="absolute bottom-20 right-10 w-32 h-32 md:w-64 md:h-64 bg-cyan-500/20 rounded-full blur-3xl animate-pulse-glow" style={{animationDelay: '1s'}}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] md:w-[600px] md:h-[600px] bg-gradient-radial from-blue-500/10 to-transparent rounded-full animate-rotate-slow"></div>
+        
+        {/* Floating particles */}
+        {[...Array(50)].map((_, i) => (
           <div
-            key={particle.id}
-            className="absolute rounded-full animate-float opacity-60"
+            key={i}
+            className="absolute w-1 h-1 bg-white/30 rounded-full animate-float"
             style={{
-              left: `${particle.x}%`,
-              top: `${particle.y}%`,
-              width: `${particle.size}px`,
-              height: `${particle.size}px`,
-              background: `radial-gradient(circle, rgba(6,182,212,0.8), rgba(37,99,235,0.4))`,
-              animationDelay: `${particle.delay}s`,
-              animationDuration: `${3 + Math.random() * 4}s`,
-              boxShadow: `0 0 ${particle.size * 4}px rgba(6,182,212,0.6)`
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              animationDuration: `${3 + Math.random() * 4}s`
             }}
-          />
+          ></div>
         ))}
       </div>
 
-      {/* Mouse Follower Effect - Hidden on mobile */}
+      {/* Mouse follower effect */}
       <div 
-        className="hidden md:block fixed w-80 h-80 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full blur-3xl pointer-events-none z-10 transition-all duration-1000 ease-out"
+        className="absolute w-96 h-96 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 rounded-full blur-3xl pointer-events-none transition-all duration-300 ease-out"
         style={{
-          left: mousePosition.x - 160,
-          top: mousePosition.y - 160,
+          left: mousePosition.x - 192,
+          top: mousePosition.y - 192,
         }}
-      />
+      ></div>
 
-      {/* Animated Lines */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse"></div>
-        <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-400 to-transparent animate-pulse" style={{animationDelay: '1s'}}></div>
-        <div className="absolute top-3/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-400 to-transparent animate-pulse" style={{animationDelay: '2s'}}></div>
-      </div>
-      
-      {/* Main content */}
-      <div className="container mx-auto px-4 py-10 md:py-20 relative z-20">
-        <div className="max-w-7xl mx-auto text-center text-white">
-          
-          {/* 3D Floating Badge */}
-          <div className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-8 py-2 md:py-4 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 backdrop-blur-xl border border-cyan-400/50 mb-8 md:mb-12 animate-fade-in shadow-2xl shadow-cyan-500/25 hover:shadow-cyan-500/50 transition-all duration-500 transform hover:scale-110 hover:rotate-1">
-            <div className="relative">
-              <Sparkles className="w-4 h-4 md:w-6 md:h-6 text-cyan-400 animate-pulse" />
-              <div className="absolute inset-0 w-4 h-4 md:w-6 md:h-6 bg-cyan-400 blur-lg opacity-50 animate-pulse"></div>
-            </div>
-            <span className="text-sm md:text-lg font-bold bg-gradient-to-r from-cyan-300 via-blue-300 to-purple-300 bg-clip-text text-transparent animate-pulse">
-              ⚡ INNOVATION • TECHNOLOGIE • FUTUR ⚡
-            </span>
-            <div className="relative">
-              <Code className="w-4 h-4 md:w-6 md:h-6 text-blue-400 animate-bounce" />
-              <div className="absolute inset-0 w-4 h-4 md:w-6 md:h-6 bg-blue-400 blur-lg opacity-50 animate-bounce"></div>
-            </div>
-          </div>
-
-          {/* Ultra-Modern Title with 3D Effects */}
-          <h1 className="text-4xl md:text-7xl lg:text-9xl font-black mb-8 md:mb-12 animate-fade-in leading-none tracking-tight">
-            <div className="relative inline-block">
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-200 to-white drop-shadow-2xl">
-                SITE WEB
-              </span>
-              <div className="absolute inset-0 text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-200 to-white blur-lg opacity-50">
-                SITE WEB
-              </div>
-            </div>
-            <div className="relative inline-block mt-2 md:mt-4">
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 via-purple-400 to-pink-400 animate-glow drop-shadow-2xl">
-                RÉVOLUTIONNAIRE
-              </span>
-              <div className="absolute inset-0 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 via-purple-400 to-pink-400 blur-xl opacity-60 animate-glow">
-                RÉVOLUTIONNAIRE
-              </div>
-            </div>
-            <div className="relative inline-block mt-4 md:mt-6">
-              <span className="block text-lg md:text-3xl lg:text-5xl font-light text-gray-300 animate-pulse">
-                🚀 Sans abonnement • ⚡ Sans limite • 🎯 Sans concurrence
-              </span>
-            </div>
-          </h1>
-
-          {/* Holographic Description */}
-          <div className="relative max-w-5xl mx-auto mb-10 md:mb-16">
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 blur-xl rounded-2xl md:rounded-3xl"></div>
-            <p className="relative text-lg md:text-2xl lg:text-3xl mb-6 md:mb-8 text-gray-100 animate-fade-in leading-relaxed p-6 md:p-8 backdrop-blur-xl border border-cyan-400/30 rounded-2xl md:rounded-3xl shadow-2xl" style={{animationDelay: '0.3s'}}>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 font-bold">
-                Intelligence Artificielle • Performance Extrême • Design Futuriste
+      <div className="container mx-auto px-4 py-20 relative z-10">
+        <div className="max-w-6xl mx-auto text-center">
+          {/* Main Title with modern effects */}
+          <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black mb-6 relative">
+              {/* Animated gradient text */}
+              <span className="bg-gradient-to-r from-white via-cyan-200 to-purple-200 bg-clip-text text-transparent animate-pulse">
+                Création de Sites Web
               </span>
               <br />
-              Votre présence digitale redéfinie par la technologie de demain
+              <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent relative">
+                <span className="animate-glow">Nouvelle Génération</span>
+                {/* Glowing underline */}
+                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full animate-glow shadow-lg shadow-cyan-400/50"></div>
+              </span>
+              
+              {/* Floating icons */}
+              <Sparkles className="absolute -top-8 -right-8 w-8 h-8 text-cyan-400 animate-bounce-slow" />
+              <Code2 className="absolute -top-4 -left-12 w-6 h-6 text-purple-400 animate-float" />
+              <Zap className="absolute top-1/2 -right-16 w-6 h-6 text-yellow-400 animate-pulse" />
+            </h1>
+          </div>
+
+          {/* Subtitle with typewriter effect */}
+          <div className={`transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <p className="text-lg md:text-xl lg:text-2xl text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-purple-300 font-semibold">
+                Pas d'abonnement
+              </span>
+              {" • "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-pink-300 font-semibold">
+                Design Futuriste
+              </span>
+              {" • "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-300 font-semibold">
+                IA Intégrée
+              </span>
             </p>
           </div>
 
-          {/* Ultra-Advanced CTA Buttons */}
-          <div className="flex flex-col lg:flex-row gap-6 md:gap-8 justify-center animate-fade-in mb-12 md:mb-20" style={{animationDelay: '0.6s'}}>
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-2xl md:rounded-3xl blur-xl opacity-60 group-hover:opacity-100 transition-opacity duration-500 animate-pulse"></div>
-              <Button 
-                onClick={scrollToContact}
-                size="lg" 
-                className="relative bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-lg md:text-2xl px-8 md:px-16 py-6 md:py-8 rounded-2xl md:rounded-3xl font-black shadow-2xl transition-all duration-500 transform hover:scale-110 hover:rotate-1 border-2 border-cyan-300/50 hover:border-cyan-200 w-full md:w-auto"
-              >
-                <Zap className="mr-2 md:mr-4 w-6 h-6 md:w-8 md:h-8 animate-bounce" />
-                <span className="relative z-10">🚀 CRÉER MON EMPIRE DIGITAL</span>
-              </Button>
-            </div>
-            
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl md:rounded-3xl blur-xl opacity-40 group-hover:opacity-80 transition-opacity duration-500"></div>
-              <Button 
-                variant="outline" 
-                size="lg"
-                className="relative bg-black/50 backdrop-blur-xl border-2 border-cyan-400/50 text-white hover:bg-cyan-500/20 text-lg md:text-2xl px-8 md:px-16 py-6 md:py-8 rounded-2xl md:rounded-3xl font-black transition-all duration-500 hover:border-cyan-300 hover:scale-110 w-full md:w-auto"
-                onClick={() => document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent group-hover:from-white group-hover:to-white transition-all duration-500">
-                  ⚡ VOIR LA MAGIE
-                </span>
-              </Button>
-            </div>
-          </div>
-
-          {/* Holographic Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto animate-fade-in" style={{animationDelay: '0.9s'}}>
+          {/* Features grid with hover effects */}
+          <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             {[
-              { number: "99.99%", label: "Uptime Garanti", icon: "⚡", color: "from-green-400 to-emerald-600" },
-              { number: "<0.5s", label: "Vitesse Foudre", icon: "🚀", color: "from-cyan-400 to-blue-600" },
-              { number: "∞", label: "Possibilités", icon: "⭐", color: "from-purple-400 to-pink-600" }
-            ].map((stat, index) => (
+              { icon: <Rocket className="w-6 h-6" />, title: "Livraison Express", desc: "4 jours maximum", gradient: "from-red-400 to-pink-500" },
+              { icon: <Sparkles className="w-6 h-6" />, title: "Design Premium", desc: "Interface moderne", gradient: "from-cyan-400 to-blue-500" },
+              { icon: <Zap className="w-6 h-6" />, title: "Performance", desc: "Ultra-rapide", gradient: "from-purple-400 to-violet-500" }
+            ].map((feature, index) => (
               <div key={index} className="group relative">
-                <div className={`absolute inset-0 bg-gradient-to-r ${stat.color} opacity-20 group-hover:opacity-40 rounded-2xl md:rounded-3xl blur-xl transition-opacity duration-500`}></div>
-                <div className="relative bg-black/40 backdrop-blur-xl border border-cyan-400/30 rounded-2xl md:rounded-3xl p-6 md:p-8 hover:border-cyan-300/60 transition-all duration-500 hover:scale-110 hover:rotate-1 shadow-2xl">
-                  <div className="text-3xl md:text-5xl mb-3 md:mb-4 animate-bounce" style={{animationDelay: `${index * 0.2}s`}}>{stat.icon}</div>
-                  <div className={`text-2xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r ${stat.color} mb-2 animate-pulse`}>
-                    {stat.number}
+                <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-white/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
+                <div className="relative bg-black/30 backdrop-blur-xl p-6 rounded-2xl border border-white/10 group-hover:border-white/30 transition-all duration-500 transform group-hover:scale-105 group-hover:-translate-y-2">
+                  <div className={`bg-gradient-to-r ${feature.gradient} p-3 rounded-xl mb-4 inline-block group-hover:animate-pulse`}>
+                    <div className="text-white">{feature.icon}</div>
                   </div>
-                  <div className="text-gray-300 text-base md:text-lg font-bold">{stat.label}</div>
+                  <h3 className="text-white font-bold text-lg mb-2">{feature.title}</h3>
+                  <p className="text-gray-400">{feature.desc}</p>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-        
-        {/* 3D Animated Scroll Indicator */}
-        <div className="absolute bottom-6 md:bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce-slow">
-          <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full blur-xl opacity-60 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="relative bg-black/50 backdrop-blur-xl border-2 border-cyan-400/50 rounded-full p-4 md:p-6 hover:border-cyan-300 transition-all duration-500 hover:scale-125 hover:rotate-12 shadow-2xl">
-              <ArrowDown className="w-6 h-6 md:w-8 md:h-8 text-cyan-400 animate-pulse" />
+
+          {/* CTA Buttons with advanced effects */}
+          <div className={`flex flex-col md:flex-row gap-6 justify-center items-center transition-all duration-1000 delay-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-2xl blur-lg opacity-60 group-hover:opacity-100 transition-opacity duration-500 animate-pulse"></div>
+              <Button 
+                onClick={scrollToContact}
+                className="relative bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white px-8 py-6 rounded-2xl font-bold shadow-2xl transition-all duration-500 transform hover:scale-110 border-2 border-cyan-300/50 hover:border-cyan-200 text-lg"
+              >
+                <Rocket className="mr-3 w-5 h-5 animate-bounce" />
+                Démarrer Mon Projet
+              </Button>
             </div>
+            
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl blur-lg opacity-40 group-hover:opacity-80 transition-opacity duration-500"></div>
+              <Button 
+                variant="outline"
+                className="relative bg-transparent border-2 border-purple-400/50 hover:border-purple-300 text-purple-200 hover:text-white px-8 py-6 rounded-2xl font-bold transition-all duration-500 transform hover:scale-105 backdrop-blur-xl text-lg"
+              >
+                <Sparkles className="mr-3 w-5 h-5 animate-spin" />
+                Voir Portfolio
+              </Button>
+            </div>
+          </div>
+
+          {/* Stats section with animated counters */}
+          <div className={`mt-16 grid grid-cols-3 gap-8 transition-all duration-1000 delay-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            {[
+              { number: "150+", label: "Sites Créés", gradient: "from-cyan-400 to-blue-500" },
+              { number: "98%", label: "Satisfaction", gradient: "from-purple-400 to-pink-500" },
+              { number: "4j", label: "Livraison", gradient: "from-green-400 to-emerald-500" }
+            ].map((stat, index) => (
+              <div key={index} className="text-center group">
+                <div className={`text-2xl md:text-3xl font-black bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent mb-2 group-hover:animate-pulse`}>
+                  {stat.number}
+                </div>
+                <div className="text-gray-400 text-sm md:text-base">{stat.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
-      
-      {/* Cyberpunk Corner Effects */}
-      <div className="absolute top-0 left-0 w-16 h-16 md:w-32 md:h-32 border-l-2 border-t-2 md:border-l-4 md:border-t-4 border-cyan-400 opacity-50"></div>
-      <div className="absolute top-0 right-0 w-16 h-16 md:w-32 md:h-32 border-r-2 border-t-2 md:border-r-4 md:border-t-4 border-blue-400 opacity-50"></div>
-      <div className="absolute bottom-0 left-0 w-16 h-16 md:w-32 md:h-32 border-l-2 border-b-2 md:border-l-4 md:border-b-4 border-purple-400 opacity-50"></div>
-      <div className="absolute bottom-0 right-0 w-16 h-16 md:w-32 md:h-32 border-r-2 border-b-2 md:border-r-4 md:border-b-4 border-pink-400 opacity-50"></div>
+
+      {/* Scroll indicator */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+          <div className="w-1 h-3 bg-gradient-to-b from-cyan-400 to-purple-400 rounded-full mt-2 animate-pulse"></div>
+        </div>
+      </div>
     </section>
   );
 };
