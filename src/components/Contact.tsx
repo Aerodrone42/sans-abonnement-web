@@ -169,11 +169,11 @@ const Contact = () => {
                 <div className="space-y-2 md:space-y-3">
                   <p className="flex flex-col sm:flex-row sm:items-center text-sm md:text-base">
                     <span className="font-medium mr-0 sm:mr-2">Email :</span>
-                    <span className="break-all">contact@siteinternetansabonnement.fr</span>
+                    <span className="break-all">aerodrone.multiservices@gmail.com</span>
                   </p>
                   <p className="flex flex-col sm:flex-row sm:items-center text-sm md:text-base">
                     <span className="font-medium mr-0 sm:mr-2">Téléphone :</span>
-                    <span>01 23 45 67 89</span>
+                    <span>06 14 17 38 67</span>
                   </p>
                   <p className="flex flex-col sm:flex-row sm:items-center text-sm md:text-base">
                     <span className="font-medium mr-0 sm:mr-2">Horaires :</span>
