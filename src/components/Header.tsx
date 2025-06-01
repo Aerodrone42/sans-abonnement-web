@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Code, Zap } from "lucide-react";
@@ -86,15 +87,48 @@ const Header = () => {
               </button>
             ))}
             
-            {/* CTA Button Ultra-Moderne */}
+            {/* CTA Button Ultra-Moderne avec Animations Technologiques */}
             <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-2xl blur-lg opacity-60 group-hover:opacity-100 transition-opacity duration-500 animate-pulse"></div>
+              {/* Cercles technologiques animés */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-1000">
+                <div className="absolute inset-0 border-2 border-cyan-400/30 rounded-2xl animate-spin-slow"></div>
+                <div className="absolute inset-2 border border-purple-400/20 rounded-xl animate-spin-slow" style={{ animationDirection: 'reverse', animationDuration: '15s' }}></div>
+                <div className="absolute inset-4 border border-cyan-300/10 rounded-lg animate-pulse"></div>
+              </div>
+              
+              {/* Particules technologiques */}
+              <div className="absolute -inset-4 opacity-0 group-hover:opacity-100 transition-all duration-1000">
+                <div className="absolute top-0 left-1/4 w-1 h-1 bg-cyan-400 rounded-full animate-float"></div>
+                <div className="absolute top-1/3 right-0 w-1.5 h-1.5 bg-purple-400 rounded-full animate-float" style={{ animationDelay: '0.5s' }}></div>
+                <div className="absolute bottom-1/4 left-0 w-1 h-1 bg-blue-300 rounded-full animate-float" style={{ animationDelay: '1s' }}></div>
+                <div className="absolute bottom-0 right-1/3 w-1.5 h-1.5 bg-cyan-300 rounded-full animate-float" style={{ animationDelay: '1.5s' }}></div>
+              </div>
+              
+              {/* Effet de scan technologique */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-slide-in-right rounded-2xl transition-all duration-1000"></div>
+              
+              {/* Lueur principale */}
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/60 to-purple-600/60 rounded-2xl blur-xl opacity-40 group-hover:opacity-100 group-hover:blur-2xl transition-all duration-1000 animate-pulse-glow"></div>
+              
+              {/* Bouton principal */}
               <Button 
                 onClick={() => scrollToSection('contact')} 
-                className="relative bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white px-8 py-4 rounded-2xl font-black shadow-2xl transition-all duration-500 transform hover:scale-110 hover:rotate-1 border-2 border-cyan-300/50 hover:border-cyan-200 text-lg"
+                className="relative bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white px-8 py-4 rounded-2xl font-black shadow-2xl transition-all duration-500 transform group-hover:scale-110 border-2 border-cyan-300/50 hover:border-cyan-200 text-lg overflow-hidden"
               >
-                <Zap className="mr-3 w-5 h-5 animate-bounce" />
-                🚀 PROJET FUTUR
+                {/* Effet de brillance qui traverse */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                
+                {/* Contenu du bouton */}
+                <div className="relative flex items-center gap-3">
+                  <Zap className="w-5 h-5 group-hover:animate-bounce group-hover:text-yellow-300 transition-colors duration-300" />
+                  <span className="group-hover:text-shadow-lg">🚀 PROJET FUTUR</span>
+                  
+                  {/* Mini particules dans le bouton */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                    <div className="absolute top-2 left-4 w-0.5 h-0.5 bg-white rounded-full animate-ping" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="absolute bottom-3 right-8 w-0.5 h-0.5 bg-cyan-200 rounded-full animate-ping" style={{ animationDelay: '0.8s' }}></div>
+                  </div>
+                </div>
               </Button>
             </div>
           </nav>
