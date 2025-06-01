@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, Contact as ContactIcon, Calendar } from "lucide-react";
+import { Mail, Contact as ContactIcon, Calendar, CreditCard, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Contact = () => {
@@ -180,6 +180,32 @@ const Contact = () => {
                     <span>Lun-Ven 9h-18h</span>
                   </p>
                 </div>
+              </div>
+
+              {/* Paiement et suivi */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl md:rounded-2xl p-4 sm:p-6 md:p-8 text-white mx-2 sm:mx-0">
+                <div className="flex items-center mb-3 md:mb-4">
+                  <CreditCard className="w-6 h-6 md:w-8 md:h-8 text-turquoise mr-2 md:mr-3 flex-shrink-0" />
+                  <h3 className="text-lg md:text-xl font-bold">Paiement & Suivi</h3>
+                </div>
+                <ul className="space-y-2 md:space-y-3">
+                  <li className="flex items-start text-sm md:text-base">
+                    <span className="text-turquoise mr-2 flex-shrink-0">💳</span>
+                    <span><strong>Paiement à la livraison</strong> - Aucun frais à l'avance</span>
+                  </li>
+                  <li className="flex items-start text-sm md:text-base">
+                    <span className="text-turquoise mr-2 flex-shrink-0">👀</span>
+                    <span><strong>Suivi en temps réel</strong> de l'avancement de votre site</span>
+                  </li>
+                  <li className="flex items-start text-sm md:text-base">
+                    <span className="text-turquoise mr-2 flex-shrink-0">✅</span>
+                    <span>Validation à chaque étape du développement</span>
+                  </li>
+                  <li className="flex items-start text-sm md:text-base">
+                    <span className="text-turquoise mr-2 flex-shrink-0">🔒</span>
+                    <span>Sécurité garantie - Paiement uniquement après satisfaction</span>
+                  </li>
+                </ul>
               </div>
 
               {/* Réponse garantie */}
