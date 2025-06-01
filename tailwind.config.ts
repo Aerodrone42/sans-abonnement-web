@@ -219,25 +219,25 @@ export default {
 						opacity: '0',
 						filter: 'brightness(1)'
 					},
-					'10%': {
+					'15%': {
 						opacity: '1',
-						filter: 'brightness(3)'
-					},
-					'20%': {
-						opacity: '0.3',
-						filter: 'brightness(1)'
+						filter: 'brightness(2.5)'
 					},
 					'30%': {
-						opacity: '1',
-						filter: 'brightness(4)'
+						opacity: '0.2',
+						filter: 'brightness(1)'
 					},
-					'40%': {
+					'45%': {
+						opacity: '0.8',
+						filter: 'brightness(3)'
+					},
+					'60%': {
 						opacity: '0.1',
 						filter: 'brightness(1)'
 					},
-					'50%': {
-						opacity: '0.9',
-						filter: 'brightness(3.5)'
+					'75%': {
+						opacity: '0.6',
+						filter: 'brightness(2.5)'
 					},
 					'100%': {
 						opacity: '0',
@@ -247,15 +247,15 @@ export default {
 				'lightning-glow': {
 					'0%': {
 						filter: 'blur(2px) brightness(1)',
-						opacity: '0.5'
+						opacity: '0.3'
 					},
 					'50%': {
-						filter: 'blur(8px) brightness(2)',
-						opacity: '1'
+						filter: 'blur(6px) brightness(1.8)',
+						opacity: '0.8'
 					},
 					'100%': {
 						filter: 'blur(2px) brightness(1)',
-						opacity: '0.5'
+						opacity: '0.3'
 					}
 				},
 				'lightning-zigzag': {
@@ -263,21 +263,17 @@ export default {
 						opacity: '0',
 						transform: 'translateX(0px) scaleY(0)'
 					},
-					'20%': {
-						opacity: '1',
-						transform: 'translateX(2px) scaleY(0.3)'
+					'25%': {
+						opacity: '0.8',
+						transform: 'translateX(1px) scaleY(0.4)'
 					},
-					'40%': {
-						opacity: '0.7',
-						transform: 'translateX(-1px) scaleY(0.6)'
+					'50%': {
+						opacity: '0.6',
+						transform: 'translateX(-1px) scaleY(0.7)'
 					},
-					'60%': {
-						opacity: '1',
-						transform: 'translateX(3px) scaleY(0.9)'
-					},
-					'80%': {
-						opacity: '0.5',
-						transform: 'translateX(-2px) scaleY(1)'
+					'75%': {
+						opacity: '0.9',
+						transform: 'translateX(2px) scaleY(1)'
 					},
 					'100%': {
 						opacity: '0',
@@ -290,15 +286,15 @@ export default {
 						transform: 'scale(0) rotate(0deg)',
 						filter: 'brightness(1)'
 					},
-					'30%': {
-						opacity: '1',
-						transform: 'scale(1.2) rotate(5deg)',
-						filter: 'brightness(3)'
-					},
-					'70%': {
+					'40%': {
 						opacity: '0.8',
-						transform: 'scale(0.8) rotate(-3deg)',
-						filter: 'brightness(2)'
+						transform: 'scale(1.1) rotate(3deg)',
+						filter: 'brightness(2.5)'
+					},
+					'80%': {
+						opacity: '0.6',
+						transform: 'scale(0.9) rotate(-2deg)',
+						filter: 'brightness(1.8)'
 					},
 					'100%': {
 						opacity: '0',
@@ -309,23 +305,23 @@ export default {
 				'lightning-dazzle': {
 					'0%': {
 						opacity: '0',
-						transform: 'scale(0.5)',
-						filter: 'blur(20px) brightness(1)'
+						transform: 'scale(0.6)',
+						filter: 'blur(15px) brightness(1)'
 					},
-					'30%': {
-						opacity: '0.8',
-						transform: 'scale(1.2)',
-						filter: 'blur(10px) brightness(3)'
-					},
-					'60%': {
+					'40%': {
 						opacity: '0.6',
-						transform: 'scale(1.5)',
-						filter: 'blur(15px) brightness(2)'
+						transform: 'scale(1.1)',
+						filter: 'blur(8px) brightness(2.5)'
+					},
+					'70%': {
+						opacity: '0.4',
+						transform: 'scale(1.3)',
+						filter: 'blur(12px) brightness(1.8)'
 					},
 					'100%': {
 						opacity: '0',
-						transform: 'scale(0.8)',
-						filter: 'blur(25px) brightness(1)'
+						transform: 'scale(0.9)',
+						filter: 'blur(20px) brightness(1)'
 					}
 				},
 				'electric-particle': {
@@ -333,25 +329,17 @@ export default {
 						opacity: '0',
 						transform: 'translate(0px, 0px) scale(0)'
 					},
-					'20%': {
-						opacity: '1',
-						transform: 'translate(-5px, -10px) scale(1.2)'
-					},
-					'40%': {
+					'30%': {
 						opacity: '0.8',
-						transform: 'translate(10px, -5px) scale(0.8)'
+						transform: 'translate(-3px, -8px) scale(1.1)'
 					},
 					'60%': {
-						opacity: '1',
-						transform: 'translate(-3px, -15px) scale(1.5)'
-					},
-					'80%': {
 						opacity: '0.6',
-						transform: 'translate(8px, -8px) scale(0.9)'
+						transform: 'translate(6px, -4px) scale(0.9)'
 					},
 					'100%': {
 						opacity: '0',
-						transform: 'translate(0px, -20px) scale(0)'
+						transform: 'translate(0px, -15px) scale(0)'
 					}
 				}
 			},
@@ -370,13 +358,13 @@ export default {
 				'matrix-rain': 'matrix-rain 6s linear infinite',
 				'energy-pulse': 'energy-pulse 2s ease-in-out infinite',
 				'hologram-flicker': 'hologram-flicker 1.5s ease-in-out infinite',
-				'lightning-flash': 'lightning-flash 0.6s ease-in-out',
-				'lightning-glow': 'lightning-glow 0.3s ease-in-out infinite',
-				'lightning-zigzag': 'lightning-zigzag 0.8s ease-in-out',
-				'lightning-spark': 'lightning-spark 0.4s ease-in-out infinite',
-				'lightning-dazzle': 'lightning-dazzle 1s ease-in-out',
-				'lightning-intense': 'lightning-glow 0.15s ease-in-out infinite',
-				'electric-particle': 'electric-particle 0.5s ease-in-out infinite'
+				'lightning-flash': 'lightning-flash 1.5s ease-in-out',
+				'lightning-glow': 'lightning-glow 0.8s ease-in-out infinite',
+				'lightning-zigzag': 'lightning-zigzag 2s ease-in-out',
+				'lightning-spark': 'lightning-spark 1.2s ease-in-out infinite',
+				'lightning-dazzle': 'lightning-dazzle 2.5s ease-in-out',
+				'lightning-intense': 'lightning-glow 0.4s ease-in-out infinite',
+				'electric-particle': 'electric-particle 1.5s ease-in-out infinite'
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
