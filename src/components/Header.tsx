@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Code, Zap } from "lucide-react";
@@ -21,6 +20,11 @@ const Header = () => {
     setIsMenuOpen(false);
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setIsMenuOpen(false);
+  };
+
   return (
     <header className={`fixed top-0 w-full z-50 transition-all duration-700 ${
       isScrolled 
@@ -30,7 +34,7 @@ const Header = () => {
       <div className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
           {/* Logo Cyberpunk */}
-          <div className="flex items-center space-x-4 group cursor-pointer">
+          <div className="flex items-center space-x-4 group cursor-pointer" onClick={scrollToTop}>
             <div className="relative">
               {/* Main logo container */}
               <div className="relative w-16 h-16 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-cyan-500/50 group-hover:shadow-cyan-400/70 transition-all duration-500 transform group-hover:scale-125 group-hover:rotate-12">
