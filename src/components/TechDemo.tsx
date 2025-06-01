@@ -6,6 +6,7 @@ const TechDemo = () => {
   const [isPlaying, setIsPlaying] = useState(true);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [explosionActive, setExplosionActive] = useState(false);
+  const [hologramActive, setHologramActive] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
   const particlesRef = useRef<any[]>([]);
@@ -100,19 +101,29 @@ const TechDemo = () => {
         }
       }
 
-      // Calculate particle size (ensure it's never negative)
+      // Calculate particle size with hologram effect
       const alpha = particle.life / particle.maxLife;
-      const calculatedSize = explosionActive ? particle.size * 2 : particle.size;
-      const size = Math.max(0.5, calculatedSize); // Ensure minimum size of 0.5
+      let calculatedSize = explosionActive ? particle.size * 2 : particle.size;
       
-      // Glow effect
-      if (explosionActive) {
-        const glowSize = Math.max(1, size * 3); // Ensure glow size is at least 1
+      // Add 3D hologram effect
+      if (hologramActive) {
+        const time = Date.now() * 0.003;
+        const wave = Math.sin(time + index * 0.2) * 1.5;
+        calculatedSize = particle.baseSize + wave;
+        particle.color = `hsl(${160 + Math.sin(time + index * 0.1) * 40}, 80%, ${60 + Math.sin(time) * 20}%)`;
+      }
+      
+      const size = Math.max(0.5, calculatedSize);
+      
+      // Enhanced glow effect for hologram
+      if (explosionActive || hologramActive) {
+        const glowSize = Math.max(1, size * (hologramActive ? 4 : 3));
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, glowSize, 0, Math.PI * 2);
         const gradient = ctx.createRadialGradient(particle.x, particle.y, 0, particle.x, particle.y, glowSize);
-        gradient.addColorStop(0, `rgba(6, 182, 212, ${alpha * 0.3})`);
-        gradient.addColorStop(1, 'rgba(6, 182, 212, 0)');
+        const glowColor = hologramActive ? '76, 175, 80' : '6, 182, 212';
+        gradient.addColorStop(0, `rgba(${glowColor}, ${alpha * (hologramActive ? 0.5 : 0.3)})`);
+        gradient.addColorStop(1, `rgba(${glowColor}, 0)`);
         ctx.fillStyle = gradient;
         ctx.fill();
       }
@@ -125,21 +136,22 @@ const TechDemo = () => {
         particle.color.replace('60%)', `60%, ${alpha})`);
       ctx.fill();
 
-      // Draw connections
+      // Draw connections with hologram enhancement
       particlesRef.current.forEach((otherParticle, otherIndex) => {
         if (index === otherIndex) return;
         const dx = particle.x - otherParticle.x;
         const dy = particle.y - otherParticle.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         
-        const maxDistance = explosionActive ? 120 : 80;
+        const maxDistance = explosionActive ? 120 : (hologramActive ? 100 : 80);
         if (distance < maxDistance) {
           ctx.beginPath();
           ctx.moveTo(particle.x, particle.y);
           ctx.lineTo(otherParticle.x, otherParticle.y);
-          const opacity = explosionActive ? 0.6 : 0.3;
-          ctx.strokeStyle = `rgba(6, 182, 212, ${opacity * (1 - distance / maxDistance)})`;
-          ctx.lineWidth = explosionActive ? 2 : 1;
+          const opacity = hologramActive ? 0.8 : (explosionActive ? 0.6 : 0.3);
+          const lineColor = hologramActive ? '76, 175, 80' : '6, 182, 212';
+          ctx.strokeStyle = `rgba(${lineColor}, ${opacity * (1 - distance / maxDistance)})`;
+          ctx.lineWidth = hologramActive ? 3 : (explosionActive ? 2 : 1);
           ctx.stroke();
         }
       });
@@ -148,7 +160,7 @@ const TechDemo = () => {
     if (isPlaying) {
       animationRef.current = requestAnimationFrame(animateCanvas);
     }
-  }, [mousePosition, isPlaying, explosionActive]);
+  }, [mousePosition, isPlaying, explosionActive, hologramActive]);
 
   // Mouse tracking
   useEffect(() => {
@@ -220,10 +232,11 @@ const TechDemo = () => {
       action: () => {
         console.log('Activating quantum particles explosion');
         setExplosionActive(true);
+        setHologramActive(false);
         particlesRef.current.forEach(particle => {
           particle.vx *= 3;
           particle.vy *= 3;
-          particle.size = Math.max(1, particle.baseSize * 1.5); // Ensure positive size
+          particle.size = Math.max(1, particle.baseSize * 1.5);
         });
         setTimeout(() => {
           setExplosionActive(false);
@@ -243,6 +256,8 @@ const TechDemo = () => {
       color: "from-purple-400 via-pink-500 to-red-600",
       action: () => {
         console.log('Activating AI particle organization');
+        setExplosionActive(false);
+        setHologramActive(false);
         const canvas = canvasRef.current;
         if (!canvas) return;
         
@@ -275,24 +290,25 @@ const TechDemo = () => {
       color: "from-emerald-400 via-teal-500 to-cyan-600",
       action: () => {
         console.log('Activating 3D hologram effect');
-        // Add 3D rotation effect with size safety
-        particlesRef.current.forEach((particle, index) => {
-          const time = Date.now() * 0.001;
-          particle.originalSize = particle.size;
-          
-          const animate3D = () => {
-            const sizeModifier = Math.sin(time + index * 0.1) * 2;
-            particle.size = Math.max(0.5, particle.originalSize + sizeModifier); // Ensure positive size
-            particle.color = `hsl(${160 + Math.sin(time + index * 0.1) * 30}, 80%, 70%)`;
-          };
-          
-          const interval = setInterval(animate3D, 50);
-          setTimeout(() => {
-            clearInterval(interval);
-            particle.size = particle.originalSize;
-            particle.color = `hsl(${180 + Math.random() * 60}, 70%, 60%)`;
-          }, 5000);
+        setExplosionActive(false);
+        setHologramActive(true);
+        
+        // Reset particles to their base state and add hologram effect
+        particlesRef.current.forEach(particle => {
+          particle.size = particle.baseSize;
+          particle.vx = particle.originalVx * 0.5; // Slower movement for hologram effect
+          particle.vy = particle.originalVy * 0.5;
         });
+        
+        // Deactivate hologram after 5 seconds
+        setTimeout(() => {
+          setHologramActive(false);
+          particlesRef.current.forEach(particle => {
+            particle.vx = particle.originalVx;
+            particle.vy = particle.originalVy;
+            particle.color = `hsl(${180 + Math.random() * 60}, 70%, 60%)`;
+          });
+        }, 5000);
       }
     },
     {
@@ -303,6 +319,7 @@ const TechDemo = () => {
       color: "from-yellow-400 via-orange-500 to-pink-600",
       action: () => {
         console.log('Activating light speed effect');
+        setHologramActive(false);
         setExplosionActive(true);
         // Ultra speed boost with light trails
         particlesRef.current.forEach(particle => {
