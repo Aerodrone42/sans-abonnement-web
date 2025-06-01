@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Sparkles, Zap, Cpu, Rocket, Code2, Globe, Eye, Star, Play, Pause } from "lucide-react";
 
@@ -6,6 +5,7 @@ const TechDemo = () => {
   const [activeDemo, setActiveDemo] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [explosionActive, setExplosionActive] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
   const particlesRef = useRef<any[]>([]);
@@ -14,7 +14,7 @@ const TechDemo = () => {
   // Particle system for real-time effects
   const initParticles = useCallback(() => {
     const particles = [];
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 150; i++) {
       particles.push({
         x: Math.random() * window.innerWidth,
         y: Math.random() * window.innerHeight,
@@ -22,8 +22,11 @@ const TechDemo = () => {
         vy: (Math.random() - 0.5) * 2,
         life: Math.random() * 100,
         maxLife: 100,
-        size: Math.random() * 3 + 1,
-        color: `hsl(${180 + Math.random() * 60}, 70%, 60%)`
+        size: Math.random() * 4 + 1,
+        color: `hsl(${180 + Math.random() * 60}, 70%, 60%)`,
+        originalVx: (Math.random() - 0.5) * 2,
+        originalVy: (Math.random() - 0.5) * 2,
+        trail: []
       });
     }
     particlesRef.current = particles;
@@ -38,43 +41,83 @@ const TechDemo = () => {
     if (!ctx) return;
 
     // Clear canvas with trail effect
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    ctx.fillStyle = explosionActive ? 'rgba(0, 0, 0, 0.02)' : 'rgba(0, 0, 0, 0.05)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Update and draw particles
     particlesRef.current.forEach((particle, index) => {
+      // Add current position to trail
+      particle.trail.push({ x: particle.x, y: particle.y });
+      if (particle.trail.length > 10) particle.trail.shift();
+
       particle.x += particle.vx;
       particle.y += particle.vy;
-      particle.life -= 1;
+      particle.life -= explosionActive ? 0.5 : 1;
 
       // Attraction to mouse
       const dx = mousePosition.x * canvas.width - particle.x;
       const dy = mousePosition.y * canvas.height - particle.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
       
-      if (distance < 100) {
-        particle.vx += dx * 0.0001;
-        particle.vy += dy * 0.0001;
+      if (distance < 150) {
+        const force = explosionActive ? 0.0005 : 0.0001;
+        particle.vx += dx * force;
+        particle.vy += dy * force;
       }
 
-      // Boundary checks
-      if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
-      if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
+      // Boundary checks with bounce
+      if (particle.x < 0 || particle.x > canvas.width) {
+        particle.vx *= -0.8;
+        particle.x = Math.max(0, Math.min(canvas.width, particle.x));
+      }
+      if (particle.y < 0 || particle.y > canvas.height) {
+        particle.vy *= -0.8;
+        particle.y = Math.max(0, Math.min(canvas.height, particle.y));
+      }
 
       // Reset particle if dead
       if (particle.life <= 0) {
         particle.x = Math.random() * canvas.width;
         particle.y = Math.random() * canvas.height;
         particle.life = particle.maxLife;
-        particle.vx = (Math.random() - 0.5) * 2;
-        particle.vy = (Math.random() - 0.5) * 2;
+        particle.vx = particle.originalVx;
+        particle.vy = particle.originalVy;
+        particle.trail = [];
+      }
+
+      // Draw trail
+      if (explosionActive && particle.trail.length > 1) {
+        for (let i = 1; i < particle.trail.length; i++) {
+          const alpha = i / particle.trail.length * 0.5;
+          ctx.beginPath();
+          ctx.moveTo(particle.trail[i-1].x, particle.trail[i-1].y);
+          ctx.lineTo(particle.trail[i].x, particle.trail[i].y);
+          ctx.strokeStyle = `rgba(6, 182, 212, ${alpha})`;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
       }
 
       // Draw particle
       const alpha = particle.life / particle.maxLife;
+      const size = explosionActive ? particle.size * 2 : particle.size;
+      
+      // Glow effect
+      if (explosionActive) {
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, size * 3, 0, Math.PI * 2);
+        const gradient = ctx.createRadialGradient(particle.x, particle.y, 0, particle.x, particle.y, size * 3);
+        gradient.addColorStop(0, `rgba(6, 182, 212, ${alpha * 0.3})`);
+        gradient.addColorStop(1, 'rgba(6, 182, 212, 0)');
+        ctx.fillStyle = gradient;
+        ctx.fill();
+      }
+
       ctx.beginPath();
-      ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-      ctx.fillStyle = particle.color.replace('60%)', `60%, ${alpha})`);
+      ctx.arc(particle.x, particle.y, size, 0, Math.PI * 2);
+      ctx.fillStyle = explosionActive ? 
+        `hsl(${180 + Math.sin(Date.now() * 0.01) * 60}, 90%, 70%, ${alpha})` :
+        particle.color.replace('60%)', `60%, ${alpha})`);
       ctx.fill();
 
       // Draw connections
@@ -84,12 +127,14 @@ const TechDemo = () => {
         const dy = particle.y - otherParticle.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         
-        if (distance < 80) {
+        const maxDistance = explosionActive ? 120 : 80;
+        if (distance < maxDistance) {
           ctx.beginPath();
           ctx.moveTo(particle.x, particle.y);
           ctx.lineTo(otherParticle.x, otherParticle.y);
-          ctx.strokeStyle = `rgba(6, 182, 212, ${0.3 * (1 - distance / 80)})`;
-          ctx.lineWidth = 1;
+          const opacity = explosionActive ? 0.6 : 0.3;
+          ctx.strokeStyle = `rgba(6, 182, 212, ${opacity * (1 - distance / maxDistance)})`;
+          ctx.lineWidth = explosionActive ? 2 : 1;
           ctx.stroke();
         }
       });
@@ -98,7 +143,7 @@ const TechDemo = () => {
     if (isPlaying) {
       animationRef.current = requestAnimationFrame(animateCanvas);
     }
-  }, [mousePosition, isPlaying]);
+  }, [mousePosition, isPlaying, explosionActive]);
 
   // Mouse tracking
   useEffect(() => {
@@ -163,59 +208,107 @@ const TechDemo = () => {
     {
       title: "PARTICULES QUANTIQUES",
       subtitle: "Système de Particules Temps Réel",
-      description: "100+ particules interactives qui réagissent à vos mouvements avec physique realistic",
+      description: "150+ particules interactives qui explosent et créent des traînées lumineuses",
       icon: <Sparkles className="w-6 h-6 md:w-8 md:h-8" />,
       color: "from-cyan-400 via-blue-500 to-purple-600",
       action: () => {
-        initParticles();
-        setIsPlaying(true);
+        setExplosionActive(true);
+        particlesRef.current.forEach(particle => {
+          particle.vx *= 3;
+          particle.vy *= 3;
+          particle.size *= 1.5;
+        });
+        setTimeout(() => {
+          setExplosionActive(false);
+          particlesRef.current.forEach(particle => {
+            particle.vx = particle.originalVx;
+            particle.vy = particle.originalVy;
+            particle.size = Math.random() * 4 + 1;
+          });
+        }, 3000);
       }
     },
     {
       title: "INTELLIGENCE ARTIFICIELLE",
       subtitle: "Algorithmes Prédictifs",
-      description: "IA qui prédit vos mouvements et adapte l'interface en temps réel",
+      description: "IA qui organise les particules en formations géométriques complexes",
       icon: <Cpu className="w-6 h-6 md:w-8 md:h-8" />,
       color: "from-purple-400 via-pink-500 to-red-600",
       action: () => {
-        // Simulate AI prediction
-        particlesRef.current.forEach(particle => {
-          particle.vx = (mousePosition.x - 0.5) * 4;
-          particle.vy = (mousePosition.y - 0.5) * 4;
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        
+        // Organize particles in a spiral pattern
+        particlesRef.current.forEach((particle, index) => {
+          const angle = (index / particlesRef.current.length) * Math.PI * 4;
+          const radius = 100 + Math.sin(angle) * 50;
+          const targetX = canvas.width / 2 + Math.cos(angle) * radius;
+          const targetY = canvas.height / 2 + Math.sin(angle) * radius;
+          
+          particle.vx = (targetX - particle.x) * 0.02;
+          particle.vy = (targetY - particle.y) * 0.02;
+          particle.color = `hsl(${280 + index * 2}, 80%, 60%)`;
         });
+        
+        setTimeout(() => {
+          particlesRef.current.forEach(particle => {
+            particle.vx = particle.originalVx;
+            particle.vy = particle.originalVy;
+            particle.color = `hsl(${180 + Math.random() * 60}, 70%, 60%)`;
+          });
+        }, 4000);
       }
     },
     {
       title: "HOLOGRAMMES 3D",
       subtitle: "Projection Volumétrique",
-      description: "Simulation d'hologrammes flottants avec calculs de profondeur en temps réel",
+      description: "Simulation 3D avec effets de profondeur et rotation en temps réel",
       icon: <Eye className="w-6 h-6 md:w-8 md:h-8" />,
       color: "from-emerald-400 via-teal-500 to-cyan-600",
       action: () => {
-        // Add 3D effect to particles
-        particlesRef.current.forEach(particle => {
-          particle.size = Math.sin(Date.now() * 0.01 + particle.x * 0.01) * 2 + 3;
+        // Add 3D rotation effect
+        particlesRef.current.forEach((particle, index) => {
+          const time = Date.now() * 0.001;
+          particle.originalSize = particle.size;
+          
+          const animate3D = () => {
+            particle.size = particle.originalSize + Math.sin(time + index * 0.1) * 3;
+            particle.color = `hsl(${160 + Math.sin(time + index * 0.1) * 30}, 80%, 70%)`;
+          };
+          
+          const interval = setInterval(animate3D, 50);
+          setTimeout(() => {
+            clearInterval(interval);
+            particle.size = particle.originalSize;
+            particle.color = `hsl(${180 + Math.random() * 60}, 70%, 60%)`;
+          }, 5000);
         });
       }
     },
     {
       title: "VITESSE LUMIÈRE",
       subtitle: "Performance Extrême",
-      description: "60 FPS garantis avec optimisation GPU et calculs parallèles WebGL",
+      description: "Accélération massive avec effets de traînée et boost de vitesse",
       icon: <Zap className="w-6 h-6 md:w-8 md:h-8" />,
       color: "from-yellow-400 via-orange-500 to-pink-600",
       action: () => {
-        // Speed boost effect
+        setExplosionActive(true);
+        // Ultra speed boost with light trails
         particlesRef.current.forEach(particle => {
-          particle.vx *= 3;
-          particle.vy *= 3;
+          const angle = Math.random() * Math.PI * 2;
+          particle.vx = Math.cos(angle) * 8;
+          particle.vy = Math.sin(angle) * 8;
+          particle.color = `hsl(${45 + Math.random() * 30}, 100%, 70%)`;
         });
+        
         setTimeout(() => {
+          setExplosionActive(false);
           particlesRef.current.forEach(particle => {
-            particle.vx *= 0.33;
-            particle.vy *= 0.33;
+            particle.vx = particle.originalVx;
+            particle.vy = particle.originalVy;
+            particle.color = `hsl(${180 + Math.random() * 60}, 70%, 60%)`;
           });
-        }, 1000);
+        }, 2000);
       }
     }
   ];
@@ -288,10 +381,10 @@ const TechDemo = () => {
           </h2>
 
           <p className="text-lg md:text-2xl text-gray-300 max-w-6xl mx-auto leading-relaxed backdrop-blur-xl bg-white/5 p-6 md:p-10 rounded-2xl md:rounded-3xl border border-cyan-400/30 shadow-2xl">
-            Manipulez cette démonstration en temps réel. Bougez votre souris pour interagir avec les particules.
+            Cliquez sur les démos ci-dessous pour voir des effets spectaculaires en temps réel !
             <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 font-bold">
-              Cette technologie est maintenant dans votre navigateur !
+              Chaque clic déclenche une démonstration unique !
             </span>
           </p>
         </div>
@@ -305,6 +398,7 @@ const TechDemo = () => {
                 activeDemo === index ? 'scale-105 shadow-2xl shadow-cyan-500/50 border-cyan-400/80' : ''
               }`}
               onClick={() => {
+                console.log(`Activating demo ${index}: ${demo.title}`);
                 setActiveDemo(index);
                 demo.action();
               }}
@@ -349,7 +443,7 @@ const TechDemo = () => {
                 <div className="mt-6 md:mt-8 flex items-center gap-3 md:gap-4">
                   <div className={`w-12 h-1 md:w-16 md:h-2 bg-gradient-to-r ${demo.color} rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-500`}></div>
                   <span className="text-cyan-400 text-xs md:text-sm font-bold group-hover:text-cyan-300 transition-colors duration-500">
-                    ACTIVER →
+                    CLIQUER POUR ACTIVER →
                   </span>
                 </div>
               </div>
@@ -376,7 +470,7 @@ const TechDemo = () => {
                 <div className="text-xs text-green-300">FPS</div>
               </div>
               <div className="bg-blue-500/20 rounded-xl p-4">
-                <div className="text-2xl md:text-3xl font-black text-blue-400">100+</div>
+                <div className="text-2xl md:text-3xl font-black text-blue-400">150+</div>
                 <div className="text-xs text-blue-300">PARTICULES</div>
               </div>
               <div className="bg-purple-500/20 rounded-xl p-4">
