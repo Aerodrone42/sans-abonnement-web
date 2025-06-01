@@ -55,154 +55,98 @@ const Contact = () => {
       {/* Fond technologique ultra-moderne */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Grille holographique 3D */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(59,130,246,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.15)_1px,transparent_1px)] bg-[size:40px_40px] animate-pulse transform perspective-1000 rotateX-12"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(59,130,246,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.05)_1px,transparent_1px)] bg-[size:60px_60px] opacity-30"></div>
         
-        {/* Particules quantiques flottantes */}
-        {[...Array(50)].map((_, i) => (
+        {/* Particules quantiques flottantes très lentes */}
+        {[...Array(20)].map((_, i) => (
           <div
             key={i}
-            className="absolute w-1 h-1 bg-cyan-400 rounded-full opacity-80 animate-bounce"
+            className="absolute w-1 h-1 bg-cyan-400/40 rounded-full opacity-30"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 8}s`,
-              animationDuration: `${2 + Math.random() * 6}s`,
-              boxShadow: '0 0 10px rgba(34, 211, 238, 0.8)'
+              animation: `float ${15 + Math.random() * 20}s ease-in-out infinite`,
+              animationDelay: `${Math.random() * 10}s`,
             }}
           />
         ))}
         
-        {/* Ondes d'énergie concentriques */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <div className="w-96 h-96 border border-cyan-500/20 rounded-full animate-ping"></div>
-          <div className="absolute top-8 left-8 w-80 h-80 border border-blue-500/30 rounded-full animate-ping animation-delay-1000"></div>
-          <div className="absolute top-16 left-16 w-64 h-64 border border-purple-500/40 rounded-full animate-ping animation-delay-2000"></div>
+        {/* Ondes d'énergie concentriques très lentes */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-20">
+          <div className="w-96 h-96 border border-cyan-500/10 rounded-full animate-ping" style={{ animationDuration: '8s' }}></div>
+          <div className="absolute top-8 left-8 w-80 h-80 border border-blue-500/10 rounded-full animate-ping" style={{ animationDuration: '10s', animationDelay: '2s' }}></div>
+          <div className="absolute top-16 left-16 w-64 h-64 border border-purple-500/10 rounded-full animate-ping" style={{ animationDuration: '12s', animationDelay: '4s' }}></div>
         </div>
         
-        {/* Faisceaux laser diagonaux */}
-        <div className="absolute top-0 left-1/4 w-0.5 h-full bg-gradient-to-b from-transparent via-cyan-400 to-transparent opacity-40 transform rotate-12 animate-pulse"></div>
-        <div className="absolute top-0 right-1/3 w-0.5 h-full bg-gradient-to-b from-transparent via-blue-400 to-transparent opacity-30 transform -rotate-12 animate-pulse"></div>
-        <div className="absolute top-0 left-2/3 w-0.5 h-full bg-gradient-to-b from-transparent via-purple-400 to-transparent opacity-35 transform rotate-6 animate-pulse"></div>
-        
-        {/* Orbes d'énergie plasma */}
-        <div className="absolute top-20 left-10 w-40 h-40 bg-gradient-radial from-cyan-400/30 to-transparent rounded-full blur-2xl animate-bounce-slow"></div>
-        <div className="absolute bottom-20 right-10 w-48 h-48 bg-gradient-radial from-purple-400/25 to-transparent rounded-full blur-3xl animate-bounce-slow" style={{ animationDelay: '3s' }}></div>
-        <div className="absolute top-1/3 right-20 w-32 h-32 bg-gradient-radial from-blue-400/35 to-transparent rounded-full blur-2xl animate-bounce-slow" style={{ animationDelay: '1.5s' }}></div>
-        
-        {/* Matrices de données scrollantes */}
-        <div className="absolute top-0 left-0 w-full h-full opacity-10">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute text-green-400 text-xs font-mono animate-slide-down"
-              style={{
-                left: `${i * 5}%`,
-                animationDelay: `${i * 0.3}s`,
-                animationDuration: '8s'
-              }}
-            >
-              {Array.from({length: 20}, () => Math.random() > 0.5 ? '1' : '0').join('')}
-            </div>
-          ))}
-        </div>
+        {/* Orbes d'énergie plasma très doux */}
+        <div className="absolute top-20 left-10 w-40 h-40 bg-gradient-radial from-cyan-400/10 to-transparent rounded-full blur-3xl" style={{ animation: 'bounce-slow 20s ease-in-out infinite' }}></div>
+        <div className="absolute bottom-20 right-10 w-48 h-48 bg-gradient-radial from-purple-400/8 to-transparent rounded-full blur-3xl" style={{ animation: 'bounce-slow 25s ease-in-out infinite', animationDelay: '8s' }}></div>
+        <div className="absolute top-1/3 right-20 w-32 h-32 bg-gradient-radial from-blue-400/12 to-transparent rounded-full blur-3xl" style={{ animation: 'bounce-slow 18s ease-in-out infinite', animationDelay: '4s' }}></div>
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-6xl mx-auto">
           {/* Header Section Ultra-Futuriste */}
           <div className="text-center mb-8 md:mb-16">
-            <div className="inline-flex items-center justify-center p-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 backdrop-blur-xl rounded-full mb-6 border border-cyan-400/50 shadow-[0_0_30px_rgba(34,211,238,0.3)]">
-              <ContactIcon className="w-8 h-8 text-cyan-400 mr-3 animate-pulse" />
+            <div className="inline-flex items-center justify-center p-3 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 backdrop-blur-xl rounded-full mb-6 border border-cyan-400/20">
+              <ContactIcon className="w-8 h-8 text-cyan-400/80 mr-3" />
               <span className="text-white font-bold text-lg bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
                 Interface de Contact
               </span>
-              <Mail className="w-8 h-8 text-purple-400 ml-3 animate-pulse" />
+              <Mail className="w-8 h-8 text-purple-400/80 ml-3" />
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 px-2">
-              <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent animate-pulse">
+              <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
                 Parlez-nous de votre projet
               </span>
               <br />
-              <span className="text-white animate-fade-in">
+              <span className="text-white">
                 Nouvelle Génération
               </span>
             </h2>
-            <p className="text-lg sm:text-xl md:text-2xl text-gray-200 max-w-4xl mx-auto px-4 animate-fade-in">
+            <p className="text-lg sm:text-xl md:text-2xl text-gray-200 max-w-4xl mx-auto px-4">
               🚀 Traitement professionnel • 🔮 Analyse experte • ⚡ Réponse rapide garantie
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            {/* Formulaire Ultra-Moderne avec effets doux */}
+            {/* Formulaire Ultra-Moderne avec effets très doux */}
             <div className="w-full order-1 lg:order-1">
-              <div className="relative bg-gradient-to-br from-slate-800/40 via-indigo-900/30 to-purple-900/40 backdrop-blur-2xl rounded-3xl p-8 border border-cyan-400/30 shadow-[0_0_50px_rgba(34,211,238,0.2)] mx-2 sm:mx-0 overflow-hidden transform transition-all duration-500 hover:shadow-[0_0_80px_rgba(34,211,238,0.4)] hover:scale-[1.02]">
+              <div className="relative bg-gradient-to-br from-slate-800/40 via-indigo-900/30 to-purple-900/40 backdrop-blur-2xl rounded-3xl p-8 border border-cyan-400/20 mx-2 sm:mx-0 overflow-hidden transition-all duration-1000 hover:border-cyan-400/30 hover:shadow-[0_0_30px_rgba(34,211,238,0.1)]">
                 
-                {/* Effet de scan holographique */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent transform -skew-x-12 translate-x-[-100%] animate-[slide-in-right_4s_ease-in-out_infinite]"></div>
-                
-                {/* Effets doux au survol */}
+                {/* Effets très doux au survol */}
                 {hoveredField && (
                   <>
-                    {/* Particules flottantes douces */}
-                    {[...Array(20)].map((_, i) => (
+                    {/* Particules flottantes très douces */}
+                    {[...Array(8)].map((_, i) => (
                       <div
                         key={i}
-                        className="absolute w-2 h-2 bg-gradient-to-r from-cyan-300 to-blue-300 rounded-full opacity-40 animate-float z-15"
+                        className="absolute w-1 h-1 bg-gradient-to-r from-cyan-300/20 to-blue-300/20 rounded-full opacity-20"
                         style={{
-                          left: `${10 + Math.random() * 80}%`,
-                          top: `${10 + Math.random() * 80}%`,
-                          animationDelay: `${Math.random() * 2}s`,
-                          animationDuration: `${4 + Math.random() * 3}s`,
-                          boxShadow: '0 0 15px rgba(34, 211, 238, 0.6)'
+                          left: `${20 + Math.random() * 60}%`,
+                          top: `${20 + Math.random() * 60}%`,
+                          animation: `float ${12 + Math.random() * 8}s ease-in-out infinite`,
+                          animationDelay: `${Math.random() * 4}s`,
                         }}
                       />
                     ))}
                     
-                    {/* Lueur douce qui se propage */}
-                    <div className="absolute inset-0 bg-gradient-radial from-cyan-400/10 via-blue-400/5 to-transparent animate-pulse z-10"></div>
-                    
-                    {/* Ondulations concentriques douces */}
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-                      <div className="w-32 h-32 border border-cyan-400/20 rounded-full animate-ping"></div>
-                      <div className="absolute top-4 left-4 w-24 h-24 border border-blue-400/15 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
-                      <div className="absolute top-8 left-8 w-16 h-16 border border-purple-400/10 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
-                    </div>
-                    
-                    {/* Vagues de lumière douce */}
-                    <div className="absolute top-0 left-0 w-full h-full z-5">
-                      <div className="w-full h-1 bg-gradient-to-r from-transparent via-cyan-300/30 to-transparent animate-pulse"></div>
-                      <div className="absolute top-1/3 w-full h-1 bg-gradient-to-r from-transparent via-blue-300/20 to-transparent animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-                      <div className="absolute top-2/3 w-full h-1 bg-gradient-to-r from-transparent via-purple-300/25 to-transparent animate-pulse" style={{ animationDelay: '1s' }}></div>
-                    </div>
+                    {/* Lueur très douce qui se propage lentement */}
+                    <div className="absolute inset-0 bg-gradient-radial from-cyan-400/3 via-blue-400/2 to-transparent" style={{ animation: 'pulse 6s ease-in-out infinite' }}></div>
                   </>
                 )}
                 
-                {/* Coins technologiques animés */}
-                <div className="absolute top-0 left-0 w-8 h-8 border-l-3 border-t-3 border-cyan-400 animate-pulse"></div>
-                <div className="absolute top-0 right-0 w-8 h-8 border-r-3 border-t-3 border-purple-400 animate-pulse"></div>
-                <div className="absolute bottom-0 left-0 w-8 h-8 border-l-3 border-b-3 border-blue-400 animate-pulse"></div>
-                <div className="absolute bottom-0 right-0 w-8 h-8 border-r-3 border-b-3 border-cyan-400 animate-pulse"></div>
-
-                {/* Particules de données */}
-                {[...Array(15)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="absolute w-1 h-1 bg-cyan-400 rounded-full opacity-60 animate-float"
-                    style={{
-                      left: `${10 + Math.random() * 80}%`,
-                      top: `${10 + Math.random() * 80}%`,
-                      animationDelay: `${Math.random() * 4}s`,
-                      animationDuration: `${3 + Math.random() * 3}s`
-                    }}
-                  />
-                ))}
+                {/* Coins technologiques très doux */}
+                <div className="absolute top-0 left-0 w-6 h-6 border-l-2 border-t-2 border-cyan-400/30"></div>
+                <div className="absolute top-0 right-0 w-6 h-6 border-r-2 border-t-2 border-purple-400/30"></div>
+                <div className="absolute bottom-0 left-0 w-6 h-6 border-l-2 border-b-2 border-blue-400/30"></div>
+                <div className="absolute bottom-0 right-0 w-6 h-6 border-r-2 border-b-2 border-cyan-400/30"></div>
 
                 <div className="relative z-10">
                   {/* Header du formulaire */}
                   <div className="flex items-center mb-6">
                     <div className="relative mr-4">
-                      <Globe className="w-10 h-10 text-cyan-400 animate-spin-slow" />
-                      <div className="absolute inset-0 bg-cyan-400/30 rounded-full blur-lg animate-pulse"></div>
+                      <Globe className="w-10 h-10 text-cyan-400/80" style={{ animation: 'spin-slow 30s linear infinite' }} />
                     </div>
                     <h3 className="text-2xl md:text-3xl font-bold text-white">
                       <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
@@ -210,8 +154,7 @@ const Contact = () => {
                       </span>
                     </h3>
                     <div className="relative ml-4">
-                      <Sparkles className="w-8 h-8 text-purple-400 animate-bounce" />
-                      <div className="absolute inset-0 bg-purple-400/30 rounded-full blur-sm animate-pulse"></div>
+                      <Sparkles className="w-8 h-8 text-purple-400/80" style={{ animation: 'bounce-slow 8s ease-in-out infinite' }} />
                     </div>
                   </div>
 
@@ -219,7 +162,7 @@ const Contact = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="relative group">
                         <label className="block text-sm font-bold text-cyan-300 mb-2 flex items-center">
-                          <Shield className="w-4 h-4 mr-2 text-cyan-400 animate-pulse" />
+                          <Shield className="w-4 h-4 mr-2 text-cyan-400/80" />
                           Nom & Prénom *
                         </label>
                         <div className="relative">
@@ -233,18 +176,18 @@ const Contact = () => {
                             onMouseEnter={() => setHoveredField('name')}
                             onMouseLeave={() => setHoveredField(null)}
                             required
-                            className="w-full bg-slate-800/50 border-2 border-cyan-400/30 text-white placeholder:text-gray-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 backdrop-blur-sm transition-all duration-500 rounded-xl px-4 py-3 text-base hover:border-cyan-400/60 hover:shadow-[0_0_25px_rgba(34,211,238,0.3)]"
+                            className="w-full bg-slate-800/50 border-2 border-cyan-400/20 text-white placeholder:text-gray-400 focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/10 backdrop-blur-sm transition-all duration-700 rounded-xl px-4 py-3 text-base hover:border-cyan-400/30"
                             placeholder="Votre nom complet"
                           />
                           {(focusedField === 'name' || hoveredField === 'name') && (
-                            <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400/20 to-purple-400/20 rounded-xl blur-sm animate-pulse"></div>
+                            <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400/5 to-purple-400/5 rounded-xl blur-sm" style={{ animation: 'pulse 4s ease-in-out infinite' }}></div>
                           )}
                         </div>
                       </div>
                       
                       <div className="relative group">
                         <label className="block text-sm font-bold text-cyan-300 mb-2 flex items-center">
-                          <Mail className="w-4 h-4 mr-2 text-cyan-400 animate-pulse" />
+                          <Mail className="w-4 h-4 mr-2 text-cyan-400/80" />
                           Email *
                         </label>
                         <div className="relative">
@@ -258,11 +201,11 @@ const Contact = () => {
                             onMouseEnter={() => setHoveredField('email')}
                             onMouseLeave={() => setHoveredField(null)}
                             required
-                            className="w-full bg-slate-800/50 border-2 border-cyan-400/30 text-white placeholder:text-gray-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 backdrop-blur-sm transition-all duration-500 rounded-xl px-4 py-3 text-base hover:border-cyan-400/60 hover:shadow-[0_0_25px_rgba(34,211,238,0.3)]"
+                            className="w-full bg-slate-800/50 border-2 border-cyan-400/20 text-white placeholder:text-gray-400 focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/10 backdrop-blur-sm transition-all duration-700 rounded-xl px-4 py-3 text-base hover:border-cyan-400/30"
                             placeholder="email@domaine.com"
                           />
                           {(focusedField === 'email' || hoveredField === 'email') && (
-                            <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400/20 to-blue-400/20 rounded-xl blur-sm animate-pulse"></div>
+                            <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400/5 to-blue-400/5 rounded-xl blur-sm" style={{ animation: 'pulse 4s ease-in-out infinite' }}></div>
                           )}
                         </div>
                       </div>
@@ -283,18 +226,18 @@ const Contact = () => {
                             onBlur={() => setFocusedField(null)}
                             onMouseEnter={() => setHoveredField('phone')}
                             onMouseLeave={() => setHoveredField(null)}
-                            className="w-full bg-slate-800/50 border-2 border-cyan-400/30 text-white placeholder:text-gray-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 backdrop-blur-sm transition-all duration-500 rounded-xl px-4 py-3 text-base hover:border-cyan-400/60 hover:shadow-[0_0_25px_rgba(34,211,238,0.3)]"
+                            className="w-full bg-slate-800/50 border-2 border-cyan-400/20 text-white placeholder:text-gray-400 focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/10 backdrop-blur-sm transition-all duration-700 rounded-xl px-4 py-3 text-base hover:border-cyan-400/30"
                             placeholder="06 12 34 56 78"
                           />
                           {(focusedField === 'phone' || hoveredField === 'phone') && (
-                            <div className="absolute -inset-1 bg-gradient-to-r from-green-400/20 to-cyan-400/20 rounded-xl blur-sm animate-pulse"></div>
+                            <div className="absolute -inset-1 bg-gradient-to-r from-green-400/5 to-cyan-400/5 rounded-xl blur-sm" style={{ animation: 'pulse 4s ease-in-out infinite' }}></div>
                           )}
                         </div>
                       </div>
                       
                       <div className="relative group">
                         <label className="block text-sm font-bold text-cyan-300 mb-2 flex items-center">
-                          <Zap className="w-4 h-4 mr-2 text-cyan-400 animate-pulse" />
+                          <Zap className="w-4 h-4 mr-2 text-cyan-400/80" />
                           Secteur d'Activité *
                         </label>
                         <div className="relative">
@@ -308,11 +251,11 @@ const Contact = () => {
                             onMouseEnter={() => setHoveredField('business')}
                             onMouseLeave={() => setHoveredField(null)}
                             required
-                            className="w-full bg-slate-800/50 border-2 border-cyan-400/30 text-white placeholder:text-gray-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 backdrop-blur-sm transition-all duration-500 rounded-xl px-4 py-3 text-base hover:border-cyan-400/60 hover:shadow-[0_0_25px_rgba(34,211,238,0.3)]"
+                            className="w-full bg-slate-800/50 border-2 border-cyan-400/20 text-white placeholder:text-gray-400 focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/10 backdrop-blur-sm transition-all duration-700 rounded-xl px-4 py-3 text-base hover:border-cyan-400/30"
                             placeholder="Artisan, Commerce, Tech..."
                           />
                           {(focusedField === 'business' || hoveredField === 'business') && (
-                            <div className="absolute -inset-1 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-xl blur-sm animate-pulse"></div>
+                            <div className="absolute -inset-1 bg-gradient-to-r from-purple-400/5 to-pink-400/5 rounded-xl blur-sm" style={{ animation: 'pulse 4s ease-in-out infinite' }}></div>
                           )}
                         </div>
                       </div>
@@ -320,7 +263,7 @@ const Contact = () => {
 
                     <div className="relative group">
                       <label className="block text-sm font-bold text-cyan-300 mb-2 flex items-center">
-                        <Eye className="w-4 h-4 mr-2 text-cyan-400 animate-pulse" />
+                        <Eye className="w-4 h-4 mr-2 text-cyan-400/80" />
                         Décrivez votre projet
                       </label>
                       <div className="relative">
@@ -333,11 +276,11 @@ const Contact = () => {
                           onMouseEnter={() => setHoveredField('message')}
                           onMouseLeave={() => setHoveredField(null)}
                           rows={4}
-                          className="w-full resize-none bg-slate-800/50 border-2 border-cyan-400/30 text-white placeholder:text-gray-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 backdrop-blur-sm transition-all duration-500 rounded-xl px-4 py-3 text-base hover:border-cyan-400/60 hover:shadow-[0_0_25px_rgba(34,211,238,0.3)]"
+                          className="w-full resize-none bg-slate-800/50 border-2 border-cyan-400/20 text-white placeholder:text-gray-400 focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/10 backdrop-blur-sm transition-all duration-700 rounded-xl px-4 py-3 text-base hover:border-cyan-400/30"
                           placeholder="Décrivez votre vision, vos besoins, vos objectifs... Notre équipe analysera chaque détail pour vous proposer la solution parfaite."
                         />
                         {(focusedField === 'message' || hoveredField === 'message') && (
-                          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400/20 to-purple-400/20 rounded-xl blur-sm animate-pulse"></div>
+                          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400/5 to-purple-400/5 rounded-xl blur-sm" style={{ animation: 'pulse 4s ease-in-out infinite' }}></div>
                         )}
                       </div>
                     </div>
@@ -347,31 +290,31 @@ const Contact = () => {
                       disabled={isSubmitting}
                       onMouseEnter={() => setHoveredField('submit')}
                       onMouseLeave={() => setHoveredField(null)}
-                      className="w-full relative overflow-hidden bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 hover:from-cyan-400 hover:via-blue-400 hover:to-purple-400 text-white py-4 text-lg font-bold rounded-xl transition-all duration-500 transform hover:scale-105 group shadow-[0_0_30px_rgba(34,211,238,0.3)] hover:shadow-[0_0_50px_rgba(34,211,238,0.6)]"
+                      className="w-full relative overflow-hidden bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 hover:from-cyan-400 hover:via-blue-400 hover:to-purple-400 text-white py-4 text-lg font-bold rounded-xl transition-all duration-700 transform hover:scale-[1.02] group shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_30px_rgba(34,211,238,0.3)]"
                     >
                       {isSubmitting ? (
                         <div className="flex items-center justify-center">
                           <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin mr-3"></div>
-                          <Mail className="w-6 h-6 mr-2 animate-bounce" />
+                          <Mail className="w-6 h-6 mr-2" style={{ animation: 'bounce-slow 3s ease-in-out infinite' }} />
                           Envoi en cours...
                         </div>
                       ) : (
                         <>
                           <span className="relative z-10 flex items-center justify-center">
-                            <Sparkles className="w-6 h-6 mr-2 animate-pulse" />
+                            <Sparkles className="w-6 h-6 mr-2" />
                             Envoyer ma demande
-                            <Zap className="w-6 h-6 ml-2 animate-bounce" />
+                            <Zap className="w-6 h-6 ml-2" />
                           </span>
-                          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-2000"></div>
                         </>
                       )}
                     </Button>
 
                     <div className="text-center">
                       <p className="text-sm text-cyan-300 px-2 flex items-center justify-center">
-                        <Shield className="w-4 h-4 mr-2 animate-pulse" />
+                        <Shield className="w-4 h-4 mr-2" />
                         🔐 Données sécurisées • Expertise certifiée • Réponse garantie sous 24h
-                        <Cpu className="w-4 h-4 ml-2 animate-pulse" />
+                        <Cpu className="w-4 h-4 ml-2" />
                       </p>
                     </div>
                   </form>
