@@ -1,5 +1,5 @@
 
-import { Gem, Spa, Building2, Car, Plane, Shirt, Watch, Wine } from "lucide-react";
+import { Gem, Flower2, Building2, Car, Plane, Shirt, Watch, Wine } from "lucide-react";
 
 const Examples = () => {
   const categories = [
@@ -26,7 +26,7 @@ const Examples = () => {
         {
           title: "Spa & Wellness",
           description: "Soins haut de gamme, détente exclusive",
-          icon: <Spa className="w-6 h-6" />,
+          icon: <Flower2 className="w-6 h-6" />,
           color: "from-emerald-400 to-teal-600"
         },
         {
