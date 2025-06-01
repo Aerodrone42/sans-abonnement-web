@@ -1,4 +1,3 @@
-
 import { Zap, Cpu, Rocket, Crown } from "lucide-react";
 
 const ProcessSteps = () => {
@@ -39,11 +38,57 @@ const ProcessSteps = () => {
 
   return (
     <section id="process" className="py-16 md:py-32 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
-      {/* Background Effects */}
+      {/* Enhanced Background Effects */}
       <div className="absolute inset-0">
-        <div className="absolute top-0 left-1/4 w-48 h-48 md:w-96 md:h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse-glow"></div>
-        <div className="absolute bottom-0 right-1/4 w-48 h-48 md:w-96 md:h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse-glow" style={{animationDelay: '1s'}}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] md:w-[800px] md:h-[800px] bg-gradient-radial from-blue-500/10 to-transparent rounded-full animate-rotate-slow"></div>
+        {/* Animated Gradient Orbs */}
+        <div className="absolute top-10 left-1/4 w-64 h-64 md:w-96 md:h-96 bg-purple-500/30 rounded-full blur-3xl animate-pulse-glow"></div>
+        <div className="absolute bottom-10 right-1/4 w-64 h-64 md:w-96 md:h-96 bg-cyan-500/30 rounded-full blur-3xl animate-pulse-glow" style={{animationDelay: '1s'}}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] md:w-[800px] md:h-[800px] bg-gradient-radial from-blue-500/20 to-transparent rounded-full animate-rotate-slow"></div>
+        
+        {/* Moving Light Beams */}
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent animate-pulse"></div>
+        <div className="absolute bottom-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-purple-400/50 to-transparent animate-pulse" style={{animationDelay: '1.5s'}}></div>
+        
+        {/* Floating Geometric Shapes */}
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-2 h-2 md:w-4 md:h-4 bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full animate-float opacity-40"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 5}s`,
+              animationDuration: `${3 + Math.random() * 4}s`
+            }}
+          />
+        ))}
+        
+        {/* Scanning Lines */}
+        <div className="absolute inset-0">
+          <div className="absolute top-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent animate-pulse"></div>
+          <div className="absolute top-2/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-400/60 to-transparent animate-pulse" style={{animationDelay: '0.8s'}}></div>
+          <div className="absolute top-3/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-400/60 to-transparent animate-pulse" style={{animationDelay: '1.6s'}}></div>
+        </div>
+        
+        {/* Holographic Grid */}
+        <div 
+          className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(6,182,212,0.2) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(6,182,212,0.2) 1px, transparent 1px)
+            `,
+            backgroundSize: '50px 50px',
+            animation: 'float 8s ease-in-out infinite'
+          }}
+        />
+        
+        {/* Energy Waves */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          <div className="w-32 h-32 md:w-64 md:h-64 border border-cyan-400/30 rounded-full animate-ping"></div>
+          <div className="absolute inset-0 w-32 h-32 md:w-64 md:h-64 border border-purple-400/30 rounded-full animate-ping" style={{animationDelay: '1s'}}></div>
+          <div className="absolute inset-0 w-32 h-32 md:w-64 md:h-64 border border-blue-400/30 rounded-full animate-ping" style={{animationDelay: '2s'}}></div>
+        </div>
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
@@ -59,7 +104,6 @@ const ProcessSteps = () => {
           </p>
         </div>
 
-        {/* Process Timeline */}
         <div className="relative max-w-6xl mx-auto">
           {/* Central Timeline - Hidden on mobile, visible on md+ */}
           <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 via-cyan-500 to-purple-500 shadow-lg shadow-cyan-500/50"></div>
@@ -136,7 +180,6 @@ const ProcessSteps = () => {
           </div>
         </div>
 
-        {/* Pricing Section */}
         <div className="text-center mt-16 md:mt-24">
           <div className="relative inline-block">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-2xl md:rounded-3xl blur-xl animate-glow"></div>
