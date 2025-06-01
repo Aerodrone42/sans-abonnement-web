@@ -176,6 +176,44 @@ export default {
 					'50%': {
 						transform: 'translateY(-10px) scale(1.05)'
 					}
+				},
+				'matrix-rain': {
+					'0%': {
+						transform: 'translateY(-100vh)',
+						opacity: '0'
+					},
+					'10%': {
+						opacity: '1'
+					},
+					'90%': {
+						opacity: '1'
+					},
+					'100%': {
+						transform: 'translateY(100vh)',
+						opacity: '0'
+					}
+				},
+				'energy-pulse': {
+					'0%': {
+						transform: 'scale(1)',
+						opacity: '1'
+					},
+					'50%': {
+						transform: 'scale(1.2)',
+						opacity: '0.8'
+					},
+					'100%': {
+						transform: 'scale(1)',
+						opacity: '1'
+					}
+				},
+				'hologram-flicker': {
+					'0%, 100%': {
+						opacity: '1'
+					},
+					'50%': {
+						opacity: '0.8'
+					}
 				}
 			},
 			animation: {
@@ -189,7 +227,10 @@ export default {
 				'pulse-glow': 'pulse-glow 3s ease-in-out infinite',
 				'rotate-slow': 'rotate-slow 20s linear infinite',
 				'spin-slow': 'spin-slow 8s linear infinite',
-				'bounce-slow': 'bounce-slow 3s ease-in-out infinite'
+				'bounce-slow': 'bounce-slow 3s ease-in-out infinite',
+				'matrix-rain': 'matrix-rain 6s linear infinite',
+				'energy-pulse': 'energy-pulse 2s ease-in-out infinite',
+				'hologram-flicker': 'hologram-flicker 1.5s ease-in-out infinite'
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
