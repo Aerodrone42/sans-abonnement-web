@@ -214,11 +214,11 @@ const Contact = () => {
                   🎯 Offre spéciale du moment
                 </h3>
                 <p className="text-base md:text-lg mb-3 md:mb-4">
-                  <strong>-20% sur votre premier site</strong>
+                  <strong>-50% sur votre premier site</strong>
                 </p>
                 <p className="text-xs md:text-sm leading-relaxed">
                   Valable pour toute commande avant fin du mois. 
-                  Mentionnez le code "PREMIER20" dans votre message.
+                  Mentionnez le code "PREMIER50" dans votre message.
                 </p>
               </div>
             </div>
