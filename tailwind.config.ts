@@ -220,24 +220,24 @@ export default {
 						filter: 'brightness(1)'
 					},
 					'15%': {
-						opacity: '1',
-						filter: 'brightness(2.5)'
+						opacity: '0.6',
+						filter: 'brightness(1.8)'
 					},
 					'30%': {
-						opacity: '0.2',
-						filter: 'brightness(1)'
-					},
-					'45%': {
-						opacity: '0.8',
-						filter: 'brightness(3)'
-					},
-					'60%': {
 						opacity: '0.1',
 						filter: 'brightness(1)'
 					},
+					'45%': {
+						opacity: '0.4',
+						filter: 'brightness(2)'
+					},
+					'60%': {
+						opacity: '0.05',
+						filter: 'brightness(1)'
+					},
 					'75%': {
-						opacity: '0.6',
-						filter: 'brightness(2.5)'
+						opacity: '0.3',
+						filter: 'brightness(1.5)'
 					},
 					'100%': {
 						opacity: '0',
@@ -247,15 +247,15 @@ export default {
 				'lightning-glow': {
 					'0%': {
 						filter: 'blur(2px) brightness(1)',
-						opacity: '0.3'
+						opacity: '0.2'
 					},
 					'50%': {
-						filter: 'blur(6px) brightness(1.8)',
-						opacity: '0.8'
+						filter: 'blur(4px) brightness(1.4)',
+						opacity: '0.5'
 					},
 					'100%': {
 						filter: 'blur(2px) brightness(1)',
-						opacity: '0.3'
+						opacity: '0.2'
 					}
 				},
 				'lightning-zigzag': {
@@ -264,15 +264,15 @@ export default {
 						transform: 'translateX(0px) scaleY(0)'
 					},
 					'25%': {
-						opacity: '0.8',
+						opacity: '0.4',
 						transform: 'translateX(1px) scaleY(0.4)'
 					},
 					'50%': {
-						opacity: '0.6',
+						opacity: '0.3',
 						transform: 'translateX(-1px) scaleY(0.7)'
 					},
 					'75%': {
-						opacity: '0.9',
+						opacity: '0.5',
 						transform: 'translateX(2px) scaleY(1)'
 					},
 					'100%': {
@@ -287,14 +287,14 @@ export default {
 						filter: 'brightness(1)'
 					},
 					'40%': {
-						opacity: '0.8',
+						opacity: '0.4',
 						transform: 'scale(1.1) rotate(3deg)',
-						filter: 'brightness(2.5)'
+						filter: 'brightness(1.8)'
 					},
 					'80%': {
-						opacity: '0.6',
+						opacity: '0.3',
 						transform: 'scale(0.9) rotate(-2deg)',
-						filter: 'brightness(1.8)'
+						filter: 'brightness(1.4)'
 					},
 					'100%': {
 						opacity: '0',
@@ -309,14 +309,14 @@ export default {
 						filter: 'blur(15px) brightness(1)'
 					},
 					'40%': {
-						opacity: '0.6',
+						opacity: '0.3',
 						transform: 'scale(1.1)',
-						filter: 'blur(8px) brightness(2.5)'
+						filter: 'blur(8px) brightness(1.8)'
 					},
 					'70%': {
-						opacity: '0.4',
+						opacity: '0.2',
 						transform: 'scale(1.3)',
-						filter: 'blur(12px) brightness(1.8)'
+						filter: 'blur(12px) brightness(1.4)'
 					},
 					'100%': {
 						opacity: '0',
@@ -330,11 +330,11 @@ export default {
 						transform: 'translate(0px, 0px) scale(0)'
 					},
 					'30%': {
-						opacity: '0.8',
+						opacity: '0.4',
 						transform: 'translate(-3px, -8px) scale(1.1)'
 					},
 					'60%': {
-						opacity: '0.6',
+						opacity: '0.3',
 						transform: 'translate(6px, -4px) scale(0.9)'
 					},
 					'100%': {
@@ -358,13 +358,13 @@ export default {
 				'matrix-rain': 'matrix-rain 6s linear infinite',
 				'energy-pulse': 'energy-pulse 2s ease-in-out infinite',
 				'hologram-flicker': 'hologram-flicker 1.5s ease-in-out infinite',
-				'lightning-flash': 'lightning-flash 1.5s ease-in-out',
-				'lightning-glow': 'lightning-glow 0.8s ease-in-out infinite',
-				'lightning-zigzag': 'lightning-zigzag 2s ease-in-out',
-				'lightning-spark': 'lightning-spark 1.2s ease-in-out infinite',
-				'lightning-dazzle': 'lightning-dazzle 2.5s ease-in-out',
-				'lightning-intense': 'lightning-glow 0.4s ease-in-out infinite',
-				'electric-particle': 'electric-particle 1.5s ease-in-out infinite'
+				'lightning-flash': 'lightning-flash 4s ease-in-out',
+				'lightning-glow': 'lightning-glow 3s ease-in-out infinite',
+				'lightning-zigzag': 'lightning-zigzag 5s ease-in-out',
+				'lightning-spark': 'lightning-spark 4s ease-in-out infinite',
+				'lightning-dazzle': 'lightning-dazzle 6s ease-in-out',
+				'lightning-intense': 'lightning-glow 2s ease-in-out infinite',
+				'electric-particle': 'electric-particle 5s ease-in-out infinite'
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
