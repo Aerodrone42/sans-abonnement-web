@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, Contact as ContactIcon, Calendar, CreditCard, Eye, Zap, Shield, Cpu, Globe, Sparkles, Brain, Bot } from "lucide-react";
+import { Mail, Contact as ContactIcon, Calendar, CreditCard, Eye, Zap, Shield, Cpu, Globe, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Contact = () => {
@@ -28,8 +28,8 @@ const Contact = () => {
     console.log("Données du formulaire:", formData);
     
     toast({
-      title: "🚀 Transmission réussie !",
-      description: "Votre message a été traité par notre IA. Réponse sous 24h avec devis personnalisé.",
+      title: "🚀 Message envoyé !",
+      description: "Votre demande a été transmise avec succès. Nous vous recontacterons sous 24h avec un devis personnalisé.",
     });
 
     setFormData({
@@ -112,15 +112,15 @@ const Contact = () => {
           {/* Header Section Ultra-Futuriste */}
           <div className="text-center mb-8 md:mb-16">
             <div className="inline-flex items-center justify-center p-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 backdrop-blur-xl rounded-full mb-6 border border-cyan-400/50 shadow-[0_0_30px_rgba(34,211,238,0.3)]">
-              <Bot className="w-8 h-8 text-cyan-400 mr-3 animate-pulse" />
+              <ContactIcon className="w-8 h-8 text-cyan-400 mr-3 animate-pulse" />
               <span className="text-white font-bold text-lg bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                Interface IA Quantique
+                Interface de Contact
               </span>
-              <Brain className="w-8 h-8 text-purple-400 ml-3 animate-pulse" />
+              <Mail className="w-8 h-8 text-purple-400 ml-3 animate-pulse" />
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 px-2">
               <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent animate-pulse">
-                Interface de Communication
+                Parlez-nous de votre projet
               </span>
               <br />
               <span className="text-white animate-fade-in">
@@ -128,7 +128,7 @@ const Contact = () => {
               </span>
             </h2>
             <p className="text-lg sm:text-xl md:text-2xl text-gray-200 max-w-4xl mx-auto px-4 animate-fade-in">
-              🚀 Traitement IA en temps réel • 🔮 Analyse prédictive • ⚡ Réponse quantique instantanée
+              🚀 Traitement professionnel • 🔮 Analyse experte • ⚡ Réponse rapide garantie
             </p>
           </div>
 
@@ -168,7 +168,7 @@ const Contact = () => {
                     </div>
                     <h3 className="text-2xl md:text-3xl font-bold text-white">
                       <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                        Terminal de Communication IA
+                        Formulaire de Contact
                       </span>
                     </h3>
                     <div className="relative ml-4">
@@ -182,7 +182,7 @@ const Contact = () => {
                       <div className="relative group">
                         <label className="block text-sm font-bold text-cyan-300 mb-2 flex items-center">
                           <Shield className="w-4 h-4 mr-2 text-cyan-400 animate-pulse" />
-                          Identité Numérique *
+                          Nom & Prénom *
                         </label>
                         <div className="relative">
                           <Input
@@ -194,7 +194,7 @@ const Contact = () => {
                             onBlur={() => setFocusedField(null)}
                             required
                             className="w-full bg-slate-800/50 border-2 border-cyan-400/30 text-white placeholder:text-gray-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 backdrop-blur-sm transition-all duration-300 rounded-xl px-4 py-3 text-base"
-                            placeholder="Nom d'utilisateur"
+                            placeholder="Votre nom complet"
                           />
                           {focusedField === 'name' && (
                             <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400/30 to-purple-400/30 rounded-xl blur-sm animate-pulse"></div>
@@ -205,7 +205,7 @@ const Contact = () => {
                       <div className="relative group">
                         <label className="block text-sm font-bold text-cyan-300 mb-2 flex items-center">
                           <Mail className="w-4 h-4 mr-2 text-cyan-400 animate-pulse" />
-                          Canal de Communication *
+                          Email *
                         </label>
                         <div className="relative">
                           <Input
@@ -229,7 +229,7 @@ const Contact = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="relative group">
                         <label className="block text-sm font-bold text-cyan-300 mb-2">
-                          Fréquence de Contact
+                          Téléphone
                         </label>
                         <div className="relative">
                           <Input
@@ -274,8 +274,8 @@ const Contact = () => {
 
                     <div className="relative group">
                       <label className="block text-sm font-bold text-cyan-300 mb-2 flex items-center">
-                        <Brain className="w-4 h-4 mr-2 text-cyan-400 animate-pulse" />
-                        Message à l'Intelligence Artificielle
+                        <Eye className="w-4 h-4 mr-2 text-cyan-400 animate-pulse" />
+                        Décrivez votre projet
                       </label>
                       <div className="relative">
                         <Textarea
@@ -286,7 +286,7 @@ const Contact = () => {
                           onBlur={() => setFocusedField(null)}
                           rows={4}
                           className="w-full resize-none bg-slate-800/50 border-2 border-cyan-400/30 text-white placeholder:text-gray-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 backdrop-blur-sm transition-all duration-300 rounded-xl px-4 py-3 text-base"
-                          placeholder="Décrivez votre vision, vos besoins, vos objectifs... Notre IA analysera chaque détail pour vous proposer la solution parfaite."
+                          placeholder="Décrivez votre vision, vos besoins, vos objectifs... Notre équipe analysera chaque détail pour vous proposer la solution parfaite."
                         />
                         {focusedField === 'message' && (
                           <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400/30 to-purple-400/30 rounded-xl blur-sm animate-pulse"></div>
@@ -302,14 +302,14 @@ const Contact = () => {
                       {isSubmitting ? (
                         <div className="flex items-center justify-center">
                           <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin mr-3"></div>
-                          <Bot className="w-6 h-6 mr-2 animate-bounce" />
-                          IA en cours d'analyse...
+                          <Mail className="w-6 h-6 mr-2 animate-bounce" />
+                          Envoi en cours...
                         </div>
                       ) : (
                         <>
                           <span className="relative z-10 flex items-center justify-center">
                             <Sparkles className="w-6 h-6 mr-2 animate-pulse" />
-                            Lancer l'Analyse IA
+                            Envoyer ma demande
                             <Zap className="w-6 h-6 ml-2 animate-bounce" />
                           </span>
                           <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
@@ -320,7 +320,7 @@ const Contact = () => {
                     <div className="text-center">
                       <p className="text-sm text-cyan-300 px-2 flex items-center justify-center">
                         <Shield className="w-4 h-4 mr-2 animate-pulse" />
-                        🔐 Données cryptées • IA certifiée • Réponse garantie sous 24h
+                        🔐 Données sécurisées • Expertise certifiée • Réponse garantie sous 24h
                         <Cpu className="w-4 h-4 ml-2 animate-pulse" />
                       </p>
                     </div>
@@ -370,15 +370,15 @@ const Contact = () => {
                   </li>
                   <li className="flex items-start text-base">
                     <span className="text-cyan-400 mr-2 flex-shrink-0">👀</span>
-                    <span><strong>Suivi temps réel</strong> via interface IA</span>
+                    <span><strong>Suivi temps réel</strong> via plateforme dédiée</span>
                   </li>
                   <li className="flex items-start text-base">
                     <span className="text-cyan-400 mr-2 flex-shrink-0">✅</span>
-                    <span>Validation quantique à chaque étape</span>
+                    <span>Validation professionnelle à chaque étape</span>
                   </li>
                   <li className="flex items-start text-base">
                     <span className="text-cyan-400 mr-2 flex-shrink-0">🔒</span>
-                    <span>Sécurité blockchain garantie</span>
+                    <span>Sécurité des données garantie</span>
                   </li>
                 </ul>
               </div>
@@ -387,24 +387,24 @@ const Contact = () => {
               <div className="bg-gradient-to-br from-slate-800/40 via-indigo-900/30 to-purple-900/40 backdrop-blur-sm rounded-2xl p-8 text-white mx-2 sm:mx-0 border border-cyan-400/20">
                 <div className="flex items-center mb-4">
                   <Calendar className="w-8 h-8 text-cyan-400 mr-3 animate-pulse" />
-                  <h3 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">IA Response System</h3>
+                  <h3 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">Service Professionnel</h3>
                 </div>
                 <ul className="space-y-3">
                   <li className="flex items-start text-base">
-                    <span className="text-cyan-400 mr-2 flex-shrink-0">🤖</span>
-                    <span>Analyse IA instantanée de votre demande</span>
+                    <span className="text-cyan-400 mr-2 flex-shrink-0">🔍</span>
+                    <span>Analyse experte de votre demande</span>
                   </li>
                   <li className="flex items-start text-base">
                     <span className="text-cyan-400 mr-2 flex-shrink-0">⚡</span>
-                    <span>Devis personnalisé généré sous 24h</span>
+                    <span>Devis personnalisé sous 24h</span>
                   </li>
                   <li className="flex items-start text-base">
                     <span className="text-cyan-400 mr-2 flex-shrink-0">🎯</span>
-                    <span>Recommandations adaptées par machine learning</span>
+                    <span>Recommandations adaptées à vos besoins</span>
                   </li>
                   <li className="flex items-start text-base">
                     <span className="text-cyan-400 mr-2 flex-shrink-0">🚫</span>
-                    <span>Zéro spam - Communication intelligente uniquement</span>
+                    <span>Zéro spam - Communication professionnelle uniquement</span>
                   </li>
                 </ul>
               </div>
@@ -413,14 +413,14 @@ const Contact = () => {
               <div className="bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 rounded-2xl p-8 text-white mx-2 sm:mx-0 shadow-[0_0_30px_rgba(16,185,129,0.4)] transform hover:scale-105 transition-all duration-300">
                 <h3 className="text-xl font-bold mb-4 flex items-center">
                   <Sparkles className="w-6 h-6 mr-2 animate-bounce" />
-                  🚀 Lancement Technologique
+                  🚀 Offre de Lancement
                 </h3>
                 <p className="text-lg mb-4">
-                  <strong>-50% sur votre premier projet IA</strong>
+                  <strong>-50% sur votre premier projet</strong>
                 </p>
                 <p className="text-sm leading-relaxed">
-                  Offre limitée pour les early adopters de notre nouvelle technologie. 
-                  Code: "FUTUR50" dans votre message.
+                  Offre limitée pour nos nouveaux clients. 
+                  Mentionnez le code "DEBUT50" dans votre message.
                 </p>
               </div>
             </div>
