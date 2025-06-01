@@ -4,7 +4,7 @@ import { Zap, Cpu, Rocket, Crown } from "lucide-react";
 const ProcessSteps = () => {
   const steps = [
     {
-      icon: <Zap className="w-8 h-8" />,
+      icon: <Zap className="w-6 h-6 md:w-8 md:h-8" />,
       title: "Analyse & Stratégie",
       description: "Analyse approfondie de vos besoins, définition de la stratégie digitale et validation du concept en 24h chrono.",
       duration: "24h",
@@ -12,7 +12,7 @@ const ProcessSteps = () => {
       particles: 60
     },
     {
-      icon: <Cpu className="w-8 h-8" />,
+      icon: <Cpu className="w-6 h-6 md:w-8 md:h-8" />,
       title: "Design Futuriste",
       description: "Création d'un design ultra-moderne avec interface révolutionnaire et expérience utilisateur exceptionnelle.",
       duration: "1-2 jours",
@@ -20,7 +20,7 @@ const ProcessSteps = () => {
       particles: 80
     },
     {
-      icon: <Rocket className="w-8 h-8" />,
+      icon: <Rocket className="w-6 h-6 md:w-8 md:h-8" />,
       title: "Développement Avancé",
       description: "Développement haute performance avec technologies de pointe, optimisation SEO et adaptation responsive.",
       duration: "1-2 jours",
@@ -28,7 +28,7 @@ const ProcessSteps = () => {
       particles: 100
     },
     {
-      icon: <Crown className="w-8 h-8" />,
+      icon: <Crown className="w-6 h-6 md:w-8 md:h-8" />,
       title: "Livraison Premium",
       description: "Mise en ligne professionnelle, formation complète et support technique premium pour votre autonomie totale.",
       duration: "Immédiat",
@@ -38,45 +38,45 @@ const ProcessSteps = () => {
   ];
 
   return (
-    <section id="process" className="py-32 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+    <section id="process" className="py-16 md:py-32 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse-glow"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse-glow" style={{animationDelay: '1s'}}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-blue-500/10 to-transparent rounded-full animate-rotate-slow"></div>
+        <div className="absolute top-0 left-1/4 w-48 h-48 md:w-96 md:h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse-glow"></div>
+        <div className="absolute bottom-0 right-1/4 w-48 h-48 md:w-96 md:h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse-glow" style={{animationDelay: '1s'}}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] md:w-[800px] md:h-[800px] bg-gradient-radial from-blue-500/10 to-transparent rounded-full animate-rotate-slow"></div>
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center mb-20">
+        <div className="text-center mb-12 md:mb-20">
           <div className="inline-block">
-            <h2 className="text-6xl md:text-7xl font-black bg-gradient-to-r from-white via-cyan-200 to-purple-200 bg-clip-text text-transparent mb-8 animate-fade-in">
+            <h2 className="text-3xl md:text-6xl lg:text-7xl font-black bg-gradient-to-r from-white via-cyan-200 to-purple-200 bg-clip-text text-transparent mb-4 md:mb-8 animate-fade-in">
               PROCESSUS RÉVOLUTIONNAIRE
             </h2>
-            <div className="h-2 bg-gradient-to-r from-purple-500 via-cyan-500 to-purple-500 rounded-full animate-glow"></div>
+            <div className="h-1 md:h-2 bg-gradient-to-r from-purple-500 via-cyan-500 to-purple-500 rounded-full animate-glow"></div>
           </div>
-          <p className="text-2xl text-gray-300 max-w-4xl mx-auto mt-8 animate-fade-in" style={{animationDelay: '0.3s'}}>
+          <p className="text-lg md:text-2xl text-gray-300 max-w-4xl mx-auto mt-4 md:mt-8 animate-fade-in px-4" style={{animationDelay: '0.3s'}}>
             Votre site web haut de gamme livré en <span className="text-cyan-400 font-bold">4 jours maximum</span>
           </p>
         </div>
 
         {/* Process Timeline */}
         <div className="relative max-w-6xl mx-auto">
-          {/* Central Timeline */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 via-cyan-500 to-purple-500 shadow-lg shadow-cyan-500/50"></div>
+          {/* Central Timeline - Hidden on mobile, visible on md+ */}
+          <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 via-cyan-500 to-purple-500 shadow-lg shadow-cyan-500/50"></div>
 
-          <div className="space-y-32">
+          <div className="space-y-16 md:space-y-32">
             {steps.map((step, index) => (
               <div 
                 key={index}
-                className={`flex items-center gap-16 animate-fade-in ${index % 2 === 1 ? 'flex-row-reverse' : ''}`}
+                className={`flex flex-col md:flex-row items-center gap-8 md:gap-16 animate-fade-in ${index % 2 === 1 ? 'md:flex-row-reverse' : ''}`}
                 style={{animationDelay: `${index * 0.4}s`}}
               >
                 {/* Content Card */}
-                <div className="flex-1 relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-cyan-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
-                  <div className={`relative bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-xl p-10 rounded-3xl border border-white/10 group-hover:border-white/30 transition-all duration-500 transform group-hover:scale-105 group-hover:-translate-y-2`}>
+                <div className="flex-1 relative group w-full">
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-cyan-600/20 rounded-2xl md:rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
+                  <div className={`relative bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-xl p-6 md:p-10 rounded-2xl md:rounded-3xl border border-white/10 group-hover:border-white/30 transition-all duration-500 transform group-hover:scale-105 group-hover:-translate-y-2`}>
                     {/* Holographic Effects */}
-                    <div className="absolute inset-0 overflow-hidden rounded-3xl">
+                    <div className="absolute inset-0 overflow-hidden rounded-2xl md:rounded-3xl">
                       {[...Array(Math.floor(step.particles / 20))].map((_, i) => (
                         <div
                           key={i}
@@ -92,64 +92,71 @@ const ProcessSteps = () => {
                     </div>
 
                     <div className="relative z-10">
-                      <div className="flex items-center mb-6">
-                        <div className={`bg-gradient-to-r ${step.gradient} p-4 rounded-2xl mr-6 shadow-lg group-hover:shadow-2xl transition-all duration-500 transform group-hover:rotate-6`}>
+                      <div className="flex flex-col md:flex-row items-start md:items-center mb-4 md:mb-6">
+                        <div className={`bg-gradient-to-r ${step.gradient} p-3 md:p-4 rounded-xl md:rounded-2xl mb-4 md:mb-0 md:mr-6 shadow-lg group-hover:shadow-2xl transition-all duration-500 transform group-hover:rotate-6`}>
                           <div className="text-white">
                             {step.icon}
                           </div>
                         </div>
-                        <div>
-                          <h3 className="text-3xl font-bold text-white mb-2">{step.title}</h3>
-                          <div className={`inline-block px-4 py-2 bg-gradient-to-r ${step.gradient} rounded-full text-white font-bold text-sm shadow-lg`}>
+                        <div className="flex-1">
+                          <h3 className="text-xl md:text-3xl font-bold text-white mb-2">{step.title}</h3>
+                          <div className={`inline-block px-3 md:px-4 py-1 md:py-2 bg-gradient-to-r ${step.gradient} rounded-full text-white font-bold text-xs md:text-sm shadow-lg`}>
                             {step.duration}
                           </div>
                         </div>
                       </div>
-                      <p className="text-gray-300 text-lg leading-relaxed">{step.description}</p>
+                      <p className="text-gray-300 text-base md:text-lg leading-relaxed">{step.description}</p>
                     </div>
 
                     {/* Corner Accents */}
-                    <div className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-br ${step.gradient} opacity-20 rounded-bl-3xl rounded-tr-3xl`}></div>
-                    <div className={`absolute bottom-0 left-0 w-20 h-20 bg-gradient-to-tr ${step.gradient} opacity-20 rounded-tr-3xl rounded-bl-3xl`}></div>
+                    <div className={`absolute top-0 right-0 w-12 h-12 md:w-20 md:h-20 bg-gradient-to-br ${step.gradient} opacity-20 rounded-bl-2xl md:rounded-bl-3xl rounded-tr-2xl md:rounded-tr-3xl`}></div>
+                    <div className={`absolute bottom-0 left-0 w-12 h-12 md:w-20 md:h-20 bg-gradient-to-tr ${step.gradient} opacity-20 rounded-tr-2xl md:rounded-tr-3xl rounded-bl-2xl md:rounded-bl-3xl`}></div>
                   </div>
                 </div>
 
-                {/* Timeline Node */}
-                <div className="relative z-20">
-                  <div className={`w-20 h-20 bg-gradient-to-r ${step.gradient} rounded-full flex items-center justify-center text-white font-black text-2xl shadow-2xl animate-bounce-slow border-4 border-white/20`}>
+                {/* Timeline Node - Only visible on md+ */}
+                <div className="relative z-20 hidden md:block">
+                  <div className={`w-16 h-16 md:w-20 md:h-20 bg-gradient-to-r ${step.gradient} rounded-full flex items-center justify-center text-white font-black text-lg md:text-2xl shadow-2xl animate-bounce-slow border-4 border-white/20`}>
                     {index + 1}
                   </div>
                   <div className={`absolute inset-0 bg-gradient-to-r ${step.gradient} rounded-full animate-ping opacity-20`}></div>
                 </div>
 
-                {/* Spacer */}
-                <div className="flex-1"></div>
+                {/* Mobile step number */}
+                <div className="md:hidden relative z-20 order-first">
+                  <div className={`w-12 h-12 bg-gradient-to-r ${step.gradient} rounded-full flex items-center justify-center text-white font-black text-lg shadow-2xl border-2 border-white/20`}>
+                    {index + 1}
+                  </div>
+                </div>
+
+                {/* Spacer - Only on desktop */}
+                <div className="flex-1 hidden md:block"></div>
               </div>
             ))}
           </div>
         </div>
 
         {/* Pricing Section */}
-        <div className="text-center mt-24">
+        <div className="text-center mt-16 md:mt-24">
           <div className="relative inline-block">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-3xl blur-xl animate-glow"></div>
-            <div className="relative bg-gradient-to-r from-purple-900/90 to-cyan-900/90 backdrop-blur-xl p-12 rounded-3xl border border-white/20 transform hover:scale-105 transition-all duration-500">
-              <div className="flex items-center justify-center gap-8 flex-wrap">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-2xl md:rounded-3xl blur-xl animate-glow"></div>
+            <div className="relative bg-gradient-to-r from-purple-900/90 to-cyan-900/90 backdrop-blur-xl p-8 md:p-12 rounded-2xl md:rounded-3xl border border-white/20 transform hover:scale-105 transition-all duration-500">
+              <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8">
                 <div className="text-center">
-                  <div className="text-6xl font-black bg-gradient-to-r from-white to-cyan-200 bg-clip-text text-transparent mb-2">
+                  <div className="text-4xl md:text-6xl font-black bg-gradient-to-r from-white to-cyan-200 bg-clip-text text-transparent mb-2">
                     2000€
                   </div>
-                  <div className="text-lg text-gray-300">Tarif unique tout inclus</div>
+                  <div className="text-base md:text-lg text-gray-300">Tarif unique tout inclus</div>
                 </div>
-                <div className="w-1 h-20 bg-gradient-to-b from-purple-500 to-cyan-500 rounded-full hidden md:block"></div>
+                <div className="w-20 h-0.5 md:w-1 md:h-20 bg-gradient-to-r md:bg-gradient-to-b from-purple-500 to-cyan-500 rounded-full"></div>
                 <div className="text-center">
-                  <div className="text-6xl font-black bg-gradient-to-r from-cyan-200 to-purple-200 bg-clip-text text-transparent mb-2">
+                  <div className="text-4xl md:text-6xl font-black bg-gradient-to-r from-cyan-200 to-purple-200 bg-clip-text text-transparent mb-2">
                     4 JOURS
                   </div>
-                  <div className="text-lg text-gray-300">Livraison maximum</div>
+                  <div className="text-base md:text-lg text-gray-300">Livraison maximum</div>
                 </div>
               </div>
-              <div className="mt-8 text-gray-300 text-lg">
+              <div className="mt-6 md:mt-8 text-gray-300 text-base md:text-lg">
                 Sans abonnement • Sans frais cachés • Hébergement premium inclus
               </div>
             </div>
