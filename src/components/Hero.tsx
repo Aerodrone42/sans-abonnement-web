@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Rocket, Zap, Code2 } from "lucide-react";
@@ -53,24 +54,77 @@ const Hero = () => {
 
       <div className="container mx-auto px-4 py-20 relative z-10">
         <div className="max-w-6xl mx-auto text-center">
-          {/* Main Title with modern effects */}
+          {/* Modern Tech Title with futuristic effects */}
           <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black mb-6 relative">
-              {/* Animated gradient text */}
-              <span className="bg-gradient-to-r from-white via-cyan-200 to-purple-200 bg-clip-text text-transparent animate-pulse">
-                Création de Sites Web
-              </span>
-              <br />
-              <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent relative">
-                <span className="animate-glow">Haut de Gamme</span>
-                {/* Glowing underline */}
-                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full animate-glow shadow-lg shadow-cyan-400/50"></div>
-              </span>
+            <h1 className="text-3xl md:text-5xl lg:text-7xl font-black mb-8 relative">
+              {/* Circuit board background pattern */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="w-full h-full bg-gradient-to-r from-cyan-400/20 via-purple-400/20 to-blue-400/20 rounded-2xl"></div>
+                <div className="absolute top-4 left-8 w-16 h-0.5 bg-cyan-400/30"></div>
+                <div className="absolute top-8 right-12 w-12 h-0.5 bg-purple-400/30"></div>
+                <div className="absolute bottom-6 left-16 w-20 h-0.5 bg-blue-400/30"></div>
+              </div>
+
+              {/* First line: CRÉATION */}
+              <div className="relative mb-4">
+                <span className="relative inline-block">
+                  <span className="bg-gradient-to-r from-cyan-300 via-blue-200 to-cyan-400 bg-clip-text text-transparent font-extrabold tracking-widest animate-glow">
+                    CRÉATION
+                  </span>
+                  {/* Tech glitch effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 to-blue-400/20 blur-sm animate-pulse"></div>
+                  {/* Matrix-style underline */}
+                  <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse"></div>
+                </span>
+              </div>
+
+              {/* Second line: DE SITES WEB */}
+              <div className="relative mb-4">
+                <span className="relative inline-block">
+                  <span className="bg-gradient-to-r from-purple-300 via-pink-200 to-purple-400 bg-clip-text text-transparent font-extrabold tracking-wide">
+                    DE SITES WEB
+                  </span>
+                  {/* Holographic effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-400/10 via-pink-400/20 to-purple-400/10 animate-hologram-flicker"></div>
+                </span>
+              </div>
+
+              {/* Third line: HAUT DE GAMME with premium tech styling */}
+              <div className="relative">
+                <span className="relative inline-block group">
+                  <span className="bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent font-black tracking-wider text-4xl md:text-6xl lg:text-8xl">
+                    HAUT DE GAMME
+                  </span>
+                  {/* Premium golden glow */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-amber-400/20 via-yellow-400/30 to-amber-400/20 blur-lg group-hover:blur-xl transition-all duration-500"></div>
+                  {/* Tech border frame */}
+                  <div className="absolute -inset-4 border border-amber-400/30 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  {/* Corner accents */}
+                  <div className="absolute -top-2 -left-2 w-4 h-4 border-l-2 border-t-2 border-amber-400/50"></div>
+                  <div className="absolute -top-2 -right-2 w-4 h-4 border-r-2 border-t-2 border-amber-400/50"></div>
+                  <div className="absolute -bottom-2 -left-2 w-4 h-4 border-l-2 border-b-2 border-amber-400/50"></div>
+                  <div className="absolute -bottom-2 -right-2 w-4 h-4 border-r-2 border-b-2 border-amber-400/50"></div>
+                </span>
+              </div>
               
-              {/* Floating icons */}
-              <Sparkles className="absolute -top-8 -right-8 w-8 h-8 text-cyan-400 animate-bounce-slow" />
-              <Code2 className="absolute -top-4 -left-12 w-6 h-6 text-purple-400 animate-float" />
-              <Zap className="absolute top-1/2 -right-16 w-6 h-6 text-yellow-400 animate-pulse" />
+              {/* Floating tech icons with enhanced animations */}
+              <Sparkles className="absolute -top-12 -right-12 w-10 h-10 text-cyan-400 animate-bounce-slow opacity-80" />
+              <Code2 className="absolute -top-8 -left-16 w-8 h-8 text-purple-400 animate-float opacity-70" />
+              <Zap className="absolute top-1/2 -right-20 w-8 h-8 text-yellow-400 animate-pulse opacity-80" />
+              
+              {/* Digital scan lines */}
+              <div className="absolute inset-0 opacity-20">
+                {[...Array(8)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute w-full h-px bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent"
+                    style={{
+                      top: `${i * 12.5}%`,
+                      animationDelay: `${i * 0.2}s`
+                    }}
+                  ></div>
+                ))}
+              </div>
             </h1>
           </div>
 
