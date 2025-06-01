@@ -1,4 +1,5 @@
 
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Code, Zap } from "lucide-react";
@@ -121,7 +122,7 @@ const Header = () => {
                 {/* Contenu du bouton */}
                 <div className="relative flex items-center gap-3">
                   <Zap className="w-5 h-5 group-hover:animate-bounce group-hover:text-yellow-300 transition-colors duration-300" />
-                  <span className="group-hover:text-shadow-lg">🚀 PROJET FUTUR</span>
+                  <span className="group-hover:text-shadow-lg">PROJET FUTUR</span>
                   
                   {/* Mini particules dans le bouton */}
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
@@ -170,7 +171,7 @@ const Header = () => {
                   onClick={() => scrollToSection('contact')} 
                   className="relative bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white px-8 py-4 rounded-2xl font-black w-full shadow-2xl text-lg"
                 >
-                  🚀 PROJET FUTUR
+                  PROJET FUTUR
                 </Button>
               </div>
             </nav>
@@ -182,3 +183,4 @@ const Header = () => {
 };
 
 export default Header;
+
