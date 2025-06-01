@@ -200,7 +200,7 @@ const WhyChooseUs = () => {
               
               {/* Quantum Particle System */}
               <div className="absolute inset-0 overflow-hidden rounded-3xl">
-                {[...Array(feature.particles / 15)].map((_, i) => (
+                {[...Array(Math.floor(feature.particles / 15))].map((_, i) => (
                   <div
                     key={i}
                     className={`absolute w-1 h-1 bg-gradient-to-r ${feature.color} rounded-full animate-float opacity-30 group-hover:opacity-90`}
