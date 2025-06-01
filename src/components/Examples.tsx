@@ -88,7 +88,7 @@ const Examples = () => {
           <div className="relative inline-block mb-6">
             <h2 className="text-2xl md:text-4xl font-black text-gray-900 mb-4 relative">
               <span className="relative">
-                Exemples de Réalisations
+                Clients Cibles
                 <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full animate-glow"></div>
                 <Globe className="absolute -top-4 -left-8 w-6 h-6 text-purple-500 opacity-60 animate-float" />
                 <Sparkles className="absolute -top-2 -right-8 w-5 h-5 text-cyan-500 animate-bounce-slow" />
