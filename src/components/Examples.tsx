@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Monitor, Smartphone, Tablet, Globe, Star, Eye, ArrowRight, Sparkles } from "lucide-react";
+import { Monitor, Smartphone, Tablet, Globe, Star, Sparkles } from "lucide-react";
 
 const Examples = () => {
   const [selectedCategory, setSelectedCategory] = useState("tous");
@@ -9,9 +9,8 @@ const Examples = () => {
   const categories = [
     { id: "tous", label: "Tous les Sites", icon: <Globe className="w-4 h-4" /> },
     { id: "restaurant", label: "Restaurants", icon: <Sparkles className="w-4 h-4" /> },
-    { id: "ecommerce", label: "E-commerce", icon: <Monitor className="w-4 h-4" /> },
     { id: "service", label: "Services", icon: <Star className="w-4 h-4" /> },
-    { id: "portfolio", label: "Portfolio", icon: <Eye className="w-4 h-4" /> }
+    { id: "portfolio", label: "Portfolio", icon: <Monitor className="w-4 h-4" /> }
   ];
 
   const examples = [
@@ -26,15 +25,6 @@ const Examples = () => {
     },
     {
       id: 2,
-      title: "Boutique Mode Elite",
-      category: "ecommerce",
-      description: "E-commerce complet avec paiement sécurisé",
-      features: ["Catalogue produits", "Panier d'achat", "Paiement Stripe"],
-      gradient: "from-purple-400 to-pink-500",
-      devices: ["desktop", "tablet", "mobile"]
-    },
-    {
-      id: 3,
       title: "Cabinet d'Avocats",
       category: "service",
       description: "Site professionnel avec prise de rendez-vous",
@@ -43,7 +33,7 @@ const Examples = () => {
       devices: ["desktop", "mobile"]
     },
     {
-      id: 4,
+      id: 3,
       title: "Photographe Pro",
       category: "portfolio",
       description: "Portfolio créatif avec galerie haute définition",
@@ -52,7 +42,7 @@ const Examples = () => {
       devices: ["desktop", "tablet"]
     },
     {
-      id: 5,
+      id: 4,
       title: "Agence Immobilière",
       category: "service",
       description: "Plateforme immobilière avec recherche avancée",
@@ -61,13 +51,22 @@ const Examples = () => {
       devices: ["desktop", "mobile"]
     },
     {
-      id: 6,
+      id: 5,
       title: "Startup Tech",
       category: "service",
       description: "Landing page moderne pour startup technologique",
       features: ["Animation 3D", "Newsletter", "Demo produit"],
       gradient: "from-cyan-400 to-blue-500",
       devices: ["desktop", "tablet", "mobile"]
+    },
+    {
+      id: 6,
+      title: "Artisan Menuisier",
+      category: "portfolio",
+      description: "Showcase des créations avec galerie de projets",
+      features: ["Galerie projets", "Témoignages", "Devis rapide"],
+      gradient: "from-amber-400 to-orange-500",
+      devices: ["desktop", "mobile"]
     }
   ];
 
@@ -177,7 +176,7 @@ const Examples = () => {
                   </p>
 
                   {/* Features */}
-                  <div className="space-y-2 mb-4">
+                  <div className="space-y-2">
                     {example.features.map((feature, featureIndex) => (
                       <div key={featureIndex} className="flex items-center gap-2 text-sm text-gray-500">
                         <div className={`w-1.5 h-1.5 bg-gradient-to-r ${example.gradient} rounded-full`}></div>
@@ -185,13 +184,6 @@ const Examples = () => {
                       </div>
                     ))}
                   </div>
-
-                  {/* View Button */}
-                  <button className="flex items-center gap-2 text-gray-600 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-cyan-600 font-medium transition-all duration-300">
-                    <Eye className="w-4 h-4" />
-                    Voir l'exemple
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
-                  </button>
                 </div>
               </div>
             </div>
