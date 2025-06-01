@@ -1,159 +1,201 @@
 
-import { Sparkles, Star, Quote } from "lucide-react";
+import { Phone, Clock, AlertCircle, Heart, Zap, Shield } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-const Testimonials = () => {
-  const testimonials = [
-    {
-      name: "Marie Dubois",
-      business: "Boulangerie du Village",
-      text: "Excellente prestation ! Mon site vitrine est exactement ce que je voulais. Fini les abonnements mensuels, je recommande vivement.",
-      rating: 5,
-      location: "Lyon",
-      gradient: "from-amber-400 to-orange-500"
-    },
-    {
-      name: "Pierre Martin",
-      business: "Plomberie Martin & Fils",
-      text: "Site professionnel livré dans les délais, très bon référencement sur Google. Mes clients me trouvent plus facilement maintenant.",
-      rating: 5,
-      location: "Marseille",
-      gradient: "from-blue-400 to-cyan-500"
-    },
-    {
-      name: "Sophie Leroux",
-      business: "Cabinet Kinésithérapie",
-      text: "Création sur mesure parfaite pour mon activité. L'équipe est à l'écoute et très professionnelle. Aucun regret !",
-      rating: 5,
-      location: "Nantes",
-      gradient: "from-purple-400 to-pink-500"
-    },
-    {
-      name: "Thomas Petit",
-      business: "Garage Auto Expert",
-      text: "Site internet pas cher et de qualité. Plus de frais mensuels à payer, c'est exactement ce qu'il me fallait pour mon garage.",
-      rating: 5,
-      location: "Toulouse",
-      gradient: "from-green-400 to-emerald-500"
-    }
-  ];
+const CallToAction = () => {
+  const scrollToContact = () => {
+    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+  };
 
-  const renderStars = (rating: number, gradient: string) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <Star 
-        key={i} 
-        className={`w-5 h-5 ${i < rating ? `text-yellow-400 fill-yellow-400` : 'text-gray-300'} transition-all duration-300 hover:scale-125`}
-      />
-    ));
+  const handleCall = () => {
+    window.location.href = 'tel:+33123456789';
   };
 
   return (
-    <section className="py-16 md:py-24 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-20 left-20 w-40 h-40 bg-purple-200 rounded-full blur-3xl animate-pulse-glow"></div>
-        <div className="absolute bottom-20 right-20 w-40 h-40 bg-cyan-200 rounded-full blur-3xl animate-pulse-glow" style={{animationDelay: '1s'}}></div>
+    <section className="py-16 md:py-24 bg-gradient-to-br from-red-900 via-red-800 to-orange-900 relative overflow-hidden">
+      {/* Background effects with urgency */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-10 left-10 w-32 h-32 bg-yellow-400 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-10 right-10 w-40 h-40 bg-red-500 rounded-full blur-3xl animate-pulse" style={{animationDelay: '0.5s'}}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-orange-500 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center mb-12 md:mb-16">
-          {/* Enhanced title */}
-          <div className="relative inline-block mb-6">
-            <h2 className="text-2xl md:text-4xl lg:text-5xl font-black text-gray-900 mb-4 relative">
-              <span className="relative">
-                Témoignages Clients
-                {/* Animated underline */}
-                <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full animate-glow"></div>
-                {/* Floating quote icon */}
-                <Quote className="absolute -top-6 -left-8 w-8 h-8 text-purple-500 opacity-30 animate-float" />
-                <Sparkles className="absolute -top-4 -right-8 w-6 h-6 text-cyan-500 animate-bounce-slow" />
-              </span>
-            </h2>
+        {/* Urgent headline */}
+        <div className="text-center mb-12">
+          <div className="flex justify-center mb-6">
+            <div className="bg-yellow-400 text-red-900 px-6 py-2 rounded-full font-black text-sm animate-bounce flex items-center">
+              <AlertCircle className="w-4 h-4 mr-2" />
+              DERNIÈRE CHANCE
+            </div>
           </div>
           
-          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
-            Découvrez les avis de nos clients qui ont choisi notre 
-            <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-cyan-600">
-              {" "}solution sans abonnement
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-6 leading-tight">
+            <span className="text-yellow-400">STOP !</span> Vous Perdez des Clients
+            <br />
+            <span className="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
+              Chaque Jour Sans Site Web
             </span>
-          </p>
+          </h2>
+          
+          <div className="bg-white/10 backdrop-blur-xl p-6 rounded-2xl border border-yellow-400/30 max-w-4xl mx-auto mb-8">
+            <p className="text-xl md:text-2xl text-yellow-100 font-semibold">
+              Pendant que vous hésitez, vos concurrents <span className="text-yellow-400 font-black">VOLENT VOS CLIENTS</span> sur Google
+            </p>
+          </div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-          {testimonials.map((testimonial, index) => (
-            <div 
-              key={index}
-              className="group relative animate-fade-in"
-              style={{animationDelay: `${index * 0.2}s`}}
-            >
-              {/* Glow effect */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${testimonial.gradient} opacity-0 group-hover:opacity-20 rounded-2xl blur-xl transition-all duration-500`}></div>
-              
-              {/* Main card */}
-              <div className="relative bg-white/80 backdrop-blur-xl p-6 rounded-2xl shadow-lg hover:shadow-2xl border border-white/50 hover:border-white/80 transition-all duration-500 transform hover:scale-105 hover:-translate-y-3">
-                {/* Quote decoration */}
-                <div className="absolute top-4 right-4">
-                  <Quote className={`w-8 h-8 text-gradient bg-gradient-to-r ${testimonial.gradient} opacity-20 group-hover:opacity-40 transition-opacity duration-300`} />
-                </div>
-                
-                {/* Stars rating */}
-                <div className="flex justify-center mb-4 space-x-1">
-                  {renderStars(testimonial.rating, testimonial.gradient)}
-                </div>
-                
-                {/* Testimonial text */}
-                <p className="text-gray-600 mb-6 italic leading-relaxed relative">
-                  <span className="text-4xl text-gray-300 absolute -top-2 -left-2">"</span>
-                  <span className="relative z-10">{testimonial.text}</span>
-                  <span className="text-4xl text-gray-300 absolute -bottom-6 -right-2">"</span>
-                </p>
-                
-                {/* Client info */}
-                <div className="border-t border-gray-200 pt-4 group-hover:border-gray-300 transition-colors duration-300">
-                  <div className="font-bold text-gray-900 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-cyan-600 transition-all duration-500">
-                    {testimonial.name}
+        {/* Pain points with emotional triggers */}
+        <div className="grid md:grid-cols-3 gap-6 mb-12">
+          {[
+            {
+              icon: <Clock className="w-8 h-8" />,
+              title: "Temps qui s'échappe",
+              pain: "Chaque jour = clients perdus",
+              emotion: "La frustration de rater des opportunités",
+              gradient: "from-red-500 to-red-600"
+            },
+            {
+              icon: <Heart className="w-8 h-8" />,
+              title: "Votre passion mérite mieux",
+              pain: "Votre savoir-faire ignoré",
+              emotion: "Vous méritez d'être reconnu",
+              gradient: "from-orange-500 to-red-500"
+            },
+            {
+              icon: <Shield className="w-8 h-8" />,
+              title: "Sécurisez votre avenir",
+              pain: "Concurrence qui vous dépasse",
+              emotion: "Protégez ce que vous avez bâti",
+              gradient: "from-yellow-500 to-orange-500"
+            }
+          ].map((item, index) => (
+            <div key={index} className="group text-center">
+              <div className="relative">
+                <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} rounded-2xl blur-xl opacity-60 group-hover:opacity-100 transition-all duration-500 animate-pulse`}></div>
+                <div className="relative bg-black/40 backdrop-blur-xl p-8 rounded-2xl border border-white/20 transform group-hover:scale-105 transition-all duration-500">
+                  <div className={`bg-gradient-to-r ${item.gradient} p-4 rounded-xl mb-6 inline-block text-white animate-bounce-slow`}>
+                    {item.icon}
                   </div>
-                  <div className={`text-sm font-semibold bg-gradient-to-r ${testimonial.gradient} bg-clip-text text-transparent mb-1`}>
-                    {testimonial.business}
-                  </div>
-                  <div className="text-gray-500 text-sm flex items-center">
-                    <span className="w-2 h-2 bg-gray-400 rounded-full mr-2"></span>
-                    {testimonial.location}
-                  </div>
+                  <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
+                  <p className="text-red-200 font-semibold mb-2">{item.pain}</p>
+                  <p className="text-yellow-200 text-sm italic">{item.emotion}</p>
                 </div>
-
-                {/* Hover decoration */}
-                <div className="absolute bottom-4 right-4 w-2 h-2 bg-gradient-to-r from-purple-400 to-cyan-400 rounded-full opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-all duration-500"></div>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Enhanced stats section */}
-        <div className="text-center mt-12 md:mt-16">
-          <div className="relative inline-block">
-            <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-600 rounded-3xl blur-xl opacity-60 animate-pulse"></div>
-            <div className="relative bg-gradient-to-r from-green-600/90 to-emerald-600/90 backdrop-blur-xl p-6 md:p-8 rounded-3xl border border-white/20 transform hover:scale-105 transition-all duration-500">
-              <div className="flex flex-col md:flex-row items-center justify-center gap-6">
-                <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-black text-white mb-2 animate-bounce-slow">
-                    4.9/5
-                  </div>
-                  <div className="flex justify-center mb-2">
-                    {renderStars(5, "from-yellow-400 to-orange-500")}
-                  </div>
-                  <p className="text-green-100 text-sm">Note moyenne</p>
+        {/* Main CTA with urgency */}
+        <div className="text-center mb-12">
+          <div className="bg-gradient-to-r from-yellow-500 to-orange-500 p-1 rounded-3xl max-w-4xl mx-auto">
+            <div className="bg-black/80 backdrop-blur-xl p-8 md:p-12 rounded-3xl">
+              <h3 className="text-2xl md:text-4xl font-black text-white mb-6">
+                <span className="text-yellow-400">1 SEUL APPEL</span> Peut Tout Changer
+              </h3>
+              
+              <div className="grid md:grid-cols-2 gap-8 mb-8">
+                <div className="text-left">
+                  <h4 className="text-xl font-bold text-yellow-400 mb-4 flex items-center">
+                    <Zap className="w-6 h-6 mr-2 animate-pulse" />
+                    Ce qui vous attend :
+                  </h4>
+                  <ul className="space-y-3 text-white">
+                    <li className="flex items-start">
+                      <span className="text-green-400 mr-3 font-bold">✓</span>
+                      <span><strong>Analyse gratuite</strong> de votre situation</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-green-400 mr-3 font-bold">✓</span>
+                      <span><strong>Stratégie personnalisée</strong> en 15 minutes</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-green-400 mr-3 font-bold">✓</span>
+                      <span><strong>Devis immédiat</strong> sans surprise</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-green-400 mr-3 font-bold">✓</span>
+                      <span><strong>Livraison en 4 jours</strong> maximum</span>
+                    </li>
+                  </ul>
                 </div>
-                <div className="w-16 h-0.5 md:w-1 md:h-16 bg-gradient-to-r md:bg-gradient-to-b from-white/50 to-white/20 rounded-full"></div>
-                <div className="text-center">
-                  <p className="text-lg md:text-xl text-white font-semibold">
-                    98% de nos clients recommandent nos services
-                  </p>
-                  <p className="text-green-100 text-sm mt-2">
-                    Basé sur 150+ avis clients vérifiés
-                  </p>
+                
+                <div className="text-left">
+                  <h4 className="text-xl font-bold text-red-400 mb-4 flex items-center">
+                    <AlertCircle className="w-6 h-6 mr-2 animate-pulse" />
+                    Si vous ne faites rien :
+                  </h4>
+                  <ul className="space-y-3 text-white">
+                    <li className="flex items-start">
+                      <span className="text-red-400 mr-3 font-bold">✗</span>
+                      <span>Vos concurrents prennent vos clients</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-red-400 mr-3 font-bold">✗</span>
+                      <span>Vous restez invisible sur Google</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-red-400 mr-3 font-bold">✗</span>
+                      <span>Votre chiffre d'affaires stagne</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-red-400 mr-3 font-bold">✗</span>
+                      <span>L'écart se creuse chaque jour</span>
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Call buttons with emotional triggers */}
+        <div className="flex flex-col md:flex-row gap-6 justify-center items-center mb-12">
+          <div className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl blur-lg opacity-60 group-hover:opacity-100 transition-opacity duration-500 animate-pulse"></div>
+            <Button 
+              onClick={handleCall}
+              className="relative bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white px-10 py-8 rounded-2xl font-black shadow-2xl transition-all duration-500 transform hover:scale-110 border-2 border-green-300/50 hover:border-green-200 text-xl"
+            >
+              <Phone className="mr-3 w-6 h-6 animate-bounce" />
+              APPELEZ MAINTENANT
+              <div className="text-sm font-normal block">Consultation gratuite immédiate</div>
+            </Button>
+          </div>
+          
+          <div className="text-center">
+            <div className="text-white font-bold text-lg mb-2">OU</div>
+            <Button 
+              onClick={scrollToContact}
+              variant="outline"
+              className="bg-transparent border-2 border-yellow-400/50 hover:border-yellow-300 text-yellow-200 hover:text-white hover:bg-yellow-500/20 px-8 py-6 rounded-2xl font-bold transition-all duration-500 transform hover:scale-105 backdrop-blur-xl text-lg"
+            >
+              Être rappelé sous 2h
+            </Button>
+          </div>
+        </div>
+
+        {/* Social proof with urgency */}
+        <div className="text-center">
+          <div className="bg-white/10 backdrop-blur-xl p-6 rounded-2xl border border-yellow-400/30 max-w-2xl mx-auto">
+            <div className="flex justify-center items-center mb-4">
+              <div className="flex -space-x-2">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="w-12 h-12 bg-gradient-to-r from-green-400 to-blue-500 rounded-full border-2 border-white flex items-center justify-center text-white font-bold">
+                    {String.fromCharCode(65 + i)}
+                  </div>
+                ))}
+              </div>
+              <div className="ml-4 text-left">
+                <div className="text-yellow-400 font-black text-lg">+50 entrepreneurs</div>
+                <div className="text-white text-sm">nous ont appelés cette semaine</div>
+              </div>
+            </div>
+            <p className="text-white font-semibold">
+              <span className="text-red-400 animate-pulse">🔥</span>
+              {" "}Ne laissez pas passer cette opportunité comme eux l'ont fait
+              {" "}<span className="text-red-400 animate-pulse">🔥</span>
+            </p>
           </div>
         </div>
       </div>
@@ -161,4 +203,4 @@ const Testimonials = () => {
   );
 };
 
-export default Testimonials;
+export default CallToAction;
