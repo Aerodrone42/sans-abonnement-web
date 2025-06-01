@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Rocket, Zap, Code2 } from "lucide-react";
@@ -8,7 +7,7 @@ const Hero = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [typedText, setTypedText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
-  const fullText = "TECHNOLOGIE EN DIRECT";
+  const fullText = "CRÉATION DE SITES WEB HAUT DE GAMME";
 
   useEffect(() => {
     setIsVisible(true);
