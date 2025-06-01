@@ -8,7 +8,7 @@ const Hero = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [typedText, setTypedText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
-  const fullText = "CRÉATION DE SITES WEB HAUT DE GAMME";
+  const fullText = "TECHNOLOGIE EN DIRECT";
 
   useEffect(() => {
     setIsVisible(true);
@@ -68,14 +68,14 @@ const Hero = () => {
 
       <div className="container mx-auto px-4 py-20 relative z-10">
         <div className="max-w-6xl mx-auto text-center pt-32">
-          {/* Titre technologique avec animations */}
+          {/* Titre technologique avec animations - VERSION PLUS PETITE */}
           <div className={`transition-all duration-1000 mb-16 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <div className="relative">
               {/* Lignes de scan */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent h-1 animate-slide-in-right" style={{animationDuration: '3s', animationIterationCount: 'infinite'}}></div>
               
-              {/* Titre principal avec effet de machine à écrire */}
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-mono font-bold text-white mb-4 relative">
+              {/* Titre principal avec effet de machine à écrire - TAILLE RÉDUITE */}
+              <h1 className="text-lg md:text-xl lg:text-2xl font-mono font-bold text-white mb-4 relative">
                 <span className="relative">
                   {typedText}
                   <span className="animate-pulse text-cyan-400">|</span>
@@ -93,7 +93,7 @@ const Hero = () => {
               {/* Éléments décoratifs technologiques */}
               <div className="flex justify-center items-center gap-4 mb-4">
                 <div className="w-8 h-0.5 bg-gradient-to-r from-transparent to-cyan-400 animate-pulse"></div>
-                <Code2 className="w-5 h-5 text-cyan-400 animate-bounce-slow" />
+                <Code2 className="w-4 h-4 text-cyan-400 animate-bounce-slow" />
                 <div className="w-8 h-0.5 bg-gradient-to-l from-transparent to-cyan-400 animate-pulse"></div>
               </div>
 
