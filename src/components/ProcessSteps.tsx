@@ -100,7 +100,7 @@ const ProcessSteps = () => {
             <div className="h-1 md:h-2 bg-gradient-to-r from-purple-500 via-cyan-500 to-purple-500 rounded-full animate-glow"></div>
           </div>
           <p className="text-lg md:text-2xl text-gray-300 max-w-4xl mx-auto mt-4 md:mt-8 animate-fade-in px-4" style={{animationDelay: '0.3s'}}>
-            Votre site web haut de gamme livré en <span className="text-cyan-400 font-bold">4 jours maximum</span>
+            Votre site web haut de gamme livré en <span className="text-cyan-400 font-bold">4 jours minimum</span>
           </p>
         </div>
 
@@ -187,16 +187,16 @@ const ProcessSteps = () => {
               <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8">
                 <div className="text-center">
                   <div className="text-4xl md:text-6xl font-black bg-gradient-to-r from-white to-cyan-200 bg-clip-text text-transparent mb-2">
-                    2000€
+                    À partir de 2000€
                   </div>
-                  <div className="text-base md:text-lg text-gray-300">Tarif unique tout inclus</div>
+                  <div className="text-base md:text-lg text-gray-300">Selon votre projet</div>
                 </div>
                 <div className="w-20 h-0.5 md:w-1 md:h-20 bg-gradient-to-r md:bg-gradient-to-b from-purple-500 to-cyan-500 rounded-full"></div>
                 <div className="text-center">
                   <div className="text-4xl md:text-6xl font-black bg-gradient-to-r from-cyan-200 to-purple-200 bg-clip-text text-transparent mb-2">
                     4 JOURS
                   </div>
-                  <div className="text-base md:text-lg text-gray-300">Livraison maximum</div>
+                  <div className="text-base md:text-lg text-gray-300">Livraison minimum</div>
                 </div>
               </div>
               <div className="mt-6 md:mt-8 text-gray-300 text-base md:text-lg">
