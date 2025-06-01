@@ -23,6 +23,7 @@ const TechDemo = () => {
         life: Math.random() * 100,
         maxLife: 100,
         size: Math.random() * 4 + 1,
+        baseSize: Math.random() * 4 + 1, // Store base size
         color: `hsl(${180 + Math.random() * 60}, 70%, 60%)`,
         originalVx: (Math.random() - 0.5) * 2,
         originalVy: (Math.random() - 0.5) * 2,
@@ -82,6 +83,7 @@ const TechDemo = () => {
         particle.life = particle.maxLife;
         particle.vx = particle.originalVx;
         particle.vy = particle.originalVy;
+        particle.size = particle.baseSize;
         particle.trail = [];
       }
 
@@ -98,21 +100,24 @@ const TechDemo = () => {
         }
       }
 
-      // Draw particle
+      // Calculate particle size (ensure it's never negative)
       const alpha = particle.life / particle.maxLife;
-      const size = explosionActive ? particle.size * 2 : particle.size;
+      const calculatedSize = explosionActive ? particle.size * 2 : particle.size;
+      const size = Math.max(0.5, calculatedSize); // Ensure minimum size of 0.5
       
       // Glow effect
       if (explosionActive) {
+        const glowSize = Math.max(1, size * 3); // Ensure glow size is at least 1
         ctx.beginPath();
-        ctx.arc(particle.x, particle.y, size * 3, 0, Math.PI * 2);
-        const gradient = ctx.createRadialGradient(particle.x, particle.y, 0, particle.x, particle.y, size * 3);
+        ctx.arc(particle.x, particle.y, glowSize, 0, Math.PI * 2);
+        const gradient = ctx.createRadialGradient(particle.x, particle.y, 0, particle.x, particle.y, glowSize);
         gradient.addColorStop(0, `rgba(6, 182, 212, ${alpha * 0.3})`);
         gradient.addColorStop(1, 'rgba(6, 182, 212, 0)');
         ctx.fillStyle = gradient;
         ctx.fill();
       }
 
+      // Draw particle with safe size
       ctx.beginPath();
       ctx.arc(particle.x, particle.y, size, 0, Math.PI * 2);
       ctx.fillStyle = explosionActive ? 
@@ -213,18 +218,19 @@ const TechDemo = () => {
       color: "from-cyan-400 via-blue-500 to-purple-600",
       isQuantum: true,
       action: () => {
+        console.log('Activating quantum particles explosion');
         setExplosionActive(true);
         particlesRef.current.forEach(particle => {
           particle.vx *= 3;
           particle.vy *= 3;
-          particle.size *= 1.5;
+          particle.size = Math.max(1, particle.baseSize * 1.5); // Ensure positive size
         });
         setTimeout(() => {
           setExplosionActive(false);
           particlesRef.current.forEach(particle => {
             particle.vx = particle.originalVx;
             particle.vy = particle.originalVy;
-            particle.size = Math.random() * 4 + 1;
+            particle.size = particle.baseSize;
           });
         }, 3000);
       }
@@ -236,6 +242,7 @@ const TechDemo = () => {
       icon: <Cpu className="w-6 h-6 md:w-8 md:h-8" />,
       color: "from-purple-400 via-pink-500 to-red-600",
       action: () => {
+        console.log('Activating AI particle organization');
         const canvas = canvasRef.current;
         if (!canvas) return;
         
@@ -267,13 +274,15 @@ const TechDemo = () => {
       icon: <Eye className="w-6 h-6 md:w-8 md:h-8" />,
       color: "from-emerald-400 via-teal-500 to-cyan-600",
       action: () => {
-        // Add 3D rotation effect
+        console.log('Activating 3D hologram effect');
+        // Add 3D rotation effect with size safety
         particlesRef.current.forEach((particle, index) => {
           const time = Date.now() * 0.001;
           particle.originalSize = particle.size;
           
           const animate3D = () => {
-            particle.size = particle.originalSize + Math.sin(time + index * 0.1) * 3;
+            const sizeModifier = Math.sin(time + index * 0.1) * 2;
+            particle.size = Math.max(0.5, particle.originalSize + sizeModifier); // Ensure positive size
             particle.color = `hsl(${160 + Math.sin(time + index * 0.1) * 30}, 80%, 70%)`;
           };
           
@@ -293,6 +302,7 @@ const TechDemo = () => {
       icon: <Zap className="w-6 h-6 md:w-8 md:h-8" />,
       color: "from-yellow-400 via-orange-500 to-pink-600",
       action: () => {
+        console.log('Activating light speed effect');
         setExplosionActive(true);
         // Ultra speed boost with light trails
         particlesRef.current.forEach(particle => {
