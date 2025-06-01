@@ -1,101 +1,158 @@
 
-import { Contact, User, Calendar, Check } from "lucide-react";
+import { Zap, Cpu, Rocket, Crown } from "lucide-react";
 
 const ProcessSteps = () => {
   const steps = [
     {
-      icon: <Contact className="w-8 h-8" />,
-      title: "Contact & Devis",
-      description: "Vous nous contactez, nous analysons vos besoins et vous proposons un devis gratuit détaillé sous 24h.",
-      duration: "1 jour"
+      icon: <Zap className="w-8 h-8" />,
+      title: "Analyse & Stratégie",
+      description: "Analyse approfondie de vos besoins, définition de la stratégie digitale et validation du concept en 24h chrono.",
+      duration: "24h",
+      gradient: "from-purple-500 via-pink-500 to-red-500",
+      particles: 60
     },
     {
-      icon: <User className="w-8 h-8" />,
-      title: "Conception sur mesure",
-      description: "Nous créons le design de votre site internet selon votre charte graphique et vos spécifications.",
-      duration: "3-5 jours"
+      icon: <Cpu className="w-8 h-8" />,
+      title: "Design Futuriste",
+      description: "Création d'un design ultra-moderne avec interface révolutionnaire et expérience utilisateur exceptionnelle.",
+      duration: "1-2 jours",
+      gradient: "from-cyan-400 via-blue-500 to-purple-600",
+      particles: 80
     },
     {
-      icon: <Calendar className="w-8 h-8" />,
-      title: "Développement",
-      description: "Développement de votre site professionnel avec optimisation SEO et adaptation mobile incluses.",
-      duration: "5-7 jours"
+      icon: <Rocket className="w-8 h-8" />,
+      title: "Développement Avancé",
+      description: "Développement haute performance avec technologies de pointe, optimisation SEO et adaptation responsive.",
+      duration: "1-2 jours",
+      gradient: "from-green-400 via-emerald-500 to-teal-600",
+      particles: 100
     },
     {
-      icon: <Check className="w-8 h-8" />,
-      title: "Livraison & Formation",
-      description: "Mise en ligne de votre site et formation pour que vous puissiez le gérer en autonomie complète.",
-      duration: "1 jour"
+      icon: <Crown className="w-8 h-8" />,
+      title: "Livraison Premium",
+      description: "Mise en ligne professionnelle, formation complète et support technique premium pour votre autonomie totale.",
+      duration: "Immédiat",
+      gradient: "from-amber-400 via-orange-500 to-red-500",
+      particles: 75
     }
   ];
 
   return (
-    <section id="process" className="py-20 bg-gradient-to-br from-gray-50 to-white">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-dark-blue mb-6">
-            Notre méthode en 4 étapes
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Un processus simple et transparent pour la création de votre site internet professionnel
+    <section id="process" className="py-32 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse-glow"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse-glow" style={{animationDelay: '1s'}}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-blue-500/10 to-transparent rounded-full animate-rotate-slow"></div>
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="text-center mb-20">
+          <div className="inline-block">
+            <h2 className="text-6xl md:text-7xl font-black bg-gradient-to-r from-white via-cyan-200 to-purple-200 bg-clip-text text-transparent mb-8 animate-fade-in">
+              PROCESSUS RÉVOLUTIONNAIRE
+            </h2>
+            <div className="h-2 bg-gradient-to-r from-purple-500 via-cyan-500 to-purple-500 rounded-full animate-glow"></div>
+          </div>
+          <p className="text-2xl text-gray-300 max-w-4xl mx-auto mt-8 animate-fade-in" style={{animationDelay: '0.3s'}}>
+            Votre site web haut de gamme livré en <span className="text-cyan-400 font-bold">4 jours maximum</span>
           </p>
         </div>
 
-        <div className="relative">
-          {/* Timeline line */}
-          <div className="hidden lg:block absolute left-1/2 transform -translate-x-0.5 top-0 bottom-0 w-1 bg-gradient-to-b from-primary to-accent"></div>
+        {/* Process Timeline */}
+        <div className="relative max-w-6xl mx-auto">
+          {/* Central Timeline */}
+          <div className="absolute left-1/2 transform -translate-x-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 via-cyan-500 to-purple-500 shadow-lg shadow-cyan-500/50"></div>
 
-          <div className="space-y-12 lg:space-y-24">
+          <div className="space-y-32">
             {steps.map((step, index) => (
               <div 
                 key={index}
-                className={`flex flex-col lg:flex-row items-center gap-8 animate-fade-in ${index % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}
-                style={{animationDelay: `${index * 0.2}s`}}
+                className={`flex items-center gap-16 animate-fade-in ${index % 2 === 1 ? 'flex-row-reverse' : ''}`}
+                style={{animationDelay: `${index * 0.4}s`}}
               >
-                {/* Content */}
-                <div className="flex-1 lg:max-w-md">
-                  <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                    <div className="flex items-center mb-4">
-                      <div className="bg-primary text-white w-12 h-12 rounded-xl flex items-center justify-center mr-4">
-                        {step.icon}
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-dark-blue">{step.title}</h3>
-                        <span className="text-accent font-medium">{step.duration}</span>
-                      </div>
+                {/* Content Card */}
+                <div className="flex-1 relative group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-cyan-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
+                  <div className={`relative bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-xl p-10 rounded-3xl border border-white/10 group-hover:border-white/30 transition-all duration-500 transform group-hover:scale-105 group-hover:-translate-y-2`}>
+                    {/* Holographic Effects */}
+                    <div className="absolute inset-0 overflow-hidden rounded-3xl">
+                      {[...Array(Math.floor(step.particles / 20))].map((_, i) => (
+                        <div
+                          key={i}
+                          className={`absolute w-1 h-1 bg-gradient-to-r ${step.gradient} rounded-full animate-float opacity-20 group-hover:opacity-60`}
+                          style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                            animationDelay: `${Math.random() * 3}s`,
+                            animationDuration: `${3 + Math.random() * 4}s`
+                          }}
+                        ></div>
+                      ))}
                     </div>
-                    <p className="text-gray-600 leading-relaxed">{step.description}</p>
+
+                    <div className="relative z-10">
+                      <div className="flex items-center mb-6">
+                        <div className={`bg-gradient-to-r ${step.gradient} p-4 rounded-2xl mr-6 shadow-lg group-hover:shadow-2xl transition-all duration-500 transform group-hover:rotate-6`}>
+                          <div className="text-white">
+                            {step.icon}
+                          </div>
+                        </div>
+                        <div>
+                          <h3 className="text-3xl font-bold text-white mb-2">{step.title}</h3>
+                          <div className={`inline-block px-4 py-2 bg-gradient-to-r ${step.gradient} rounded-full text-white font-bold text-sm shadow-lg`}>
+                            {step.duration}
+                          </div>
+                        </div>
+                      </div>
+                      <p className="text-gray-300 text-lg leading-relaxed">{step.description}</p>
+                    </div>
+
+                    {/* Corner Accents */}
+                    <div className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-br ${step.gradient} opacity-20 rounded-bl-3xl rounded-tr-3xl`}></div>
+                    <div className={`absolute bottom-0 left-0 w-20 h-20 bg-gradient-to-tr ${step.gradient} opacity-20 rounded-tr-3xl rounded-bl-3xl`}></div>
                   </div>
                 </div>
 
-                {/* Step number */}
-                <div className="relative">
-                  <div className="w-16 h-16 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-xl">
+                {/* Timeline Node */}
+                <div className="relative z-20">
+                  <div className={`w-20 h-20 bg-gradient-to-r ${step.gradient} rounded-full flex items-center justify-center text-white font-black text-2xl shadow-2xl animate-bounce-slow border-4 border-white/20`}>
                     {index + 1}
                   </div>
-                  {/* Connector dots for large screens */}
-                  {index < steps.length - 1 && (
-                    <div className="hidden lg:block absolute top-16 left-1/2 transform -translate-x-0.5">
-                      <div className="w-1 h-12 bg-gradient-to-b from-primary/50 to-transparent"></div>
-                    </div>
-                  )}
+                  <div className={`absolute inset-0 bg-gradient-to-r ${step.gradient} rounded-full animate-ping opacity-20`}></div>
                 </div>
 
-                {/* Spacer for alternating layout */}
-                <div className="flex-1 lg:max-w-md hidden lg:block"></div>
+                {/* Spacer */}
+                <div className="flex-1"></div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="text-center mt-16">
-          <div className="bg-gradient-to-r from-primary to-accent p-8 rounded-2xl text-white inline-block">
-            <h3 className="text-2xl font-bold mb-2">
-              Votre site internet prêt en 7 à 14 jours
-            </h3>
-            <p className="text-lg">
-              Sans abonnement, sans engagement, avec hébergement inclus
-            </p>
+        {/* Pricing Section */}
+        <div className="text-center mt-24">
+          <div className="relative inline-block">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-3xl blur-xl animate-glow"></div>
+            <div className="relative bg-gradient-to-r from-purple-900/90 to-cyan-900/90 backdrop-blur-xl p-12 rounded-3xl border border-white/20 transform hover:scale-105 transition-all duration-500">
+              <div className="flex items-center justify-center gap-8 flex-wrap">
+                <div className="text-center">
+                  <div className="text-6xl font-black bg-gradient-to-r from-white to-cyan-200 bg-clip-text text-transparent mb-2">
+                    2000€
+                  </div>
+                  <div className="text-lg text-gray-300">Tarif unique tout inclus</div>
+                </div>
+                <div className="w-1 h-20 bg-gradient-to-b from-purple-500 to-cyan-500 rounded-full hidden md:block"></div>
+                <div className="text-center">
+                  <div className="text-6xl font-black bg-gradient-to-r from-cyan-200 to-purple-200 bg-clip-text text-transparent mb-2">
+                    4 JOURS
+                  </div>
+                  <div className="text-lg text-gray-300">Livraison maximum</div>
+                </div>
+              </div>
+              <div className="mt-8 text-gray-300 text-lg">
+                Sans abonnement • Sans frais cachés • Hébergement premium inclus
+              </div>
+            </div>
           </div>
         </div>
       </div>
