@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, Contact as ContactIcon, Calendar, CreditCard, Eye, Zap, Shield, Cpu, Globe, Sparkles, CheckCircle, Clock, Target, Users } from "lucide-react";
+import { Mail, Contact as ContactIcon, Calendar, CreditCard, Eye, Zap, Shield, Cpu, Globe, Sparkles, CheckCircle, Clock, Target, Users, Award, Rocket, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Contact = () => {
@@ -321,6 +321,80 @@ const Contact = () => {
                   </form>
                 </div>
               </div>
+
+              {/* Nouvelle section ajoutée sous le formulaire */}
+              <div className="mt-8 space-y-6">
+                {/* Statistiques et certifications */}
+                <div className="relative bg-gradient-to-br from-emerald-900/60 via-teal-900/40 to-cyan-900/50 backdrop-blur-xl rounded-3xl p-6 text-white mx-2 sm:mx-0 border border-emerald-400/40 overflow-hidden group hover:border-emerald-400/60 transition-all duration-700 hover:shadow-[0_0_40px_rgba(16,185,129,0.3)]">
+                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/5 via-teal-400/10 to-cyan-400/5 opacity-0 group-hover:opacity-100 transition-all duration-700 rounded-3xl"></div>
+                  
+                  <div className="relative z-10">
+                    <div className="flex items-center mb-4">
+                      <div className="relative mr-3">
+                        <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/30 to-teal-400/30 rounded-xl blur-lg animate-pulse"></div>
+                        <div className="relative bg-gradient-to-r from-emerald-500 to-teal-500 p-3 rounded-xl">
+                          <Award className="w-6 h-6 text-white" />
+                        </div>
+                      </div>
+                      <h3 className="text-xl font-bold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+                        Certifications & Garanties
+                      </h3>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      {[
+                        { icon: <Star className="w-4 h-4" />, title: "Note 4.9/5", desc: "Sur tous nos projets", color: "emerald" },
+                        { icon: <Clock className="w-4 h-4" />, title: "Délais respectés", desc: "100% des projets", color: "teal" },
+                        { icon: <Shield className="w-4 h-4" />, title: "Garantie 2 ans", desc: "Maintenance incluse", color: "cyan" },
+                        { icon: <CheckCircle className="w-4 h-4" />, title: "Certifié", desc: "Qualité professionnelle", color: "emerald" }
+                      ].map((item, i) => (
+                        <div key={i} className="flex items-center p-3 bg-gradient-to-r from-slate-800/40 to-emerald-900/20 rounded-xl border border-white/10 hover:border-emerald-400/30 transition-all duration-500">
+                          <div className={`text-${item.color}-400 mr-3`}>
+                            {item.icon}
+                          </div>
+                          <div>
+                            <span className="font-semibold text-white text-sm block">{item.title}</span>
+                            <span className="text-gray-300 text-xs">{item.desc}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Pourquoi nous choisir - Version compacte */}
+                <div className="relative bg-gradient-to-br from-indigo-900/60 via-purple-900/40 to-pink-900/50 backdrop-blur-xl rounded-3xl p-6 text-white mx-2 sm:mx-0 border border-indigo-400/40 overflow-hidden group hover:border-indigo-400/60 transition-all duration-700 hover:shadow-[0_0_40px_rgba(99,102,241,0.3)]">
+                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-400/5 via-purple-400/10 to-pink-400/5 opacity-0 group-hover:opacity-100 transition-all duration-700 rounded-3xl"></div>
+                  
+                  <div className="relative z-10">
+                    <div className="flex items-center mb-4">
+                      <div className="relative mr-3">
+                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-400/30 to-purple-400/30 rounded-xl blur-lg animate-pulse"></div>
+                        <div className="relative bg-gradient-to-r from-indigo-500 to-purple-500 p-3 rounded-xl">
+                          <Rocket className="w-6 h-6 text-white" />
+                        </div>
+                      </div>
+                      <h3 className="text-xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                        Technologies de Pointe
+                      </h3>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {[
+                        "Intelligence Artificielle",
+                        "Responsive Design",
+                        "Sécurité Avancée",
+                        "Performance Optimisée"
+                      ].map((tech, i) => (
+                        <div key={i} className="flex items-center p-3 bg-gradient-to-r from-slate-800/40 to-indigo-900/20 rounded-xl border border-white/10 hover:border-indigo-400/30 transition-all duration-500">
+                          <Cpu className="w-4 h-4 text-indigo-400 mr-3" />
+                          <span className="font-medium text-white text-sm">{tech}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Informations de contact modernisées */}
@@ -467,7 +541,7 @@ const Contact = () => {
               <div className="bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 rounded-2xl p-8 text-white mx-2 sm:mx-0 shadow-[0_0_30px_rgba(16,185,129,0.4)] transform hover:scale-105 transition-all duration-300">
                 <h3 className="text-xl font-bold mb-4 flex items-center">
                   <Sparkles className="w-6 h-6 mr-2 animate-bounce" />
-                  🚀 Offre de Lancement
+                  Offre de Lancement
                 </h3>
                 <p className="text-lg mb-4">
                   <strong>-50% sur votre premier projet</strong>
