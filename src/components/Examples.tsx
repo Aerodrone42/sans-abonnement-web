@@ -16,7 +16,7 @@ const Examples = () => {
           icon: <Gem className="w-8 h-8" />,
           gradient: "from-amber-300 via-yellow-400 to-amber-600",
           bgPattern: "holographic-gold",
-          metrics: "500K€+ / création"
+          metrics: "50K€+ / création"
         },
         {
           title: "Horlogerie d'exception",
@@ -24,7 +24,7 @@ const Examples = () => {
           icon: <Watch className="w-8 h-8" />,
           gradient: "from-slate-300 via-gray-400 to-slate-600",
           bgPattern: "metallic-silver",
-          metrics: "100K€+ / pièce"
+          metrics: "25K€+ / pièce"
         }
       ]
     },
@@ -38,7 +38,7 @@ const Examples = () => {
           icon: <Flower2 className="w-8 h-8" />,
           gradient: "from-emerald-300 via-teal-400 to-cyan-600",
           bgPattern: "quantum-emerald",
-          metrics: "2K€+ / séance"
+          metrics: "500€+ / séance"
         },
         {
           title: "Architecture d'Avant-garde",
@@ -46,7 +46,7 @@ const Examples = () => {
           icon: <Building2 className="w-8 h-8" />,
           gradient: "from-blue-300 via-indigo-400 to-purple-600",
           bgPattern: "neural-blue",
-          metrics: "5M€+ / projet"
+          metrics: "2M€+ / projet"
         }
       ]
     },
@@ -60,7 +60,7 @@ const Examples = () => {
           icon: <Car className="w-8 h-8" />,
           gradient: "from-red-300 via-rose-400 to-red-600",
           bgPattern: "carbon-fiber",
-          metrics: "1M€+ / véhicule"
+          metrics: "200K€+ / véhicule"
         },
         {
           title: "Haute Couture Tech",
@@ -68,7 +68,7 @@ const Examples = () => {
           icon: <Shirt className="w-8 h-8" />,
           gradient: "from-purple-300 via-pink-400 to-rose-600",
           bgPattern: "silk-weave",
-          metrics: "50K€+ / création"
+          metrics: "15K€+ / création"
         }
       ]
     },
@@ -82,7 +82,7 @@ const Examples = () => {
           icon: <Plane className="w-8 h-8" />,
           gradient: "from-cyan-300 via-blue-400 to-indigo-600",
           bgPattern: "stellar-field",
-          metrics: "10M€+ / vol"
+          metrics: "500K€+ / vol"
         },
         {
           title: "Œnologie Quantique",
@@ -90,7 +90,7 @@ const Examples = () => {
           icon: <Wine className="w-8 h-8" />,
           gradient: "from-red-400 via-purple-500 to-violet-600",
           bgPattern: "vintage-crystal",
-          metrics: "500K€+ / cave"
+          metrics: "100K€+ / cave"
         }
       ]
     }
@@ -175,9 +175,9 @@ const Examples = () => {
           {/* Tech Indicators */}
           <div className="flex justify-center space-x-8 mb-12">
             {[
-              { label: "Clients Premium", value: "500M€+", icon: <Shield /> },
+              { label: "Chiffre d'Affaires", value: "10M€+", icon: <Shield /> },
               { label: "Technologies", value: "Next-Gen", icon: <Zap /> },
-              { label: "ROI Moyen", value: "850%", icon: <Sparkles /> }
+              { label: "ROI Moyen", value: "250%", icon: <Sparkles /> }
             ].map((stat, i) => (
               <div key={i} className="text-center group">
                 <div className="bg-gradient-to-r from-turquoise/20 to-accent/20 backdrop-blur-xl p-4 rounded-2xl border border-turquoise/20 group-hover:border-turquoise/50 transition-all duration-500 mb-3">
