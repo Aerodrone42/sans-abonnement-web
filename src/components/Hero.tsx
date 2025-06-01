@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Rocket, Zap, Code2 } from "lucide-react";
@@ -13,7 +12,7 @@ const Hero = () => {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('scroll', handleMouseMove);
   }, []);
 
   const scrollToContact = () => {
@@ -122,17 +121,6 @@ const Hero = () => {
               >
                 <Rocket className="mr-3 w-5 h-5 animate-bounce" />
                 Démarrer Mon Projet
-              </Button>
-            </div>
-            
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl blur-lg opacity-40 group-hover:opacity-80 transition-opacity duration-500"></div>
-              <Button 
-                variant="outline"
-                className="relative bg-transparent border-2 border-purple-400/50 hover:border-purple-300 text-purple-200 hover:text-white px-8 py-6 rounded-2xl font-bold transition-all duration-500 transform hover:scale-105 backdrop-blur-xl text-lg"
-              >
-                <Sparkles className="mr-3 w-5 h-5 animate-spin" />
-                Voir Portfolio
               </Button>
             </div>
           </div>
