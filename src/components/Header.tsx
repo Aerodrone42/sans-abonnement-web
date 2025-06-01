@@ -65,13 +65,13 @@ const Header = () => {
           {/* Navigation Futuriste */}
           <nav className="hidden md:flex items-center space-x-10">
             {[
-              { name: 'Technologies', id: 'services', icon: <Code className="w-4 h-4" /> },
+              { name: 'Technologies', id: 'portfolio', icon: <Code className="w-4 h-4" /> },
               { name: 'Réalisations', id: 'portfolio', icon: <Sparkles className="w-4 h-4" /> },
               { name: 'Processus', id: 'process', icon: <Zap className="w-4 h-4" /> },
               { name: 'Contact', id: 'contact', icon: <Sparkles className="w-4 h-4" /> }
             ].map((item) => (
               <button 
-                key={item.id}
+                key={item.name}
                 onClick={() => scrollToSection(item.id)} 
                 className="relative text-gray-300 hover:text-white transition-all duration-500 font-bold group py-3 px-2 flex items-center gap-2"
               >
@@ -112,13 +112,13 @@ const Header = () => {
             <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 blur-xl rounded-b-3xl"></div>
             <nav className="relative flex flex-col space-y-6 pt-8">
               {[
-                { name: 'Technologies', id: 'services' },
+                { name: 'Technologies', id: 'portfolio' },
                 { name: 'Réalisations', id: 'portfolio' },
                 { name: 'Processus', id: 'process' },
                 { name: 'Contact', id: 'contact' }
               ].map((item) => (
                 <button 
-                  key={item.id}
+                  key={item.name}
                   onClick={() => scrollToSection(item.id)} 
                   className="text-left text-gray-300 hover:text-cyan-400 transition-all duration-500 py-3 font-bold text-lg hover:scale-105 hover:translate-x-2"
                 >
