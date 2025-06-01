@@ -1,4 +1,5 @@
 
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Rocket, Zap, Code2 } from "lucide-react";
@@ -54,14 +55,14 @@ const Hero = () => {
 
       <div className="container mx-auto px-4 py-20 relative z-10">
         <div className="max-w-6xl mx-auto text-center pt-32">
-          {/* Titre principal moderne avec effet holographique */}
+          {/* Titre principal moderne avec effet holographique - TAILLE AUGMENTÉE */}
           <div className={`transition-all duration-1000 mb-16 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <div className="relative">
               {/* Lignes de scan animées */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent h-1 animate-slide-in-right" style={{animationDuration: '3s', animationIterationCount: 'infinite'}}></div>
               
-              {/* Titre principal avec effet moderne */}
-              <h1 className="text-lg md:text-xl lg:text-2xl font-mono font-bold text-white mb-4 relative">
+              {/* Titre principal avec effet moderne - TAILLE CONSIDÉRABLEMENT AUGMENTÉE */}
+              <h1 className="text-3xl md:text-5xl lg:text-7xl font-mono font-bold text-white mb-4 relative">
                 <span className="relative bg-gradient-to-r from-cyan-400 via-white to-purple-400 bg-clip-text text-transparent animate-pulse">
                   CRÉATION DE SITES WEB HAUT DE GAMME
                   
@@ -161,3 +162,4 @@ const Hero = () => {
 };
 
 export default Hero;
+
