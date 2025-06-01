@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Monitor, Smartphone, Tablet, Globe, Star, Sparkles } from "lucide-react";
+import { Monitor, Smartphone, Tablet, Globe, Star, Sparkles, Crown, Gem } from "lucide-react";
 
 const Examples = () => {
   const [selectedCategory, setSelectedCategory] = useState("tous");
@@ -9,7 +9,7 @@ const Examples = () => {
   const categories = [
     { id: "tous", label: "Tous les Sites", icon: <Globe className="w-4 h-4" /> },
     { id: "restaurant", label: "Restaurants", icon: <Sparkles className="w-4 h-4" /> },
-    { id: "service", label: "Services", icon: <Star className="w-4 h-4" /> },
+    { id: "luxe", label: "Services de Luxe", icon: <Crown className="w-4 h-4" /> },
     { id: "portfolio", label: "Portfolio", icon: <Monitor className="w-4 h-4" /> }
   ];
 
@@ -25,11 +25,11 @@ const Examples = () => {
     },
     {
       id: 2,
-      title: "Cabinet d'Avocats",
-      category: "service",
-      description: "Site professionnel avec prise de rendez-vous",
-      features: ["Prise de RDV", "Blog juridique", "Contact sécurisé"],
-      gradient: "from-blue-400 to-cyan-500",
+      title: "Joaillerie de Prestige",
+      category: "luxe",
+      description: "Vitrine élégante pour créations haute joaillerie",
+      features: ["Catalogue privé", "Sur-mesure", "Certificats"],
+      gradient: "from-yellow-400 to-amber-500",
       devices: ["desktop", "mobile"]
     },
     {
@@ -43,20 +43,20 @@ const Examples = () => {
     },
     {
       id: 4,
-      title: "Agence Immobilière",
-      category: "service",
-      description: "Plateforme immobilière avec recherche avancée",
-      features: ["Recherche avancée", "Visite virtuelle", "Estimation"],
-      gradient: "from-indigo-400 to-purple-500",
+      title: "Spa de Luxe",
+      category: "luxe",
+      description: "Expérience bien-être haut de gamme",
+      features: ["Soins premium", "Réservation VIP", "Programmes sur-mesure"],
+      gradient: "from-purple-400 to-pink-500",
       devices: ["desktop", "mobile"]
     },
     {
       id: 5,
-      title: "Startup Tech",
-      category: "service",
-      description: "Landing page moderne pour startup technologique",
-      features: ["Animation 3D", "Newsletter", "Demo produit"],
-      gradient: "from-cyan-400 to-blue-500",
+      title: "Cabinet d'Architecture",
+      category: "luxe",
+      description: "Portfolio d'architecte pour projets de prestige",
+      features: ["Projets exclusifs", "Visualisation 3D", "Consultation privée"],
+      gradient: "from-slate-400 to-blue-500",
       devices: ["desktop", "tablet", "mobile"]
     },
     {
