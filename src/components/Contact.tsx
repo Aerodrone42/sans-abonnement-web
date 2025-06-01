@@ -1,8 +1,9 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, Contact as ContactIcon, Calendar, CreditCard, Eye, Zap, Shield, Cpu, Globe, Sparkles } from "lucide-react";
+import { Mail, Contact as ContactIcon, Calendar, CreditCard, Eye, Zap, Shield, Cpu, Globe, Sparkles, CheckCircle, Clock, Target, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Contact = () => {
@@ -350,56 +351,116 @@ const Contact = () => {
                 </div>
               </div>
 
-              {/* Paiement et suivi */}
-              <div className="bg-gradient-to-br from-slate-800/40 via-indigo-900/30 to-purple-900/40 backdrop-blur-sm rounded-2xl p-8 text-white mx-2 sm:mx-0 border border-cyan-400/20">
-                <div className="flex items-center mb-4">
-                  <CreditCard className="w-8 h-8 text-cyan-400 mr-3 animate-pulse" />
-                  <h3 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">Paiement & Suivi</h3>
+              {/* Paiement et suivi - Modernisé */}
+              <div className="relative bg-gradient-to-br from-slate-800/60 via-blue-900/40 to-indigo-900/50 backdrop-blur-xl rounded-3xl p-8 text-white mx-2 sm:mx-0 border border-cyan-400/40 overflow-hidden group hover:border-cyan-400/60 transition-all duration-700 hover:shadow-[0_0_50px_rgba(34,211,238,0.4)]">
+                {/* Effet holographique en arrière-plan */}
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/5 via-blue-400/10 to-purple-400/5 opacity-0 group-hover:opacity-100 transition-all duration-700 rounded-3xl"></div>
+                
+                {/* Coins technologiques */}
+                <div className="absolute top-4 left-4 w-6 h-6 border-l-2 border-t-2 border-cyan-400/50 group-hover:border-cyan-400/80 transition-all duration-500"></div>
+                <div className="absolute top-4 right-4 w-6 h-6 border-r-2 border-t-2 border-purple-400/50 group-hover:border-purple-400/80 transition-all duration-500"></div>
+                <div className="absolute bottom-4 left-4 w-6 h-6 border-l-2 border-b-2 border-blue-400/50 group-hover:border-blue-400/80 transition-all duration-500"></div>
+                <div className="absolute bottom-4 right-4 w-6 h-6 border-r-2 border-b-2 border-cyan-400/50 group-hover:border-cyan-400/80 transition-all duration-500"></div>
+                
+                <div className="relative z-10">
+                  <div className="flex items-center mb-6">
+                    <div className="relative mr-4">
+                      <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/30 to-blue-400/30 rounded-xl blur-lg animate-pulse"></div>
+                      <div className="relative bg-gradient-to-r from-cyan-500 to-blue-500 p-4 rounded-xl">
+                        <CreditCard className="w-8 h-8 text-white" />
+                      </div>
+                    </div>
+                    <h3 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+                      Paiement & Suivi
+                    </h3>
+                    <div className="ml-auto">
+                      <Cpu className="w-6 h-6 text-cyan-400/70 animate-spin" style={{ animationDuration: '4s' }} />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {[
+                      { icon: <CreditCard className="w-5 h-5" />, title: "Paiement à la livraison", desc: "Aucun frais à l'avance", color: "cyan" },
+                      { icon: <Eye className="w-5 h-5" />, title: "Suivi temps réel", desc: "via plateforme dédiée", color: "blue" },
+                      { icon: <CheckCircle className="w-5 h-5" />, title: "Validation professionnelle", desc: "à chaque étape", color: "purple" },
+                      { icon: <Shield className="w-5 h-5" />, title: "Sécurité des données", desc: "garantie", color: "cyan" }
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-start p-4 bg-gradient-to-r from-slate-800/40 to-slate-700/30 rounded-xl border border-white/10 hover:border-cyan-400/30 transition-all duration-500 group/item">
+                        <div className={`text-${item.color}-400 mr-4 mt-0.5 group-hover/item:scale-110 transition-transform duration-300`}>
+                          {item.icon}
+                        </div>
+                        <div>
+                          <span className="font-semibold text-white text-base block">{item.title}</span>
+                          <span className="text-gray-300 text-sm">{item.desc}</span>
+                        </div>
+                        <div className="ml-auto">
+                          <div className={`w-2 h-2 bg-${item.color}-400 rounded-full animate-pulse`}></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <ul className="space-y-3">
-                  <li className="flex items-start text-base">
-                    <span className="text-cyan-400 mr-2 flex-shrink-0">💳</span>
-                    <span><strong>Paiement à la livraison</strong> - Aucun frais à l'avance</span>
-                  </li>
-                  <li className="flex items-start text-base">
-                    <span className="text-cyan-400 mr-2 flex-shrink-0">👀</span>
-                    <span><strong>Suivi temps réel</strong> via plateforme dédiée</span>
-                  </li>
-                  <li className="flex items-start text-base">
-                    <span className="text-cyan-400 mr-2 flex-shrink-0">✅</span>
-                    <span>Validation professionnelle à chaque étape</span>
-                  </li>
-                  <li className="flex items-start text-base">
-                    <span className="text-cyan-400 mr-2 flex-shrink-0">🔒</span>
-                    <span>Sécurité des données garantie</span>
-                  </li>
-                </ul>
               </div>
 
-              {/* Réponse garantie */}
-              <div className="bg-gradient-to-br from-slate-800/40 via-indigo-900/30 to-purple-900/40 backdrop-blur-sm rounded-2xl p-8 text-white mx-2 sm:mx-0 border border-cyan-400/20">
-                <div className="flex items-center mb-4">
-                  <Calendar className="w-8 h-8 text-cyan-400 mr-3 animate-pulse" />
-                  <h3 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">Service Professionnel</h3>
+              {/* Service professionnel - Modernisé */}
+              <div className="relative bg-gradient-to-br from-purple-900/60 via-indigo-900/40 to-slate-800/50 backdrop-blur-xl rounded-3xl p-8 text-white mx-2 sm:mx-0 border border-purple-400/40 overflow-hidden group hover:border-purple-400/60 transition-all duration-700 hover:shadow-[0_0_50px_rgba(147,51,234,0.4)]">
+                {/* Effet holographique en arrière-plan */}
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-400/5 via-pink-400/10 to-blue-400/5 opacity-0 group-hover:opacity-100 transition-all duration-700 rounded-3xl"></div>
+                
+                {/* Particules flottantes tech */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                  {[...Array(6)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="absolute w-1 h-1 bg-gradient-to-r from-purple-300/40 to-pink-300/40 rounded-full"
+                      style={{
+                        left: `${20 + Math.random() * 60}%`,
+                        top: `${20 + Math.random() * 60}%`,
+                        animation: `float ${8 + Math.random() * 6}s ease-in-out infinite`,
+                        animationDelay: `${Math.random() * 3}s`,
+                      }}
+                    />
+                  ))}
                 </div>
-                <ul className="space-y-3">
-                  <li className="flex items-start text-base">
-                    <span className="text-cyan-400 mr-2 flex-shrink-0">🔍</span>
-                    <span>Analyse experte de votre demande</span>
-                  </li>
-                  <li className="flex items-start text-base">
-                    <span className="text-cyan-400 mr-2 flex-shrink-0">⚡</span>
-                    <span>Devis personnalisé sous 24h</span>
-                  </li>
-                  <li className="flex items-start text-base">
-                    <span className="text-cyan-400 mr-2 flex-shrink-0">🎯</span>
-                    <span>Recommandations adaptées à vos besoins</span>
-                  </li>
-                  <li className="flex items-start text-base">
-                    <span className="text-cyan-400 mr-2 flex-shrink-0">🚫</span>
-                    <span>Zéro spam - Communication professionnelle uniquement</span>
-                  </li>
-                </ul>
+                
+                <div className="relative z-10">
+                  <div className="flex items-center mb-6">
+                    <div className="relative mr-4">
+                      <div className="absolute inset-0 bg-gradient-to-r from-purple-400/30 to-pink-400/30 rounded-xl blur-lg animate-pulse"></div>
+                      <div className="relative bg-gradient-to-r from-purple-500 to-pink-500 p-4 rounded-xl">
+                        <Calendar className="w-8 h-8 text-white" />
+                      </div>
+                    </div>
+                    <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+                      Service Professionnel
+                    </h3>
+                    <div className="ml-auto">
+                      <Sparkles className="w-6 h-6 text-purple-400/70 animate-bounce" style={{ animationDuration: '3s' }} />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {[
+                      { icon: <Target className="w-5 h-5" />, title: "Analyse experte", desc: "de votre demande", color: "purple" },
+                      { icon: <Zap className="w-5 h-5" />, title: "Devis personnalisé", desc: "sous 24h", color: "pink" },
+                      { icon: <Users className="w-5 h-5" />, title: "Recommandations adaptées", desc: "à vos besoins", color: "cyan" },
+                      { icon: <Shield className="w-5 h-5" />, title: "Zéro spam", desc: "Communication professionnelle uniquement", color: "purple" }
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-start p-4 bg-gradient-to-r from-slate-800/40 to-purple-900/20 rounded-xl border border-white/10 hover:border-purple-400/30 transition-all duration-500 group/item">
+                        <div className={`text-${item.color}-400 mr-4 mt-0.5 group-hover/item:scale-110 transition-transform duration-300`}>
+                          {item.icon}
+                        </div>
+                        <div>
+                          <span className="font-semibold text-white text-base block">{item.title}</span>
+                          <span className="text-gray-300 text-sm">{item.desc}</span>
+                        </div>
+                        <div className="ml-auto">
+                          <div className={`w-2 h-2 bg-${item.color}-400 rounded-full animate-pulse`}></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               {/* Offre spéciale */}
