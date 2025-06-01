@@ -133,59 +133,47 @@ const Contact = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            {/* Formulaire Ultra-Moderne avec éclairs */}
+            {/* Formulaire Ultra-Moderne avec effets doux */}
             <div className="w-full order-1 lg:order-1">
               <div className="relative bg-gradient-to-br from-slate-800/40 via-indigo-900/30 to-purple-900/40 backdrop-blur-2xl rounded-3xl p-8 border border-cyan-400/30 shadow-[0_0_50px_rgba(34,211,238,0.2)] mx-2 sm:mx-0 overflow-hidden transform transition-all duration-500 hover:shadow-[0_0_80px_rgba(34,211,238,0.4)] hover:scale-[1.02]">
                 
                 {/* Effet de scan holographique */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent transform -skew-x-12 translate-x-[-100%] animate-[slide-in-right_4s_ease-in-out_infinite]"></div>
                 
-                {/* Éclairs dynamiques sur hover */}
+                {/* Effets doux au survol */}
                 {hoveredField && (
                   <>
-                    {/* Éclair principal diagonal */}
-                    <div className="absolute top-0 left-1/4 w-1 h-full bg-gradient-to-b from-transparent via-yellow-300 to-transparent opacity-90 transform rotate-12 animate-lightning-flash z-20">
-                      <div className="absolute inset-0 bg-white/80 blur-sm animate-lightning-glow"></div>
-                      <div className="absolute inset-0 bg-yellow-300/60 blur-md animate-lightning-glow"></div>
-                    </div>
-                    
-                    {/* Éclair secondaire en zigzag */}
-                    <div className="absolute top-1/4 right-1/3 w-0.5 h-3/4 animate-lightning-zigzag z-20">
-                      <div className="w-full h-1/3 bg-gradient-to-b from-yellow-400 to-transparent transform rotate-6"></div>
-                      <div className="w-full h-1/3 bg-gradient-to-b from-transparent via-white to-transparent transform -rotate-12 translate-x-2"></div>
-                      <div className="w-full h-1/3 bg-gradient-to-b from-transparent to-yellow-400 transform rotate-6 translate-x-1"></div>
-                      <div className="absolute inset-0 bg-white/60 blur-lg animate-lightning-intense"></div>
-                    </div>
-                    
-                    {/* Éclairs périphériques multiples */}
-                    <div className="absolute top-10 left-10 w-0.5 h-20 bg-gradient-to-b from-yellow-300 to-transparent transform rotate-45 animate-lightning-spark z-20">
-                      <div className="absolute inset-0 bg-white/70 blur-sm"></div>
-                    </div>
-                    
-                    <div className="absolute bottom-20 right-10 w-0.5 h-24 bg-gradient-to-t from-cyan-300 to-transparent transform -rotate-30 animate-lightning-spark z-20" style={{ animationDelay: '0.1s' }}>
-                      <div className="absolute inset-0 bg-cyan-300/80 blur-md"></div>
-                    </div>
-                    
-                    <div className="absolute top-1/2 left-4 w-0.5 h-16 bg-gradient-to-b from-purple-300 to-transparent transform rotate-75 animate-lightning-spark z-20" style={{ animationDelay: '0.2s' }}>
-                      <div className="absolute inset-0 bg-purple-300/70 blur-sm"></div>
-                    </div>
-                    
-                    {/* Effet d'éblouissement global */}
-                    <div className="absolute inset-0 bg-gradient-radial from-yellow-300/20 via-white/10 to-transparent animate-lightning-dazzle z-10"></div>
-                    
-                    {/* Particules électriques */}
-                    {[...Array(15)].map((_, i) => (
+                    {/* Particules flottantes douces */}
+                    {[...Array(20)].map((_, i) => (
                       <div
                         key={i}
-                        className="absolute w-1 h-1 bg-yellow-300 rounded-full z-15 animate-electric-particle"
+                        className="absolute w-2 h-2 bg-gradient-to-r from-cyan-300 to-blue-300 rounded-full opacity-40 animate-float z-15"
                         style={{
-                          left: `${20 + Math.random() * 60}%`,
-                          top: `${20 + Math.random() * 60}%`,
-                          animationDelay: `${Math.random() * 0.5}s`,
-                          boxShadow: '0 0 8px rgba(253, 224, 71, 0.8)'
+                          left: `${10 + Math.random() * 80}%`,
+                          top: `${10 + Math.random() * 80}%`,
+                          animationDelay: `${Math.random() * 2}s`,
+                          animationDuration: `${4 + Math.random() * 3}s`,
+                          boxShadow: '0 0 15px rgba(34, 211, 238, 0.6)'
                         }}
                       />
                     ))}
+                    
+                    {/* Lueur douce qui se propage */}
+                    <div className="absolute inset-0 bg-gradient-radial from-cyan-400/10 via-blue-400/5 to-transparent animate-pulse z-10"></div>
+                    
+                    {/* Ondulations concentriques douces */}
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                      <div className="w-32 h-32 border border-cyan-400/20 rounded-full animate-ping"></div>
+                      <div className="absolute top-4 left-4 w-24 h-24 border border-blue-400/15 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
+                      <div className="absolute top-8 left-8 w-16 h-16 border border-purple-400/10 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
+                    </div>
+                    
+                    {/* Vagues de lumière douce */}
+                    <div className="absolute top-0 left-0 w-full h-full z-5">
+                      <div className="w-full h-1 bg-gradient-to-r from-transparent via-cyan-300/30 to-transparent animate-pulse"></div>
+                      <div className="absolute top-1/3 w-full h-1 bg-gradient-to-r from-transparent via-blue-300/20 to-transparent animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                      <div className="absolute top-2/3 w-full h-1 bg-gradient-to-r from-transparent via-purple-300/25 to-transparent animate-pulse" style={{ animationDelay: '1s' }}></div>
+                    </div>
                   </>
                 )}
                 
@@ -245,11 +233,11 @@ const Contact = () => {
                             onMouseEnter={() => setHoveredField('name')}
                             onMouseLeave={() => setHoveredField(null)}
                             required
-                            className="w-full bg-slate-800/50 border-2 border-cyan-400/30 text-white placeholder:text-gray-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 backdrop-blur-sm transition-all duration-300 rounded-xl px-4 py-3 text-base hover:border-yellow-400/50 hover:shadow-[0_0_20px_rgba(253,224,71,0.3)]"
+                            className="w-full bg-slate-800/50 border-2 border-cyan-400/30 text-white placeholder:text-gray-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 backdrop-blur-sm transition-all duration-500 rounded-xl px-4 py-3 text-base hover:border-cyan-400/60 hover:shadow-[0_0_25px_rgba(34,211,238,0.3)]"
                             placeholder="Votre nom complet"
                           />
                           {(focusedField === 'name' || hoveredField === 'name') && (
-                            <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400/30 to-purple-400/30 rounded-xl blur-sm animate-pulse"></div>
+                            <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400/20 to-purple-400/20 rounded-xl blur-sm animate-pulse"></div>
                           )}
                         </div>
                       </div>
@@ -270,11 +258,11 @@ const Contact = () => {
                             onMouseEnter={() => setHoveredField('email')}
                             onMouseLeave={() => setHoveredField(null)}
                             required
-                            className="w-full bg-slate-800/50 border-2 border-cyan-400/30 text-white placeholder:text-gray-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 backdrop-blur-sm transition-all duration-300 rounded-xl px-4 py-3 text-base hover:border-yellow-400/50 hover:shadow-[0_0_20px_rgba(253,224,71,0.3)]"
+                            className="w-full bg-slate-800/50 border-2 border-cyan-400/30 text-white placeholder:text-gray-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 backdrop-blur-sm transition-all duration-500 rounded-xl px-4 py-3 text-base hover:border-cyan-400/60 hover:shadow-[0_0_25px_rgba(34,211,238,0.3)]"
                             placeholder="email@domaine.com"
                           />
                           {(focusedField === 'email' || hoveredField === 'email') && (
-                            <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400/30 to-blue-400/30 rounded-xl blur-sm animate-pulse"></div>
+                            <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400/20 to-blue-400/20 rounded-xl blur-sm animate-pulse"></div>
                           )}
                         </div>
                       </div>
@@ -295,11 +283,11 @@ const Contact = () => {
                             onBlur={() => setFocusedField(null)}
                             onMouseEnter={() => setHoveredField('phone')}
                             onMouseLeave={() => setHoveredField(null)}
-                            className="w-full bg-slate-800/50 border-2 border-cyan-400/30 text-white placeholder:text-gray-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 backdrop-blur-sm transition-all duration-300 rounded-xl px-4 py-3 text-base hover:border-yellow-400/50 hover:shadow-[0_0_20px_rgba(253,224,71,0.3)]"
+                            className="w-full bg-slate-800/50 border-2 border-cyan-400/30 text-white placeholder:text-gray-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 backdrop-blur-sm transition-all duration-500 rounded-xl px-4 py-3 text-base hover:border-cyan-400/60 hover:shadow-[0_0_25px_rgba(34,211,238,0.3)]"
                             placeholder="06 12 34 56 78"
                           />
                           {(focusedField === 'phone' || hoveredField === 'phone') && (
-                            <div className="absolute -inset-1 bg-gradient-to-r from-green-400/30 to-cyan-400/30 rounded-xl blur-sm animate-pulse"></div>
+                            <div className="absolute -inset-1 bg-gradient-to-r from-green-400/20 to-cyan-400/20 rounded-xl blur-sm animate-pulse"></div>
                           )}
                         </div>
                       </div>
@@ -320,11 +308,11 @@ const Contact = () => {
                             onMouseEnter={() => setHoveredField('business')}
                             onMouseLeave={() => setHoveredField(null)}
                             required
-                            className="w-full bg-slate-800/50 border-2 border-cyan-400/30 text-white placeholder:text-gray-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 backdrop-blur-sm transition-all duration-300 rounded-xl px-4 py-3 text-base hover:border-yellow-400/50 hover:shadow-[0_0_20px_rgba(253,224,71,0.3)]"
+                            className="w-full bg-slate-800/50 border-2 border-cyan-400/30 text-white placeholder:text-gray-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 backdrop-blur-sm transition-all duration-500 rounded-xl px-4 py-3 text-base hover:border-cyan-400/60 hover:shadow-[0_0_25px_rgba(34,211,238,0.3)]"
                             placeholder="Artisan, Commerce, Tech..."
                           />
                           {(focusedField === 'business' || hoveredField === 'business') && (
-                            <div className="absolute -inset-1 bg-gradient-to-r from-purple-400/30 to-pink-400/30 rounded-xl blur-sm animate-pulse"></div>
+                            <div className="absolute -inset-1 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-xl blur-sm animate-pulse"></div>
                           )}
                         </div>
                       </div>
@@ -345,11 +333,11 @@ const Contact = () => {
                           onMouseEnter={() => setHoveredField('message')}
                           onMouseLeave={() => setHoveredField(null)}
                           rows={4}
-                          className="w-full resize-none bg-slate-800/50 border-2 border-cyan-400/30 text-white placeholder:text-gray-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 backdrop-blur-sm transition-all duration-300 rounded-xl px-4 py-3 text-base hover:border-yellow-400/50 hover:shadow-[0_0_20px_rgba(253,224,71,0.3)]"
+                          className="w-full resize-none bg-slate-800/50 border-2 border-cyan-400/30 text-white placeholder:text-gray-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 backdrop-blur-sm transition-all duration-500 rounded-xl px-4 py-3 text-base hover:border-cyan-400/60 hover:shadow-[0_0_25px_rgba(34,211,238,0.3)]"
                           placeholder="Décrivez votre vision, vos besoins, vos objectifs... Notre équipe analysera chaque détail pour vous proposer la solution parfaite."
                         />
                         {(focusedField === 'message' || hoveredField === 'message') && (
-                          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400/30 to-purple-400/30 rounded-xl blur-sm animate-pulse"></div>
+                          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400/20 to-purple-400/20 rounded-xl blur-sm animate-pulse"></div>
                         )}
                       </div>
                     </div>
