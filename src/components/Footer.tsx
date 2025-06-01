@@ -20,7 +20,7 @@ const Footer = () => {
             </p>
             <div className="flex space-x-4">
               <span className="bg-accent px-3 py-1 rounded-full text-sm">Sans abonnement</span>
-              <span className="bg-primary px-3 py-1 rounded-full text-sm">Livré en 14 jours</span>
+              <span className="bg-primary px-3 py-1 rounded-full text-sm">Livré en 4 jours</span>
             </div>
           </div>
 
