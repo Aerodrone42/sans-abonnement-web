@@ -206,7 +206,7 @@ const WhyChooseUs = () => {
               {/* Background Tech Pattern */}
               <div className="absolute inset-0 opacity-10">
                 <div className="w-full h-full" style={{
-                  backgroundImage: `radial-gradient(circle at 2px 2px, rgba(6,182,212,0.3) 1px, transparent 0)`
+                  backgroundImage: `radial-gradient(circle at 2px 2px, rgba(6,182,212,0.3) 1px, transparent 0)`,
                   backgroundSize: '40px 40px'
                 }}></div>
               </div>
