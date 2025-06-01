@@ -53,70 +53,45 @@ const Hero = () => {
       ></div>
 
       <div className="container mx-auto px-4 py-20 relative z-10">
-        <div className="max-w-6xl mx-auto text-center">
-          {/* Modern compact tech title */}
+        <div className="max-w-6xl mx-auto text-center pt-20">
+          {/* Compact tech title */}
           <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-8 relative">
-              {/* Tech frame border */}
-              <div className="absolute -inset-8 border border-cyan-400/20 rounded-lg">
-                <div className="absolute -top-1 -left-1 w-4 h-4 border-l-2 border-t-2 border-cyan-400"></div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 border-r-2 border-t-2 border-cyan-400"></div>
-                <div className="absolute -bottom-1 -left-1 w-4 h-4 border-l-2 border-b-2 border-cyan-400"></div>
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 border-r-2 border-b-2 border-cyan-400"></div>
-              </div>
-
-              {/* First line: CRÉATION */}
-              <div className="relative mb-2">
-                <span className="bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent font-extrabold tracking-[0.3em] uppercase">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 relative">
+              {/* CRÉATION - Cyan */}
+              <div className="mb-1">
+                <span className="bg-gradient-to-r from-cyan-400 to-cyan-200 bg-clip-text text-transparent font-black tracking-[0.15em] uppercase">
                   CRÉATION
                 </span>
-                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent"></div>
               </div>
 
-              {/* Second line: DE SITES WEB */}
-              <div className="relative mb-2">
-                <span className="bg-gradient-to-r from-purple-300 to-pink-400 bg-clip-text text-transparent font-bold tracking-[0.2em] uppercase">
+              {/* DE SITES WEB - Purple to Pink */}
+              <div className="mb-1">
+                <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-black tracking-[0.1em] uppercase">
                   DE SITES WEB
                 </span>
               </div>
 
-              {/* Third line: HAUT DE GAMME with smaller, tech styling */}
+              {/* HAUT DE GAMME - Gold/Yellow */}
               <div className="relative">
-                <span className="bg-gradient-to-r from-amber-300 to-yellow-400 bg-clip-text text-transparent font-black tracking-[0.1em] uppercase text-xl md:text-3xl lg:text-4xl">
+                <span className="bg-gradient-to-r from-yellow-400 to-amber-300 bg-clip-text text-transparent font-black tracking-[0.05em] uppercase">
                   HAUT DE GAMME
                 </span>
-                {/* Tech underline */}
-                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-px bg-gradient-to-r from-transparent via-amber-400 to-transparent"></div>
-                
-                {/* Small tech accents */}
-                <div className="absolute -right-8 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
-                <div className="absolute -left-8 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-purple-400 rounded-full animate-pulse" style={{animationDelay: '0.5s'}}></div>
               </div>
-              
-              {/* Small floating tech icons */}
-              <Code2 className="absolute -top-6 -right-8 w-5 h-5 text-cyan-400 animate-float opacity-70" />
-              <Zap className="absolute -top-6 -left-8 w-4 h-4 text-yellow-400 animate-pulse opacity-60" />
             </h1>
           </div>
 
-          {/* Subtitle with corrected information */}
+          {/* Subtitle */}
           <div className={`transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <p className="text-lg md:text-xl lg:text-2xl text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-purple-300 font-semibold">
-                Pas d'abonnement
-              </span>
+            <p className="text-lg md:text-xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
+              <span className="text-cyan-400 font-semibold">Pas d'abonnement</span>
               {" • "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-pink-300 font-semibold">
-                Design Luxe
-              </span>
+              <span className="text-purple-400 font-semibold">Design Luxe</span>
               {" • "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-300 font-semibold">
-                4 jours minimum
-              </span>
+              <span className="text-cyan-400 font-semibold">4 jours minimum</span>
             </p>
           </div>
 
-          {/* Features grid with corrected information */}
+          {/* Features grid */}
           <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             {[
               { icon: <Rocket className="w-6 h-6" />, title: "Livraison Premium", desc: "4 jours minimum", gradient: "from-red-400 to-pink-500" },
@@ -136,7 +111,7 @@ const Hero = () => {
             ))}
           </div>
 
-          {/* CTA Buttons with advanced effects */}
+          {/* CTA Buttons */}
           <div className={`flex flex-col md:flex-row gap-6 justify-center items-center transition-all duration-1000 delay-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <div className="relative group">
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-2xl blur-lg opacity-60 group-hover:opacity-100 transition-opacity duration-500 animate-pulse"></div>
@@ -150,7 +125,7 @@ const Hero = () => {
             </div>
           </div>
 
-          {/* Stats section with corrected information */}
+          {/* Stats section */}
           <div className={`mt-16 grid grid-cols-3 gap-8 transition-all duration-1000 delay-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             {[
               { number: "150+", label: "Sites Créés", gradient: "from-cyan-400 to-blue-500" },
