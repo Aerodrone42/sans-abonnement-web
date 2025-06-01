@@ -11,8 +11,8 @@ const FAQ = () => {
       gradient: "from-emerald-400 to-cyan-500"
     },
     {
-      question: "Combien coûte la création de mon site internet haut de gamme ?",
-      answer: "Nos tarifs commencent à partir de 2000€ pour un site web de luxe entièrement personnalisé. Ce prix inclut la création sur-mesure, l'optimisation SEO avancée, l'adaptation mobile premium et l'hébergement haute performance. Demandez votre devis gratuit personnalisé.",
+      question: "À partir de combien commence la création de mon site internet haut de gamme ?",
+      answer: "Nos sites web de luxe entièrement personnalisés commencent à partir de 2000€. Ce prix de base inclut la création sur-mesure, l'optimisation SEO avancée, l'adaptation mobile premium et l'hébergement haute performance. Le coût final dépend de vos besoins spécifiques. Demandez votre devis gratuit personnalisé.",
       gradient: "from-purple-400 to-pink-500"
     },
     {
@@ -26,13 +26,13 @@ const FAQ = () => {
       gradient: "from-orange-400 to-red-500"
     },
     {
-      question: "Qu'est-ce qui est inclus dans le prix premium ?",
-      answer: "Le prix inclus : conception graphique sur-mesure exclusive, développement complet avec technologies avancées, optimisation SEO premium, adaptation mobile et tablette parfaite, hébergement sécurisé haute performance, nom de domaine, formation personnalisée et support technique VIP.",
+      question: "Qu'est-ce qui est inclus dans le prix de base ?",
+      answer: "Le prix de base inclut : conception graphique sur-mesure exclusive, développement complet avec technologies avancées, optimisation SEO premium, adaptation mobile et tablette parfaite, hébergement sécurisé haute performance, nom de domaine, formation personnalisée et support technique VIP.",
       gradient: "from-violet-400 to-purple-500"
     },
     {
       question: "Combien de temps pour créer mon site de luxe ?",
-      answer: "La création de votre site internet haut de gamme est adaptée à votre projet spécifique. Le délai varie selon la complexité et vos exigences premium. Nous respectons toujours nos délais convenus et vous tenons informé de l'avancement à chaque étape.",
+      answer: "La création de votre site internet haut de gamme prend minimum 4 jours et varie selon la complexité et vos exigences premium. Nous respectons toujours nos délais convenus et vous tenons informé de l'avancement à chaque étape.",
       gradient: "from-green-400 to-emerald-500"
     }
   ];

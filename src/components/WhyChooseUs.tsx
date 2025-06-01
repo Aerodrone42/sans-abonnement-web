@@ -13,7 +13,7 @@ const WhyChooseUs = () => {
     {
       icon: <Zap className="w-8 h-8 md:w-10 md:h-10" />,
       title: "Livraison Sur-Mesure",
-      description: "Délai de livraison adapté à votre projet avec un suivi personnalisé premium.",
+      description: "Délai de livraison adapté à votre projet, minimum 4 jours avec un suivi personnalisé premium.",
       gradient: "from-purple-400 via-pink-500 to-rose-600",
       delay: "0.2s",
       particles: "purple"
@@ -195,7 +195,7 @@ const WhyChooseUs = () => {
           ))}
         </div>
 
-        {/* Quantum CTA Section */}
+        {/* Quantum CTA Section with corrected pricing information */}
         <div className="text-center mt-20 md:mt-32">
           <div className="relative inline-block">
             {/* Quantum Field */}

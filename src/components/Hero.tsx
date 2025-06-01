@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Rocket, Zap, Code2 } from "lucide-react";
@@ -75,7 +74,7 @@ const Hero = () => {
             </h1>
           </div>
 
-          {/* Subtitle with typewriter effect */}
+          {/* Subtitle with corrected information */}
           <div className={`transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <p className="text-lg md:text-xl lg:text-2xl text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-purple-300 font-semibold">
@@ -87,15 +86,15 @@ const Hero = () => {
               </span>
               {" • "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-300 font-semibold">
-                À partir de 2000€
+                4 jours minimum
               </span>
             </p>
           </div>
 
-          {/* Features grid with hover effects */}
+          {/* Features grid with corrected information */}
           <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             {[
-              { icon: <Rocket className="w-6 h-6" />, title: "Livraison Premium", desc: "Selon votre projet", gradient: "from-red-400 to-pink-500" },
+              { icon: <Rocket className="w-6 h-6" />, title: "Livraison Premium", desc: "4 jours minimum", gradient: "from-red-400 to-pink-500" },
               { icon: <Sparkles className="w-6 h-6" />, title: "Design Luxe", desc: "Interface exclusive", gradient: "from-cyan-400 to-blue-500" },
               { icon: <Zap className="w-6 h-6" />, title: "Performance", desc: "Ultra-rapide", gradient: "from-purple-400 to-violet-500" }
             ].map((feature, index) => (
@@ -126,7 +125,7 @@ const Hero = () => {
             </div>
           </div>
 
-          {/* Stats section with animated counters */}
+          {/* Stats section with corrected information */}
           <div className={`mt-16 grid grid-cols-3 gap-8 transition-all duration-1000 delay-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             {[
               { number: "150+", label: "Sites Créés", gradient: "from-cyan-400 to-blue-500" },
