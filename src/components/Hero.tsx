@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Rocket, Zap, Code2 } from "lucide-react";
@@ -5,9 +6,6 @@ import { Sparkles, Rocket, Zap, Code2 } from "lucide-react";
 const Hero = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isVisible, setIsVisible] = useState(false);
-  const [typedText, setTypedText] = useState("");
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const fullText = "CRÉATION DE SITES WEB HAUT DE GAMME";
 
   useEffect(() => {
     setIsVisible(true);
@@ -17,17 +15,6 @@ const Hero = () => {
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
-
-  // Machine à écrire effect
-  useEffect(() => {
-    if (currentIndex < fullText.length) {
-      const timer = setTimeout(() => {
-        setTypedText(fullText.slice(0, currentIndex + 1));
-        setCurrentIndex(currentIndex + 1);
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [currentIndex, fullText]);
 
   const scrollToContact = () => {
     document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
@@ -67,24 +54,23 @@ const Hero = () => {
 
       <div className="container mx-auto px-4 py-20 relative z-10">
         <div className="max-w-6xl mx-auto text-center pt-32">
-          {/* Titre technologique avec animations - VERSION PLUS PETITE */}
+          {/* Titre principal moderne avec effet holographique */}
           <div className={`transition-all duration-1000 mb-16 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <div className="relative">
-              {/* Lignes de scan */}
+              {/* Lignes de scan animées */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent h-1 animate-slide-in-right" style={{animationDuration: '3s', animationIterationCount: 'infinite'}}></div>
               
-              {/* Titre principal avec effet de machine à écrire - TAILLE RÉDUITE */}
+              {/* Titre principal avec effet moderne */}
               <h1 className="text-lg md:text-xl lg:text-2xl font-mono font-bold text-white mb-4 relative">
-                <span className="relative">
-                  {typedText}
-                  <span className="animate-pulse text-cyan-400">|</span>
+                <span className="relative bg-gradient-to-r from-cyan-400 via-white to-purple-400 bg-clip-text text-transparent animate-pulse">
+                  CRÉATION DE SITES WEB HAUT DE GAMME
                   
-                  {/* Effet de glitch */}
-                  <span className="absolute inset-0 text-cyan-400 opacity-30 animate-lightning-flash" style={{animationDelay: '2s'}}>
-                    {typedText}
+                  {/* Effet de lueur holographique */}
+                  <span className="absolute inset-0 text-cyan-400/30 animate-lightning-glow">
+                    CRÉATION DE SITES WEB HAUT DE GAMME
                   </span>
-                  <span className="absolute inset-0 text-red-400 opacity-20 animate-lightning-flash" style={{animationDelay: '2.1s', transform: 'translateX(2px)'}}>
-                    {typedText}
+                  <span className="absolute inset-0 text-purple-400/20 animate-lightning-glow" style={{animationDelay: '0.5s'}}>
+                    CRÉATION DE SITES WEB HAUT DE GAMME
                   </span>
                 </span>
               </h1>
