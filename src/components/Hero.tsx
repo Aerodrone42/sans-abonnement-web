@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Rocket, Zap, Code2 } from "lucide-react";
@@ -62,7 +63,7 @@ const Hero = () => {
               </span>
               <br />
               <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent relative">
-                <span className="animate-glow">Nouvelle Génération</span>
+                <span className="animate-glow">Haut de Gamme</span>
                 {/* Glowing underline */}
                 <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full animate-glow shadow-lg shadow-cyan-400/50"></div>
               </span>
@@ -82,11 +83,11 @@ const Hero = () => {
               </span>
               {" • "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-pink-300 font-semibold">
-                Design Futuriste
+                Design Luxe
               </span>
               {" • "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-300 font-semibold">
-                IA Intégrée
+                À partir de 2000€
               </span>
             </p>
           </div>
@@ -94,8 +95,8 @@ const Hero = () => {
           {/* Features grid with hover effects */}
           <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             {[
-              { icon: <Rocket className="w-6 h-6" />, title: "Livraison Express", desc: "4 jours maximum", gradient: "from-red-400 to-pink-500" },
-              { icon: <Sparkles className="w-6 h-6" />, title: "Design Premium", desc: "Interface moderne", gradient: "from-cyan-400 to-blue-500" },
+              { icon: <Rocket className="w-6 h-6" />, title: "Livraison Premium", desc: "Selon votre projet", gradient: "from-red-400 to-pink-500" },
+              { icon: <Sparkles className="w-6 h-6" />, title: "Design Luxe", desc: "Interface exclusive", gradient: "from-cyan-400 to-blue-500" },
               { icon: <Zap className="w-6 h-6" />, title: "Performance", desc: "Ultra-rapide", gradient: "from-purple-400 to-violet-500" }
             ].map((feature, index) => (
               <div key={index} className="group relative">
@@ -130,7 +131,7 @@ const Hero = () => {
             {[
               { number: "150+", label: "Sites Créés", gradient: "from-cyan-400 to-blue-500" },
               { number: "98%", label: "Satisfaction", gradient: "from-purple-400 to-pink-500" },
-              { number: "4j", label: "Livraison", gradient: "from-green-400 to-emerald-500" }
+              { number: "2000€+", label: "À partir de", gradient: "from-green-400 to-emerald-500" }
             ].map((stat, index) => (
               <div key={index} className="text-center group">
                 <div className={`text-2xl md:text-3xl font-black bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent mb-2 group-hover:animate-pulse`}>

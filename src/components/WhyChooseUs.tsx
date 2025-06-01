@@ -1,4 +1,3 @@
-
 import { Shield, Zap, Users, Award, Sparkles, Code2, Stars, Cpu, Globe, Rocket } from "lucide-react";
 
 const WhyChooseUs = () => {
@@ -13,8 +12,8 @@ const WhyChooseUs = () => {
     },
     {
       icon: <Zap className="w-8 h-8 md:w-10 md:h-10" />,
-      title: "Livraison Express",
-      description: "Votre site professionnel livré en 4 jours maximum avec notre processus optimisé.",
+      title: "Livraison Sur-Mesure",
+      description: "Délai de livraison adapté à votre projet avec un suivi personnalisé premium.",
       gradient: "from-purple-400 via-pink-500 to-rose-600",
       delay: "0.2s",
       particles: "purple"
@@ -228,7 +227,7 @@ const WhyChooseUs = () => {
                   <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
                   <div className="flex items-center gap-2 text-purple-400">
                     <Sparkles className="w-5 h-5 animate-pulse" />
-                    <span className="text-sm font-medium">Technologies Avancées</span>
+                    <span className="text-sm font-medium">À partir de 2000€</span>
                   </div>
                 </div>
                 

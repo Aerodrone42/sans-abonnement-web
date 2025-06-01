@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { ChevronDown, ChevronUp, HelpCircle, Sparkles } from "lucide-react";
 
@@ -8,32 +7,32 @@ const FAQ = () => {
   const faqs = [
     {
       question: "Pourquoi choisir un site sans abonnement ?",
-      answer: "Avec notre solution, vous payez une seule fois et votre site vous appartient à vie. Pas de frais mensuels cachés, pas d'augmentation de tarifs surprise. Vous économisez des centaines d'euros par an comparé aux solutions avec abonnement.",
+      answer: "Avec notre solution, vous payez une seule fois et votre site vous appartient à vie. Pas de frais mensuels cachés, pas d'augmentation de tarifs surprise. Vous économisez des milliers d'euros par an comparé aux solutions avec abonnement.",
       gradient: "from-emerald-400 to-cyan-500"
     },
     {
-      question: "Combien coûte la création de mon site internet ?",
-      answer: "Nos tarifs commencent à partir de 897€ pour un site vitrine professionnel complet. Ce prix inclut la création, l'optimisation SEO, l'adaptation mobile et l'hébergement pour la première année. Demandez votre devis gratuit personnalisé.",
+      question: "Combien coûte la création de mon site internet haut de gamme ?",
+      answer: "Nos tarifs commencent à partir de 2000€ pour un site web de luxe entièrement personnalisé. Ce prix inclut la création sur-mesure, l'optimisation SEO avancée, l'adaptation mobile premium et l'hébergement haute performance. Demandez votre devis gratuit personnalisé.",
       gradient: "from-purple-400 to-pink-500"
     },
     {
       question: "Mon site sera-t-il optimisé pour Google ?",
-      answer: "Absolument ! Tous nos sites sont créés avec les meilleures pratiques SEO : structure optimisée, balises meta, sitemap, temps de chargement rapide, compatibilité mobile. Votre site sera visible sur Google et attirera vos futurs clients.",
+      answer: "Absolument ! Tous nos sites sont créés avec les meilleures pratiques SEO : structure optimisée, balises meta avancées, sitemap, temps de chargement ultra-rapide, compatibilité mobile parfaite. Votre site sera visible sur Google et attirera vos futurs clients.",
       gradient: "from-blue-400 to-cyan-500"
     },
     {
       question: "Puis-je modifier mon site après sa création ?",
-      answer: "Oui, nous vous formons à la gestion de votre site. Vous pourrez modifier les textes, ajouter des photos, créer de nouvelles pages. Pour les modifications plus complexes, nous proposons un service de maintenance à la demande.",
+      answer: "Oui, nous vous formons à la gestion de votre site premium. Vous pourrez modifier les textes, ajouter des photos, créer de nouvelles pages. Pour les modifications plus complexes, nous proposons un service de maintenance haut de gamme à la demande.",
       gradient: "from-orange-400 to-red-500"
     },
     {
-      question: "Qu'est-ce qui est inclus dans le prix ?",
-      answer: "Le prix inclut : conception graphique personnalisée, développement complet, optimisation SEO, adaptation mobile et tablette, hébergement sécurisé, nom de domaine, formation à la gestion et support technique.",
+      question: "Qu'est-ce qui est inclus dans le prix premium ?",
+      answer: "Le prix inclus : conception graphique sur-mesure exclusive, développement complet avec technologies avancées, optimisation SEO premium, adaptation mobile et tablette parfaite, hébergement sécurisé haute performance, nom de domaine, formation personnalisée et support technique VIP.",
       gradient: "from-violet-400 to-purple-500"
     },
     {
-      question: "Combien de temps pour créer mon site ?",
-      answer: "La création de votre site internet prend entre 7 et 14 jours ouvrés selon la complexité. Nous respectons toujours nos délais et vous tenons informé de l'avancement à chaque étape.",
+      question: "Combien de temps pour créer mon site de luxe ?",
+      answer: "La création de votre site internet haut de gamme est adaptée à votre projet spécifique. Le délai varie selon la complexité et vos exigences premium. Nous respectons toujours nos délais convenus et vous tenons informé de l'avancement à chaque étape.",
       gradient: "from-green-400 to-emerald-500"
     }
   ];
@@ -66,7 +65,7 @@ const FAQ = () => {
             <p className="text-lg md:text-xl text-gray-600">
               Tout ce que vous devez savoir sur la création de site internet
               <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-cyan-600">
-                {" "}sans abonnement
+                {" "}haut de gamme
               </span>
             </p>
           </div>
