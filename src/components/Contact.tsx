@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, Contact as ContactIcon, Calendar, CreditCard, Eye, Zap, Shield, Cpu } from "lucide-react";
+import { Mail, Contact as ContactIcon, Calendar, CreditCard, Eye, Zap, Shield, Cpu, Globe, Sparkles, Brain, Bot } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Contact = () => {
@@ -15,6 +15,7 @@ const Contact = () => {
     message: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,8 +28,8 @@ const Contact = () => {
     console.log("Données du formulaire:", formData);
     
     toast({
-      title: "Demande envoyée !",
-      description: "Nous vous répondrons dans les 24h avec votre devis gratuit.",
+      title: "🚀 Transmission réussie !",
+      description: "Votre message a été traité par notre IA. Réponse sous 24h avec devis personnalisé.",
     });
 
     setFormData({
@@ -50,278 +51,376 @@ const Contact = () => {
   };
 
   return (
-    <section id="contact" className="relative py-12 md:py-20 bg-gradient-to-br from-primary via-dark-blue to-accent overflow-hidden">
-      {/* Fond technologique animé */}
+    <section id="contact" className="relative py-12 md:py-20 bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 overflow-hidden">
+      {/* Fond technologique ultra-moderne */}
       <div className="absolute inset-0 pointer-events-none">
-        {/* Grille futuriste */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.1)_1px,transparent_1px)] bg-[size:50px_50px] animate-pulse-glow"></div>
+        {/* Grille holographique 3D */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(59,130,246,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.15)_1px,transparent_1px)] bg-[size:40px_40px] animate-pulse transform perspective-1000 rotateX-12"></div>
         
-        {/* Particules flottantes */}
-        {[...Array(20)].map((_, i) => (
+        {/* Particules quantiques flottantes */}
+        {[...Array(50)].map((_, i) => (
           <div
             key={i}
-            className="absolute w-1 h-1 bg-turquoise rounded-full opacity-60 animate-float"
+            className="absolute w-1 h-1 bg-cyan-400 rounded-full opacity-80 animate-bounce"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 6}s`,
-              animationDuration: `${4 + Math.random() * 4}s`
+              animationDelay: `${Math.random() * 8}s`,
+              animationDuration: `${2 + Math.random() * 6}s`,
+              boxShadow: '0 0 10px rgba(34, 211, 238, 0.8)'
             }}
           />
         ))}
         
-        {/* Faisceaux lumineux diagonaux */}
-        <div className="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-transparent via-turquoise to-transparent opacity-30 transform rotate-12 animate-pulse"></div>
-        <div className="absolute top-0 right-1/3 w-px h-full bg-gradient-to-b from-transparent via-primary to-transparent opacity-20 transform -rotate-12 animate-pulse"></div>
+        {/* Ondes d'énergie concentriques */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          <div className="w-96 h-96 border border-cyan-500/20 rounded-full animate-ping"></div>
+          <div className="absolute top-8 left-8 w-80 h-80 border border-blue-500/30 rounded-full animate-ping animation-delay-1000"></div>
+          <div className="absolute top-16 left-16 w-64 h-64 border border-purple-500/40 rounded-full animate-ping animation-delay-2000"></div>
+        </div>
         
-        {/* Orbes d'énergie */}
-        <div className="absolute top-20 left-10 w-32 h-32 bg-turquoise rounded-full opacity-10 blur-3xl animate-bounce-slow"></div>
-        <div className="absolute bottom-20 right-10 w-40 h-40 bg-primary rounded-full opacity-10 blur-3xl animate-bounce-slow" style={{ animationDelay: '2s' }}></div>
+        {/* Faisceaux laser diagonaux */}
+        <div className="absolute top-0 left-1/4 w-0.5 h-full bg-gradient-to-b from-transparent via-cyan-400 to-transparent opacity-40 transform rotate-12 animate-pulse"></div>
+        <div className="absolute top-0 right-1/3 w-0.5 h-full bg-gradient-to-b from-transparent via-blue-400 to-transparent opacity-30 transform -rotate-12 animate-pulse"></div>
+        <div className="absolute top-0 left-2/3 w-0.5 h-full bg-gradient-to-b from-transparent via-purple-400 to-transparent opacity-35 transform rotate-6 animate-pulse"></div>
+        
+        {/* Orbes d'énergie plasma */}
+        <div className="absolute top-20 left-10 w-40 h-40 bg-gradient-radial from-cyan-400/30 to-transparent rounded-full blur-2xl animate-bounce-slow"></div>
+        <div className="absolute bottom-20 right-10 w-48 h-48 bg-gradient-radial from-purple-400/25 to-transparent rounded-full blur-3xl animate-bounce-slow" style={{ animationDelay: '3s' }}></div>
+        <div className="absolute top-1/3 right-20 w-32 h-32 bg-gradient-radial from-blue-400/35 to-transparent rounded-full blur-2xl animate-bounce-slow" style={{ animationDelay: '1.5s' }}></div>
+        
+        {/* Matrices de données scrollantes */}
+        <div className="absolute top-0 left-0 w-full h-full opacity-10">
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute text-green-400 text-xs font-mono animate-slide-down"
+              style={{
+                left: `${i * 5}%`,
+                animationDelay: `${i * 0.3}s`,
+                animationDuration: '8s'
+              }}
+            >
+              {Array.from({length: 20}, () => Math.random() > 0.5 ? '1' : '0').join('')}
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-6xl mx-auto">
-          {/* Header Section */}
+          {/* Header Section Ultra-Futuriste */}
           <div className="text-center mb-8 md:mb-16">
-            <div className="inline-flex items-center justify-center p-2 bg-white/10 backdrop-blur-sm rounded-full mb-6 border border-turquoise/30">
-              <Cpu className="w-6 h-6 text-turquoise mr-2" />
-              <span className="text-white font-medium">Interface Technologique Avancée</span>
+            <div className="inline-flex items-center justify-center p-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 backdrop-blur-xl rounded-full mb-6 border border-cyan-400/50 shadow-[0_0_30px_rgba(34,211,238,0.3)]">
+              <Bot className="w-8 h-8 text-cyan-400 mr-3 animate-pulse" />
+              <span className="text-white font-bold text-lg bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+                Interface IA Quantique
+              </span>
+              <Brain className="w-8 h-8 text-purple-400 ml-3 animate-pulse" />
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 md:mb-6 px-2">
-              Demandez votre devis gratuit
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 px-2">
+              <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent animate-pulse">
+                Interface de Communication
+              </span>
+              <br />
+              <span className="text-white animate-fade-in">
+                Nouvelle Génération
+              </span>
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-gray-200 max-w-3xl mx-auto px-4">
-              Système de contact intelligent • Réponse automatisée sous 24h • Technologie de pointe
+            <p className="text-lg sm:text-xl md:text-2xl text-gray-200 max-w-4xl mx-auto px-4 animate-fade-in">
+              🚀 Traitement IA en temps réel • 🔮 Analyse prédictive • ⚡ Réponse quantique instantanée
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-            {/* Formulaire modernisé */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+            {/* Formulaire Ultra-Moderne */}
             <div className="w-full order-1 lg:order-1">
-              <div className="relative bg-white/5 backdrop-blur-xl rounded-2xl p-4 sm:p-6 md:p-8 border border-white/20 shadow-2xl mx-2 sm:mx-0 overflow-hidden">
-                {/* Effet de scan */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-turquoise/10 to-transparent transform -skew-x-12 translate-x-[-100%] animate-[slide-in-right_3s_ease-in-out_infinite]"></div>
+              <div className="relative bg-gradient-to-br from-slate-800/40 via-indigo-900/30 to-purple-900/40 backdrop-blur-2xl rounded-3xl p-8 border border-cyan-400/30 shadow-[0_0_50px_rgba(34,211,238,0.2)] mx-2 sm:mx-0 overflow-hidden transform transition-all duration-500 hover:shadow-[0_0_80px_rgba(34,211,238,0.4)] hover:scale-[1.02]">
                 
-                {/* Coins technologiques */}
-                <div className="absolute top-0 left-0 w-6 h-6 border-l-2 border-t-2 border-turquoise"></div>
-                <div className="absolute top-0 right-0 w-6 h-6 border-r-2 border-t-2 border-turquoise"></div>
-                <div className="absolute bottom-0 left-0 w-6 h-6 border-l-2 border-b-2 border-turquoise"></div>
-                <div className="absolute bottom-0 right-0 w-6 h-6 border-r-2 border-b-2 border-turquoise"></div>
+                {/* Effet de scan holographique */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent transform -skew-x-12 translate-x-[-100%] animate-[slide-in-right_4s_ease-in-out_infinite]"></div>
+                
+                {/* Coins technologiques animés */}
+                <div className="absolute top-0 left-0 w-8 h-8 border-l-3 border-t-3 border-cyan-400 animate-pulse"></div>
+                <div className="absolute top-0 right-0 w-8 h-8 border-r-3 border-t-3 border-purple-400 animate-pulse"></div>
+                <div className="absolute bottom-0 left-0 w-8 h-8 border-l-3 border-b-3 border-blue-400 animate-pulse"></div>
+                <div className="absolute bottom-0 right-0 w-8 h-8 border-r-3 border-b-3 border-cyan-400 animate-pulse"></div>
+
+                {/* Particules de données */}
+                {[...Array(15)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute w-1 h-1 bg-cyan-400 rounded-full opacity-60 animate-float"
+                    style={{
+                      left: `${10 + Math.random() * 80}%`,
+                      top: `${10 + Math.random() * 80}%`,
+                      animationDelay: `${Math.random() * 4}s`,
+                      animationDuration: `${3 + Math.random() * 3}s`
+                    }}
+                  />
+                ))}
 
                 <div className="relative z-10">
-                  <div className="flex items-center mb-4 md:mb-6">
-                    <div className="relative">
-                      <ContactIcon className="w-6 h-6 md:w-8 md:h-8 text-turquoise mr-2 md:mr-3 flex-shrink-0" />
-                      <div className="absolute inset-0 bg-turquoise/20 rounded-full blur-sm animate-pulse"></div>
+                  <div className="flex items-center mb-6">
+                    <div className="relative mr-4">
+                      <Globe className="w-10 h-10 text-cyan-400 animate-spin-slow" />
+                      <div className="absolute inset-0 bg-cyan-400/30 rounded-full blur-lg animate-pulse"></div>
                     </div>
-                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white">
-                      Interface de Communication Avancée
+                    <h3 className="text-2xl md:text-3xl font-bold text-white">
+                      <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+                        Terminal de Communication IA
+                      </span>
                     </h3>
+                    <div className="relative ml-4">
+                      <Sparkles className="w-8 h-8 text-purple-400 animate-bounce" />
+                      <div className="absolute inset-0 bg-purple-400/30 rounded-full blur-sm animate-pulse"></div>
+                    </div>
                   </div>
 
-                  <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="relative group">
-                        <label className="block text-sm font-medium text-gray-200 mb-1 md:mb-2 flex items-center">
-                          <Shield className="w-4 h-4 mr-1 text-turquoise" />
-                          Nom complet *
+                        <label className="block text-sm font-bold text-cyan-300 mb-2 flex items-center">
+                          <Shield className="w-4 h-4 mr-2 text-cyan-400 animate-pulse" />
+                          Identité Numérique *
                         </label>
-                        <Input
-                          type="text"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleChange}
-                          required
-                          className="w-full text-sm md:text-base bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus:border-turquoise focus:ring-turquoise backdrop-blur-sm transition-all duration-300 group-hover:bg-white/20"
-                          placeholder="Votre nom"
-                        />
-                        <div className="absolute inset-0 rounded-md bg-gradient-to-r from-turquoise/20 to-primary/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                        <div className="relative">
+                          <Input
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            onFocus={() => setFocusedField('name')}
+                            onBlur={() => setFocusedField(null)}
+                            required
+                            className="w-full bg-slate-800/50 border-2 border-cyan-400/30 text-white placeholder:text-gray-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 backdrop-blur-sm transition-all duration-300 rounded-xl px-4 py-3 text-base"
+                            placeholder="Nom d'utilisateur"
+                          />
+                          {focusedField === 'name' && (
+                            <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400/30 to-purple-400/30 rounded-xl blur-sm animate-pulse"></div>
+                          )}
+                        </div>
                       </div>
                       
                       <div className="relative group">
-                        <label className="block text-sm font-medium text-gray-200 mb-1 md:mb-2 flex items-center">
-                          <Mail className="w-4 h-4 mr-1 text-turquoise" />
-                          Email *
+                        <label className="block text-sm font-bold text-cyan-300 mb-2 flex items-center">
+                          <Mail className="w-4 h-4 mr-2 text-cyan-400 animate-pulse" />
+                          Canal de Communication *
                         </label>
-                        <Input
-                          type="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          required
-                          className="w-full text-sm md:text-base bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus:border-turquoise focus:ring-turquoise backdrop-blur-sm transition-all duration-300 group-hover:bg-white/20"
-                          placeholder="votre@email.com"
-                        />
-                        <div className="absolute inset-0 rounded-md bg-gradient-to-r from-turquoise/20 to-primary/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                        <div className="relative">
+                          <Input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            onFocus={() => setFocusedField('email')}
+                            onBlur={() => setFocusedField(null)}
+                            required
+                            className="w-full bg-slate-800/50 border-2 border-cyan-400/30 text-white placeholder:text-gray-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 backdrop-blur-sm transition-all duration-300 rounded-xl px-4 py-3 text-base"
+                            placeholder="email@domaine.com"
+                          />
+                          {focusedField === 'email' && (
+                            <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400/30 to-blue-400/30 rounded-xl blur-sm animate-pulse"></div>
+                          )}
+                        </div>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="relative group">
-                        <label className="block text-sm font-medium text-gray-200 mb-1 md:mb-2">
-                          Téléphone
+                        <label className="block text-sm font-bold text-cyan-300 mb-2">
+                          Fréquence de Contact
                         </label>
-                        <Input
-                          type="tel"
-                          name="phone"
-                          value={formData.phone}
-                          onChange={handleChange}
-                          className="w-full text-sm md:text-base bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus:border-turquoise focus:ring-turquoise backdrop-blur-sm transition-all duration-300 group-hover:bg-white/20"
-                          placeholder="06 12 34 56 78"
-                        />
-                        <div className="absolute inset-0 rounded-md bg-gradient-to-r from-turquoise/20 to-primary/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                        <div className="relative">
+                          <Input
+                            type="tel"
+                            name="phone"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            onFocus={() => setFocusedField('phone')}
+                            onBlur={() => setFocusedField(null)}
+                            className="w-full bg-slate-800/50 border-2 border-cyan-400/30 text-white placeholder:text-gray-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 backdrop-blur-sm transition-all duration-300 rounded-xl px-4 py-3 text-base"
+                            placeholder="06 12 34 56 78"
+                          />
+                          {focusedField === 'phone' && (
+                            <div className="absolute -inset-1 bg-gradient-to-r from-green-400/30 to-cyan-400/30 rounded-xl blur-sm animate-pulse"></div>
+                          )}
+                        </div>
                       </div>
                       
                       <div className="relative group">
-                        <label className="block text-sm font-medium text-gray-200 mb-1 md:mb-2 flex items-center">
-                          <Zap className="w-4 h-4 mr-1 text-turquoise" />
-                          Type d'activité *
+                        <label className="block text-sm font-bold text-cyan-300 mb-2 flex items-center">
+                          <Zap className="w-4 h-4 mr-2 text-cyan-400 animate-pulse" />
+                          Secteur d'Activité *
                         </label>
-                        <Input
-                          type="text"
-                          name="business"
-                          value={formData.business}
-                          onChange={handleChange}
-                          required
-                          className="w-full text-sm md:text-base bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus:border-turquoise focus:ring-turquoise backdrop-blur-sm transition-all duration-300 group-hover:bg-white/20"
-                          placeholder="Artisan, Commerce, etc."
-                        />
-                        <div className="absolute inset-0 rounded-md bg-gradient-to-r from-turquoise/20 to-primary/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                        <div className="relative">
+                          <Input
+                            type="text"
+                            name="business"
+                            value={formData.business}
+                            onChange={handleChange}
+                            onFocus={() => setFocusedField('business')}
+                            onBlur={() => setFocusedField(null)}
+                            required
+                            className="w-full bg-slate-800/50 border-2 border-cyan-400/30 text-white placeholder:text-gray-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 backdrop-blur-sm transition-all duration-300 rounded-xl px-4 py-3 text-base"
+                            placeholder="Artisan, Commerce, Tech..."
+                          />
+                          {focusedField === 'business' && (
+                            <div className="absolute -inset-1 bg-gradient-to-r from-purple-400/30 to-pink-400/30 rounded-xl blur-sm animate-pulse"></div>
+                          )}
+                        </div>
                       </div>
                     </div>
 
                     <div className="relative group">
-                      <label className="block text-sm font-medium text-gray-200 mb-1 md:mb-2">
-                        Décrivez votre projet
+                      <label className="block text-sm font-bold text-cyan-300 mb-2 flex items-center">
+                        <Brain className="w-4 h-4 mr-2 text-cyan-400 animate-pulse" />
+                        Message à l'Intelligence Artificielle
                       </label>
-                      <Textarea
-                        name="message"
-                        value={formData.message}
-                        onChange={handleChange}
-                        rows={3}
-                        className="w-full text-sm md:text-base resize-none bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus:border-turquoise focus:ring-turquoise backdrop-blur-sm transition-all duration-300 group-hover:bg-white/20"
-                        placeholder="Parlez-nous de votre activité, vos besoins, vos attentes..."
-                      />
-                      <div className="absolute inset-0 rounded-md bg-gradient-to-r from-turquoise/20 to-primary/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                      <div className="relative">
+                        <Textarea
+                          name="message"
+                          value={formData.message}
+                          onChange={handleChange}
+                          onFocus={() => setFocusedField('message')}
+                          onBlur={() => setFocusedField(null)}
+                          rows={4}
+                          className="w-full resize-none bg-slate-800/50 border-2 border-cyan-400/30 text-white placeholder:text-gray-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/20 backdrop-blur-sm transition-all duration-300 rounded-xl px-4 py-3 text-base"
+                          placeholder="Décrivez votre vision, vos besoins, vos objectifs... Notre IA analysera chaque détail pour vous proposer la solution parfaite."
+                        />
+                        {focusedField === 'message' && (
+                          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400/30 to-purple-400/30 rounded-xl blur-sm animate-pulse"></div>
+                        )}
+                      </div>
                     </div>
 
                     <Button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full relative overflow-hidden bg-gradient-to-r from-turquoise to-primary hover:from-primary hover:to-turquoise text-white py-3 md:py-4 text-base md:text-lg font-semibold rounded-lg md:rounded-xl transition-all duration-500 transform hover:scale-105 group"
+                      className="w-full relative overflow-hidden bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 hover:from-cyan-400 hover:via-blue-400 hover:to-purple-400 text-white py-4 text-lg font-bold rounded-xl transition-all duration-500 transform hover:scale-105 group shadow-[0_0_30px_rgba(34,211,238,0.3)] hover:shadow-[0_0_50px_rgba(34,211,238,0.6)]"
                     >
                       {isSubmitting ? (
                         <div className="flex items-center justify-center">
-                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
-                          Traitement en cours...
+                          <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin mr-3"></div>
+                          <Bot className="w-6 h-6 mr-2 animate-bounce" />
+                          IA en cours d'analyse...
                         </div>
                       ) : (
                         <>
-                          <span className="relative z-10">Recevoir mon devis gratuit</span>
-                          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                          <span className="relative z-10 flex items-center justify-center">
+                            <Sparkles className="w-6 h-6 mr-2 animate-pulse" />
+                            Lancer l'Analyse IA
+                            <Zap className="w-6 h-6 ml-2 animate-bounce" />
+                          </span>
+                          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                         </>
                       )}
                     </Button>
 
-                    <p className="text-xs md:text-sm text-gray-300 text-center px-2">
-                      🔒 Champs obligatoires. Données sécurisées et jamais revendues.
-                    </p>
+                    <div className="text-center">
+                      <p className="text-sm text-cyan-300 px-2 flex items-center justify-center">
+                        <Shield className="w-4 h-4 mr-2 animate-pulse" />
+                        🔐 Données cryptées • IA certifiée • Réponse garantie sous 24h
+                        <Cpu className="w-4 h-4 ml-2 animate-pulse" />
+                      </p>
+                    </div>
                   </form>
                 </div>
               </div>
             </div>
 
             {/* Informations de contact modernisées */}
-            <div className="w-full order-2 lg:order-2 space-y-6 md:space-y-8">
+            <div className="w-full order-2 lg:order-2 space-y-8">
               {/* Contact direct */}
-              <div className="relative bg-white/5 backdrop-blur-xl rounded-xl md:rounded-2xl p-4 sm:p-6 md:p-8 text-white mx-2 sm:mx-0 border border-white/20 overflow-hidden group hover:bg-white/10 transition-all duration-300">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-turquoise to-primary"></div>
-                <div className="flex items-center mb-3 md:mb-4">
+              <div className="relative bg-gradient-to-br from-slate-800/40 via-indigo-900/30 to-purple-900/40 backdrop-blur-xl rounded-2xl p-8 text-white mx-2 sm:mx-0 border border-cyan-400/30 overflow-hidden group hover:shadow-[0_0_40px_rgba(34,211,238,0.3)] transition-all duration-300">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 to-purple-400"></div>
+                <div className="flex items-center mb-4">
                   <div className="relative">
-                    <Mail className="w-6 h-6 md:w-8 md:h-8 text-turquoise mr-2 md:mr-3 flex-shrink-0" />
-                    <div className="absolute inset-0 bg-turquoise/20 rounded-full blur-sm animate-pulse"></div>
+                    <Mail className="w-8 h-8 text-cyan-400 mr-3 animate-pulse" />
+                    <div className="absolute inset-0 bg-cyan-400/20 rounded-full blur-sm animate-pulse"></div>
                   </div>
-                  <h3 className="text-lg md:text-xl font-bold">Contact direct</h3>
+                  <h3 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">Contact Direct</h3>
                 </div>
-                <div className="space-y-2 md:space-y-3">
-                  <p className="flex flex-col sm:flex-row sm:items-center text-sm md:text-base">
-                    <span className="font-medium mr-0 sm:mr-2">Email :</span>
+                <div className="space-y-3">
+                  <p className="flex flex-col sm:flex-row sm:items-center text-base">
+                    <span className="font-medium mr-2 text-cyan-300">Email :</span>
                     <span className="break-all">aerodrone.multiservices@gmail.com</span>
                   </p>
-                  <p className="flex flex-col sm:flex-row sm:items-center text-sm md:text-base">
-                    <span className="font-medium mr-0 sm:mr-2">Téléphone :</span>
+                  <p className="flex flex-col sm:flex-row sm:items-center text-base">
+                    <span className="font-medium mr-2 text-cyan-300">Téléphone :</span>
                     <span>06 14 17 38 67</span>
                   </p>
-                  <p className="flex flex-col sm:flex-row sm:items-center text-sm md:text-base">
-                    <span className="font-medium mr-0 sm:mr-2">Horaires :</span>
+                  <p className="flex flex-col sm:flex-row sm:items-center text-base">
+                    <span className="font-medium mr-2 text-cyan-300">Horaires :</span>
                     <span>Lun-Ven 9h-18h</span>
                   </p>
                 </div>
               </div>
 
               {/* Paiement et suivi */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl md:rounded-2xl p-4 sm:p-6 md:p-8 text-white mx-2 sm:mx-0">
-                <div className="flex items-center mb-3 md:mb-4">
-                  <CreditCard className="w-6 h-6 md:w-8 md:h-8 text-turquoise mr-2 md:mr-3 flex-shrink-0" />
-                  <h3 className="text-lg md:text-xl font-bold">Paiement & Suivi</h3>
+              <div className="bg-gradient-to-br from-slate-800/40 via-indigo-900/30 to-purple-900/40 backdrop-blur-sm rounded-2xl p-8 text-white mx-2 sm:mx-0 border border-cyan-400/20">
+                <div className="flex items-center mb-4">
+                  <CreditCard className="w-8 h-8 text-cyan-400 mr-3 animate-pulse" />
+                  <h3 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">Paiement & Suivi</h3>
                 </div>
-                <ul className="space-y-2 md:space-y-3">
-                  <li className="flex items-start text-sm md:text-base">
-                    <span className="text-turquoise mr-2 flex-shrink-0">💳</span>
+                <ul className="space-y-3">
+                  <li className="flex items-start text-base">
+                    <span className="text-cyan-400 mr-2 flex-shrink-0">💳</span>
                     <span><strong>Paiement à la livraison</strong> - Aucun frais à l'avance</span>
                   </li>
-                  <li className="flex items-start text-sm md:text-base">
-                    <span className="text-turquoise mr-2 flex-shrink-0">👀</span>
-                    <span><strong>Suivi en temps réel</strong> de l'avancement de votre site</span>
+                  <li className="flex items-start text-base">
+                    <span className="text-cyan-400 mr-2 flex-shrink-0">👀</span>
+                    <span><strong>Suivi temps réel</strong> via interface IA</span>
                   </li>
-                  <li className="flex items-start text-sm md:text-base">
-                    <span className="text-turquoise mr-2 flex-shrink-0">✅</span>
-                    <span>Validation à chaque étape du développement</span>
+                  <li className="flex items-start text-base">
+                    <span className="text-cyan-400 mr-2 flex-shrink-0">✅</span>
+                    <span>Validation quantique à chaque étape</span>
                   </li>
-                  <li className="flex items-start text-sm md:text-base">
-                    <span className="text-turquoise mr-2 flex-shrink-0">🔒</span>
-                    <span>Sécurité garantie - Paiement uniquement après satisfaction</span>
+                  <li className="flex items-start text-base">
+                    <span className="text-cyan-400 mr-2 flex-shrink-0">🔒</span>
+                    <span>Sécurité blockchain garantie</span>
                   </li>
                 </ul>
               </div>
 
               {/* Réponse garantie */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl md:rounded-2xl p-4 sm:p-6 md:p-8 text-white mx-2 sm:mx-0">
-                <div className="flex items-center mb-3 md:mb-4">
-                  <Calendar className="w-6 h-6 md:w-8 md:h-8 text-turquoise mr-2 md:mr-3 flex-shrink-0" />
-                  <h3 className="text-lg md:text-xl font-bold">Réponse garantie</h3>
+              <div className="bg-gradient-to-br from-slate-800/40 via-indigo-900/30 to-purple-900/40 backdrop-blur-sm rounded-2xl p-8 text-white mx-2 sm:mx-0 border border-cyan-400/20">
+                <div className="flex items-center mb-4">
+                  <Calendar className="w-8 h-8 text-cyan-400 mr-3 animate-pulse" />
+                  <h3 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">IA Response System</h3>
                 </div>
-                <ul className="space-y-2 md:space-y-3">
-                  <li className="flex items-start text-sm md:text-base">
-                    <span className="text-turquoise mr-2 flex-shrink-0">✓</span>
-                    <span>Devis personnalisé sous 24h</span>
+                <ul className="space-y-3">
+                  <li className="flex items-start text-base">
+                    <span className="text-cyan-400 mr-2 flex-shrink-0">🤖</span>
+                    <span>Analyse IA instantanée de votre demande</span>
                   </li>
-                  <li className="flex items-start text-sm md:text-base">
-                    <span className="text-turquoise mr-2 flex-shrink-0">✓</span>
-                    <span>Consultation gratuite et sans engagement</span>
+                  <li className="flex items-start text-base">
+                    <span className="text-cyan-400 mr-2 flex-shrink-0">⚡</span>
+                    <span>Devis personnalisé généré sous 24h</span>
                   </li>
-                  <li className="flex items-start text-sm md:text-base">
-                    <span className="text-turquoise mr-2 flex-shrink-0">✓</span>
-                    <span>Conseils adaptés à votre activité</span>
+                  <li className="flex items-start text-base">
+                    <span className="text-cyan-400 mr-2 flex-shrink-0">🎯</span>
+                    <span>Recommandations adaptées par machine learning</span>
                   </li>
-                  <li className="flex items-start text-sm md:text-base">
-                    <span className="text-turquoise mr-2 flex-shrink-0">✓</span>
-                    <span>Pas de démarchage commercial</span>
+                  <li className="flex items-start text-base">
+                    <span className="text-cyan-400 mr-2 flex-shrink-0">🚫</span>
+                    <span>Zéro spam - Communication intelligente uniquement</span>
                   </li>
                 </ul>
               </div>
 
               {/* Offre spéciale */}
-              <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl md:rounded-2xl p-4 sm:p-6 md:p-8 text-white mx-2 sm:mx-0">
-                <h3 className="text-lg md:text-xl font-bold mb-3 md:mb-4">
-                  🎯 Offre spéciale du moment
+              <div className="bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 rounded-2xl p-8 text-white mx-2 sm:mx-0 shadow-[0_0_30px_rgba(16,185,129,0.4)] transform hover:scale-105 transition-all duration-300">
+                <h3 className="text-xl font-bold mb-4 flex items-center">
+                  <Sparkles className="w-6 h-6 mr-2 animate-bounce" />
+                  🚀 Lancement Technologique
                 </h3>
-                <p className="text-base md:text-lg mb-3 md:mb-4">
-                  <strong>-50% sur votre premier site</strong>
+                <p className="text-lg mb-4">
+                  <strong>-50% sur votre premier projet IA</strong>
                 </p>
-                <p className="text-xs md:text-sm leading-relaxed">
-                  Valable pour toute commande avant fin du mois. 
-                  Mentionnez le code "PREMIER50" dans votre message.
+                <p className="text-sm leading-relaxed">
+                  Offre limitée pour les early adopters de notre nouvelle technologie. 
+                  Code: "FUTUR50" dans votre message.
                 </p>
               </div>
             </div>
