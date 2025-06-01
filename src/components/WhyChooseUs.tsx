@@ -1,3 +1,4 @@
+
 import { Shield, Zap, Users, Award, Sparkles, Code2, Stars, Cpu, Globe, Rocket } from "lucide-react";
 
 const WhyChooseUs = () => {
@@ -29,7 +30,7 @@ const WhyChooseUs = () => {
     {
       icon: <Users className="w-8 h-8 md:w-10 md:h-10" />,
       title: "Support Premium",
-      description: "Accompagnement personnalisé et formation complète pour votre autonomie totale.",
+      description: "Support technique du lundi au samedi de 8h à 19h avec accompagnement personnalisé.",
       gradient: "from-orange-400 via-red-500 to-pink-600",
       delay: "0.6s",
       particles: "orange"
