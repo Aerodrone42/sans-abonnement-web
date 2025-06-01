@@ -6,6 +6,9 @@ import { Sparkles, Rocket, Zap, Code2 } from "lucide-react";
 const Hero = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isVisible, setIsVisible] = useState(false);
+  const [typedText, setTypedText] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const fullText = "CRÉATION DE SITES WEB HAUT DE GAMME";
 
   useEffect(() => {
     setIsVisible(true);
@@ -13,8 +16,19 @@ const Hero = () => {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('scroll', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
+
+  // Machine à écrire effect
+  useEffect(() => {
+    if (currentIndex < fullText.length) {
+      const timer = setTimeout(() => {
+        setTypedText(fullText.slice(0, currentIndex + 1));
+        setCurrentIndex(currentIndex + 1);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [currentIndex, fullText]);
 
   const scrollToContact = () => {
     document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
@@ -53,31 +67,39 @@ const Hero = () => {
       ></div>
 
       <div className="container mx-auto px-4 py-20 relative z-10">
-        <div className="max-w-6xl mx-auto text-center pt-20">
-          {/* Compact tech title */}
-          <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 relative">
-              {/* CRÉATION - Cyan */}
-              <div className="mb-1">
-                <span className="bg-gradient-to-r from-cyan-400 to-cyan-200 bg-clip-text text-transparent font-black tracking-[0.15em] uppercase">
-                  CRÉATION
+        <div className="max-w-6xl mx-auto text-center pt-32">
+          {/* Titre technologique avec animations */}
+          <div className={`transition-all duration-1000 mb-16 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <div className="relative">
+              {/* Lignes de scan */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent h-1 animate-slide-in-right" style={{animationDuration: '3s', animationIterationCount: 'infinite'}}></div>
+              
+              {/* Titre principal avec effet de machine à écrire */}
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-mono font-bold text-white mb-4 relative">
+                <span className="relative">
+                  {typedText}
+                  <span className="animate-pulse text-cyan-400">|</span>
+                  
+                  {/* Effet de glitch */}
+                  <span className="absolute inset-0 text-cyan-400 opacity-30 animate-lightning-flash" style={{animationDelay: '2s'}}>
+                    {typedText}
+                  </span>
+                  <span className="absolute inset-0 text-red-400 opacity-20 animate-lightning-flash" style={{animationDelay: '2.1s', transform: 'translateX(2px)'}}>
+                    {typedText}
+                  </span>
                 </span>
+              </h1>
+
+              {/* Éléments décoratifs technologiques */}
+              <div className="flex justify-center items-center gap-4 mb-4">
+                <div className="w-8 h-0.5 bg-gradient-to-r from-transparent to-cyan-400 animate-pulse"></div>
+                <Code2 className="w-5 h-5 text-cyan-400 animate-bounce-slow" />
+                <div className="w-8 h-0.5 bg-gradient-to-l from-transparent to-cyan-400 animate-pulse"></div>
               </div>
 
-              {/* DE SITES WEB - Purple to Pink */}
-              <div className="mb-1">
-                <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-black tracking-[0.1em] uppercase">
-                  DE SITES WEB
-                </span>
-              </div>
-
-              {/* HAUT DE GAMME - Gold/Yellow */}
-              <div className="relative">
-                <span className="bg-gradient-to-r from-yellow-400 to-amber-300 bg-clip-text text-transparent font-black tracking-[0.05em] uppercase">
-                  HAUT DE GAMME
-                </span>
-              </div>
-            </h1>
+              {/* Bordure holographique */}
+              <div className="absolute -inset-4 border border-cyan-400/30 animate-pulse" style={{clipPath: 'polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px))'}}></div>
+            </div>
           </div>
 
           {/* Subtitle */}
