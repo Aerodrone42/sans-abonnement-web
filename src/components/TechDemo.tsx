@@ -208,9 +208,10 @@ const TechDemo = () => {
     {
       title: "PARTICULES QUANTIQUES",
       subtitle: "Système de Particules Temps Réel",
-      description: "150+ particules interactives qui explosent et créent des traînées lumineuses",
+      description: "Technologie de pointe avec 150+ particules interactives qui créent des explosions spectaculaires et des traînées lumineuses en temps réel",
       icon: <Sparkles className="w-6 h-6 md:w-8 md:h-8" />,
       color: "from-cyan-400 via-blue-500 to-purple-600",
+      isQuantum: true,
       action: () => {
         setExplosionActive(true);
         particlesRef.current.forEach(particle => {
@@ -394,7 +395,11 @@ const TechDemo = () => {
           {demos.map((demo, index) => (
             <div
               key={index}
-              className={`group relative bg-black/40 backdrop-blur-xl border border-cyan-400/30 p-6 md:p-12 rounded-2xl md:rounded-3xl transition-all duration-500 transform hover:-translate-y-6 hover:scale-105 cursor-pointer ${
+              className={`group relative backdrop-blur-xl border p-6 md:p-12 rounded-2xl md:rounded-3xl transition-all duration-500 transform hover:-translate-y-6 hover:scale-105 cursor-pointer ${
+                demo.isQuantum 
+                  ? 'bg-gradient-to-br from-cyan-900/40 via-blue-900/40 to-purple-900/40 border-cyan-300/60 shadow-2xl shadow-cyan-400/30' 
+                  : 'bg-black/40 border-cyan-400/30'
+              } ${
                 activeDemo === index ? 'scale-105 shadow-2xl shadow-cyan-500/50 border-cyan-400/80' : ''
               }`}
               onClick={() => {
@@ -409,53 +414,123 @@ const TechDemo = () => {
                   rotateY(${mousePosition.x * 3 - 1.5}deg)
                   translateZ(${activeDemo === index ? '20px' : '0px'})
                 `,
-                boxShadow: activeDemo === index 
-                  ? '0 0 80px rgba(6,182,212,0.8), inset 0 0 30px rgba(6,182,212,0.1)' 
-                  : '0 0 40px rgba(6,182,212,0.3)'
+                boxShadow: demo.isQuantum 
+                  ? '0 0 120px rgba(6,182,212,0.9), inset 0 0 40px rgba(6,182,212,0.2), 0 0 60px rgba(147,51,234,0.6)' 
+                  : activeDemo === index 
+                    ? '0 0 80px rgba(6,182,212,0.8), inset 0 0 30px rgba(6,182,212,0.1)' 
+                    : '0 0 40px rgba(6,182,212,0.3)'
               }}
             >
-              {/* Real-time Interactive Background */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${demo.color} opacity-0 group-hover:opacity-40 rounded-2xl md:rounded-3xl transition-all duration-500 blur-xl`}></div>
+              {/* Ultra-Modern Background for Quantum Section */}
+              {demo.isQuantum && (
+                <>
+                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/20 via-blue-500/20 to-purple-600/20 rounded-2xl md:rounded-3xl blur-xl animate-pulse"></div>
+                  <div className="absolute inset-0 overflow-hidden rounded-2xl md:rounded-3xl">
+                    {/* Floating quantum particles */}
+                    {[...Array(15)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="absolute w-2 h-2 bg-cyan-400 rounded-full animate-bounce opacity-60"
+                        style={{
+                          left: `${Math.random() * 100}%`,
+                          top: `${Math.random() * 100}%`,
+                          animationDelay: `${Math.random() * 2}s`,
+                          animationDuration: `${2 + Math.random() * 2}s`,
+                        }}
+                      />
+                    ))}
+                  </div>
+                  {/* Holographic scanlines */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-400/10 to-transparent animate-pulse opacity-40"></div>
+                </>
+              )}
+              
+              {/* Standard Background for other sections */}
+              {!demo.isQuantum && (
+                <div className={`absolute inset-0 bg-gradient-to-br ${demo.color} opacity-0 group-hover:opacity-40 rounded-2xl md:rounded-3xl transition-all duration-500 blur-xl`}></div>
+              )}
               
               {/* Content */}
               <div className="relative z-10">
-                {/* Interactive Icon */}
+                {/* Ultra-Modern Icon for Quantum */}
                 <div className="relative mb-6 md:mb-10">
-                  <div className={`relative bg-gradient-to-r ${demo.color} w-16 h-16 md:w-20 md:h-20 rounded-xl flex items-center justify-center text-white mb-6 md:mb-8 group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 shadow-2xl`}>
+                  <div className={`relative w-16 h-16 md:w-20 md:h-20 rounded-xl flex items-center justify-center text-white mb-6 md:mb-8 transition-all duration-500 shadow-2xl ${
+                    demo.isQuantum 
+                      ? 'bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 group-hover:scale-150 group-hover:rotate-45 animate-pulse border-2 border-cyan-300/50' 
+                      : `bg-gradient-to-r ${demo.color} group-hover:scale-125 group-hover:rotate-12`
+                  }`}>
                     {demo.icon}
-                    <div className={`absolute inset-0 bg-gradient-to-r ${demo.color} rounded-xl blur-xl opacity-60 group-hover:opacity-100 transition-opacity duration-500 animate-pulse`}></div>
+                    <div className={`absolute inset-0 rounded-xl blur-xl opacity-60 group-hover:opacity-100 transition-opacity duration-500 ${
+                      demo.isQuantum 
+                        ? 'bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 animate-pulse' 
+                        : `bg-gradient-to-r ${demo.color} animate-pulse`
+                    }`}></div>
+                    
+                    {/* Quantum-specific effects */}
+                    {demo.isQuantum && (
+                      <>
+                        <div className="absolute -inset-2 bg-gradient-to-r from-cyan-400 to-purple-600 rounded-xl opacity-30 blur-md animate-spin"></div>
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-xl animate-pulse"></div>
+                      </>
+                    )}
                   </div>
                 </div>
 
-                <div className="text-xs md:text-sm text-cyan-400 font-black tracking-[0.2em] mb-3 md:mb-4 group-hover:text-cyan-300 transition-colors duration-500">
+                <div className={`text-xs md:text-sm font-black tracking-[0.2em] mb-3 md:mb-4 transition-colors duration-500 ${
+                  demo.isQuantum 
+                    ? 'text-cyan-300 group-hover:text-cyan-200' 
+                    : 'text-cyan-400 group-hover:text-cyan-300'
+                }`}>
                   {demo.subtitle}
                 </div>
 
-                <h3 className="text-xl md:text-2xl font-black text-white mb-4 md:mb-6 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-cyan-300 group-hover:to-purple-300 transition-all duration-500">
+                <h3 className={`text-xl md:text-2xl font-black mb-4 md:mb-6 transition-all duration-500 ${
+                  demo.isQuantum 
+                    ? 'text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-blue-300 to-purple-300 group-hover:from-cyan-200 group-hover:via-blue-200 group-hover:to-purple-200' 
+                    : 'text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-cyan-300 group-hover:to-purple-300'
+                }`}>
                   {demo.title}
                 </h3>
 
-                <p className="text-gray-400 leading-relaxed text-sm md:text-base group-hover:text-gray-200 transition-colors duration-500">
+                <p className={`leading-relaxed text-sm md:text-base transition-colors duration-500 ${
+                  demo.isQuantum 
+                    ? 'text-gray-200 group-hover:text-gray-100' 
+                    : 'text-gray-400 group-hover:text-gray-200'
+                }`}>
                   {demo.description}
                 </p>
 
-                {/* Interactive Elements */}
+                {/* Ultra-Modern Interactive Elements for Quantum */}
                 <div className="mt-6 md:mt-8 flex items-center gap-3 md:gap-4">
-                  <div className={`w-12 h-1 md:w-16 md:h-2 bg-gradient-to-r ${demo.color} rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-500`}></div>
-                  <span className="text-cyan-400 text-xs md:text-sm font-bold group-hover:text-cyan-300 transition-colors duration-500">
-                    CLIQUER POUR ACTIVER →
+                  <div className={`w-12 h-1 md:w-16 md:h-2 rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-500 ${
+                    demo.isQuantum 
+                      ? 'bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 animate-pulse' 
+                      : `bg-gradient-to-r ${demo.color}`
+                  }`}></div>
+                  <span className={`text-xs md:text-sm font-bold transition-colors duration-500 ${
+                    demo.isQuantum 
+                      ? 'text-cyan-300 group-hover:text-cyan-200' 
+                      : 'text-cyan-400 group-hover:text-cyan-300'
+                  }`}>
+                    {demo.isQuantum ? 'ACTIVER QUANTUM →' : 'CLIQUER POUR ACTIVER →'}
                   </span>
                 </div>
               </div>
 
-              {/* Real-time Visual Feedback */}
-              {activeDemo === index && (
+              {/* Enhanced Visual Feedback for Quantum */}
+              {activeDemo === index && demo.isQuantum && (
+                <div className="absolute inset-0 rounded-2xl md:rounded-3xl animate-pulse border-2 border-cyan-300/80 shadow-inner shadow-cyan-400/50"></div>
+              )}
+              
+              {/* Standard Visual Feedback */}
+              {activeDemo === index && !demo.isQuantum && (
                 <div className="absolute inset-0 rounded-2xl md:rounded-3xl animate-pulse border-2 border-cyan-400/50"></div>
               )}
             </div>
           ))}
         </div>
 
+        
         {/* Performance Monitor */}
         <div className="relative mb-16 md:mb-32">
           <div className="bg-black/60 backdrop-blur-xl border border-cyan-400/50 p-6 md:p-10 rounded-2xl text-center">
