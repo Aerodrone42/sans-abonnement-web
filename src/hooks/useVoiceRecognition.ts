@@ -20,6 +20,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const speechSynthesis = useRef(new SpeechSynthesisService()).current;
   const responseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const speechCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const cleanupMicrophone = () => {
     console.log('Cleaning up microphone and voice recognition...');
@@ -30,6 +31,12 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     if (responseTimeoutRef.current) {
       clearTimeout(responseTimeoutRef.current);
       responseTimeoutRef.current = null;
+    }
+    
+    // Nettoyer l'interval de vérification du speech
+    if (speechCheckIntervalRef.current) {
+      clearInterval(speechCheckIntervalRef.current);
+      speechCheckIntervalRef.current = null;
     }
     
     if (mediaStreamRef.current) {
@@ -54,6 +61,32 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     speechSynthesis.stop();
     setIsSpeaking(false);
     setIsProcessing(false);
+    
+    // Nettoyer l'interval de vérification
+    if (speechCheckIntervalRef.current) {
+      clearInterval(speechCheckIntervalRef.current);
+      speechCheckIntervalRef.current = null;
+    }
+  };
+
+  const startSpeechMonitoring = () => {
+    // Surveiller l'état de la synthèse vocale pour détecter les interruptions
+    speechCheckIntervalRef.current = setInterval(() => {
+      const synthState = speechSynthesis.getSynthesisState();
+      const isCurrentlySpeaking = speechSynthesis.isSpeaking();
+      
+      console.log('Speech monitoring - State:', synthState, 'Speaking:', isCurrentlySpeaking, 'Component isSpeaking:', isSpeaking);
+      
+      if (isSpeaking && !isCurrentlySpeaking && synthState === 'idle') {
+        console.log('Speech ended unexpectedly, cleaning up...');
+        setIsSpeaking(false);
+        setIsProcessing(false);
+        if (speechCheckIntervalRef.current) {
+          clearInterval(speechCheckIntervalRef.current);
+          speechCheckIntervalRef.current = null;
+        }
+      }
+    }, 500);
   };
 
   const processAIResponse = async (finalTranscript: string) => {
@@ -64,9 +97,21 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
         const response = await chatGPT.sendMessage(finalTranscript);
         setLastResponse(response);
         setIsSpeaking(true);
+        setIsProcessing(false);
+        
+        // Démarrer la surveillance de la synthèse
+        startSpeechMonitoring();
+        
         speechSynthesis.speak(response, () => {
-          setIsProcessing(false);
+          console.log('Speech completed successfully');
           setIsSpeaking(false);
+          setIsProcessing(false);
+          
+          // Nettoyer l'interval de vérification
+          if (speechCheckIntervalRef.current) {
+            clearInterval(speechCheckIntervalRef.current);
+            speechCheckIntervalRef.current = null;
+          }
         });
       } catch (error) {
         console.error('Erreur conversation:', error);
@@ -136,11 +181,11 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
             clearTimeout(responseTimeoutRef.current);
           }
           
-          // Attendre 2.5 secondes avant de traiter la réponse pour laisser le temps au client de continuer
+          // Augmenter le délai à 3 secondes pour éviter les coupures prématurées
           responseTimeoutRef.current = setTimeout(() => {
             console.log('Processing final transcript after delay:', finalTranscript);
             processAIResponse(finalTranscript);
-          }, 2500);
+          }, 3000);
         }
       };
 
@@ -163,6 +208,39 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       stopSpeaking();
     };
   }, [onTranscript, conversationMode, chatGPT]);
+
+  const startListening = async () => {
+    if (!recognitionRef.current) return;
+
+    try {
+      if (isListening) {
+        console.log('Already listening, stopping first...');
+        cleanupMicrophone();
+        return;
+      }
+
+      // Arrêter l'IA si elle parle
+      if (isSpeaking) {
+        stopSpeaking();
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStreamRef.current = stream;
+
+      recognitionRef.current.start();
+      setIsListening(true);
+      
+      console.log('Voice recognition started');
+    } catch (error) {
+      console.error('Erreur d\'accès au microphone:', error);
+      cleanupMicrophone();
+    }
+  };
+
+  const stopListening = () => {
+    console.log('Stopping voice recognition...');
+    cleanupMicrophone();
+  };
 
   return {
     isListening,
