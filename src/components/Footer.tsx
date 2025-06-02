@@ -18,7 +18,7 @@ const Footer = () => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Particules technologiques réparties uniformément sur toute la largeur
+    // Particules technologiques réduites
     const particles: Array<{
       x: number;
       y: number;
@@ -33,38 +33,37 @@ const Footer = () => {
 
     const createParticle = () => {
       return {
-        x: Math.random() * canvas.width, // Répartition garantie sur toute la largeur
-        y: Math.random() * canvas.height, // Répartition garantie sur toute la hauteur
-        vx: (Math.random() - 0.5) * 2,
-        vy: (Math.random() - 0.5) * 2,
-        size: Math.random() * 10 + 4,
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 1.5,
+        vy: (Math.random() - 0.5) * 1.5,
+        size: Math.random() * 6 + 2,
         life: 0,
-        maxLife: Math.random() * 300 + 150,
+        maxLife: Math.random() * 400 + 200,
         color: Math.random() > 0.3 ? '#00ffff' : Math.random() > 0.5 ? '#c084fc' : '#ffd700',
-        glow: Math.random() * 30 + 20
+        glow: Math.random() * 20 + 10
       };
     };
 
-    // Augmentation du nombre de particules pour une meilleure couverture
-    for (let i = 0; i < 200; i++) {
+    // Réduction significative du nombre de particules
+    for (let i = 0; i < 60; i++) {
       particles.push(createParticle());
     }
 
     let time = 0;
 
     const animate = () => {
-      time += 0.02;
+      time += 0.015;
       
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Mise à jour et rendu des particules
       particles.forEach((particle, index) => {
-        // Mouvement avec oscillation pour un effet plus fluide
-        particle.x += particle.vx + Math.sin(time + index * 0.1) * 0.8;
-        particle.y += particle.vy + Math.cos(time + index * 0.15) * 0.6;
+        particle.x += particle.vx + Math.sin(time + index * 0.1) * 0.5;
+        particle.y += particle.vy + Math.cos(time + index * 0.15) * 0.3;
         particle.life++;
 
-        // Rebond sur les bords pour maintenir les particules dans le canvas
+        // Rebond sur les bords
         if (particle.x < 0) {
           particle.x = 0;
           particle.vx *= -0.8;
@@ -82,47 +81,42 @@ const Footer = () => {
           particle.vy *= -0.8;
         }
 
-        // Recréer la particule quand elle expire, en s'assurant qu'elle apparaît partout
         if (particle.life > particle.maxLife) {
           particles[index] = createParticle();
           return;
         }
 
-        const opacity = Math.max(0.2, 1 - (particle.life / particle.maxLife));
+        const opacity = Math.max(0.1, 1 - (particle.life / particle.maxLife));
         
-        // Rendu de la particule avec effet de brillance
         ctx.save();
         ctx.globalAlpha = opacity;
         ctx.shadowBlur = particle.glow;
         ctx.shadowColor = particle.color;
         
-        // Particule principale
         ctx.fillStyle = particle.color;
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
         ctx.fill();
         
-        // Halo étendu
-        ctx.globalAlpha = opacity * 0.5;
-        ctx.shadowBlur = particle.glow * 3;
+        ctx.globalAlpha = opacity * 0.3;
+        ctx.shadowBlur = particle.glow * 2;
         ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size * 2.5, 0, Math.PI * 2);
+        ctx.arc(particle.x, particle.y, particle.size * 2, 0, Math.PI * 2);
         ctx.fill();
         
-        // Éclat central blanc
-        ctx.globalAlpha = opacity * 0.9;
-        ctx.shadowBlur = particle.glow * 0.8;
+        ctx.globalAlpha = opacity * 0.7;
+        ctx.shadowBlur = particle.glow * 0.5;
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size * 0.4, 0, Math.PI * 2);
+        ctx.arc(particle.x, particle.y, particle.size * 0.3, 0, Math.PI * 2);
         ctx.fill();
         
         ctx.restore();
       });
 
-      // Lignes de connexion étendues
-      ctx.strokeStyle = 'rgba(0, 255, 255, 0.4)';
-      ctx.lineWidth = 2.5;
+      // Lignes de connexion réduites
+      ctx.strokeStyle = 'rgba(0, 255, 255, 0.2)';
+      ctx.lineWidth = 1.5;
       
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
@@ -130,8 +124,8 @@ const Footer = () => {
           const dy = particles[i].y - particles[j].y;
           const distance = Math.sqrt(dx * dx + dy * dy);
           
-          if (distance < 200) {
-            const opacity = (200 - distance) / 200 * 0.6;
+          if (distance < 150) {
+            const opacity = (150 - distance) / 150 * 0.3;
             ctx.globalAlpha = opacity;
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
@@ -154,10 +148,10 @@ const Footer = () => {
 
   return (
     <footer className="relative bg-gradient-to-br from-slate-900 via-gray-900 to-black text-white py-16 overflow-hidden">
-      {/* Canvas pour les effets de particules sur toute la largeur et hauteur */}
+      {/* Canvas pour les effets de particules réduites */}
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 pointer-events-none opacity-95"
+        className="absolute inset-0 pointer-events-none opacity-80"
         style={{ width: '100%', height: '100%' }}
       />
       
@@ -238,7 +232,7 @@ const Footer = () => {
                       {service}
                       {/* Effet de dispersion en poussière dorée plus intense */}
                       <div className="absolute inset-0 opacity-0 group-hover/item:opacity-100 transition-opacity duration-500">
-                        {[...Array(20)].map((_, i) => (
+                        {[...Array(8)].map((_, i) => (
                           <div
                             key={i}
                             className="absolute w-1.5 h-1.5 bg-yellow-400 rounded-full animate-electric-particle shadow-lg shadow-yellow-400/50"
@@ -251,7 +245,7 @@ const Footer = () => {
                           />
                         ))}
                         {/* Particules supplémentaires pour plus d'effet */}
-                        {[...Array(15)].map((_, i) => (
+                        {[...Array(6)].map((_, i) => (
                           <div
                             key={`extra-${i}`}
                             className="absolute w-0.5 h-0.5 bg-white rounded-full animate-electric-particle opacity-80"
@@ -296,7 +290,7 @@ const Footer = () => {
                       {secteur}
                       {/* Effet de dispersion en poussière dorée plus intense */}
                       <div className="absolute inset-0 opacity-0 group-hover/item:opacity-100 transition-opacity duration-500">
-                        {[...Array(20)].map((_, i) => (
+                        {[...Array(8)].map((_, i) => (
                           <div
                             key={i}
                             className="absolute w-1.5 h-1.5 bg-yellow-400 rounded-full animate-electric-particle shadow-lg shadow-yellow-400/50"
@@ -309,7 +303,7 @@ const Footer = () => {
                           />
                         ))}
                         {/* Particules supplémentaires pour plus d'effet */}
-                        {[...Array(15)].map((_, i) => (
+                        {[...Array(6)].map((_, i) => (
                           <div
                             key={`extra-${i}`}
                             className="absolute w-0.5 h-0.5 bg-white rounded-full animate-electric-particle opacity-80"
