@@ -209,39 +209,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     };
   }, [onTranscript, conversationMode, chatGPT]);
 
-  const startListening = async () => {
-    if (!recognitionRef.current) return;
-
-    try {
-      if (isListening) {
-        console.log('Already listening, stopping first...');
-        cleanupMicrophone();
-        return;
-      }
-
-      // Arrêter l'IA si elle parle
-      if (isSpeaking) {
-        stopSpeaking();
-      }
-
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaStreamRef.current = stream;
-
-      recognitionRef.current.start();
-      setIsListening(true);
-      
-      console.log('Voice recognition started');
-    } catch (error) {
-      console.error('Erreur d\'accès au microphone:', error);
-      cleanupMicrophone();
-    }
-  };
-
-  const stopListening = () => {
-    console.log('Stopping voice recognition...');
-    cleanupMicrophone();
-  };
-
   return {
     isListening,
     transcript,
