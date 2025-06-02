@@ -80,8 +80,8 @@ export class EnhancedChatGPTService extends ChatGPTService {
         learningService.updateClientInfo(this.clientInfo);
       }
       
-      // Remplissage progressif du formulaire - IMMÉDIATEMENT après extraction des infos
-      await this.fillFormProgressively();
+      // Remplissage progressif du formulaire - CORRIGÉ POUR TOUTES LES DONNÉES
+      await this.fillFormWithRealData();
       
       // Sauvegarder automatiquement la conversation toutes les 3 étapes
       if (this.currentStage % 3 === 0) {
@@ -255,7 +255,8 @@ export class EnhancedChatGPTService extends ChatGPTService {
            businesses.some(business => lowerText.includes(business));
   }
 
-  private async fillFormProgressively(): Promise<void> {
+  // NOUVELLE MÉTHODE CORRIGÉE POUR REMPLIR TOUTES LES DONNÉES
+  private async fillFormWithRealData(): Promise<void> {
     if (!this.fillFormCallback) {
       console.log('❌ Callback de formulaire manquant');
       return;
@@ -264,44 +265,69 @@ export class EnhancedChatGPTService extends ChatGPTService {
     const formData: any = {};
     let hasNewData = false;
     
-    // Toujours remplir les champs disponibles
+    // Remplir TOUS les champs disponibles avec les vraies données
     if (this.clientInfo.nom) {
       formData.name = this.clientInfo.nom;
       hasNewData = true;
+      console.log('👤 Remplissage nom:', this.clientInfo.nom);
     }
     
     if (this.clientInfo.email) {
       formData.email = this.clientInfo.email;
       hasNewData = true;
+      console.log('📧 Remplissage email:', this.clientInfo.email);
     }
     
     if (this.clientInfo.telephone) {
       formData.phone = this.clientInfo.telephone;
       hasNewData = true;
+      console.log('📞 Remplissage téléphone:', this.clientInfo.telephone);
     }
     
     if (this.clientInfo.entreprise || this.clientInfo.metier) {
       formData.business = this.clientInfo.entreprise || this.clientInfo.metier;
       hasNewData = true;
+      console.log('🏢 Remplissage entreprise/métier:', formData.business);
     }
     
-    // Créer un message complet si on a toutes les infos
+    // Message personnalisé SANS session ID
     if (this.clientInfo.metier || this.clientInfo.zone || this.clientInfo.budget || this.clientInfo.message) {
-      let message = 'Demande générée par l\'IA - ';
-      if (this.clientInfo.metier) message += `${this.clientInfo.metier} `;
-      if (this.clientInfo.zone) message += `- Zone: ${this.clientInfo.zone} `;
-      if (this.clientInfo.budget) message += `- Budget: ${this.clientInfo.budget} `;
-      if (this.clientInfo.horaireRappel) message += `- Rappel souhaité: ${this.clientInfo.horaireRappel} `;
-      if (this.clientInfo.message) message += `\n\nDemande du client: ${this.clientInfo.message}`;
-      message += `\n\nSession IA: ${this.sessionId}`;
+      let message = '';
+      
+      // Décrire les besoins du client de manière professionnelle
+      if (this.clientInfo.metier) {
+        message += `Demande de devis pour ${this.clientInfo.metier}`;
+      }
+      
+      if (this.clientInfo.zone) {
+        message += ` dans un rayon de ${this.clientInfo.zone}`;
+      }
+      
+      if (this.clientInfo.budget) {
+        message += ` avec un budget de ${this.clientInfo.budget}`;
+      }
+      
+      if (this.clientInfo.horaireRappel) {
+        message += `\n\nPréférence d'horaire de contact: ${this.clientInfo.horaireRappel}`;
+      }
+      
+      if (this.clientInfo.message) {
+        message += `\n\nDemande spécifique: ${this.clientInfo.message}`;
+      }
+      
+      // Ajouter des informations générées automatiquement SANS l'ID de session
+      message += '\n\n[Demande générée automatiquement par l\'assistant IA]';
       
       formData.message = message;
       hasNewData = true;
+      console.log('💬 Message personnalisé créé:', message);
     }
     
     if (hasNewData) {
-      console.log('📝 Remplissage progressif du formulaire avec:', formData);
+      console.log('📝 Remplissage du formulaire avec toutes les données disponibles:', formData);
       this.fillFormCallback(formData);
+    } else {
+      console.log('ℹ️ Aucune nouvelle donnée à remplir dans le formulaire');
     }
   }
 
