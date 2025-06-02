@@ -8,6 +8,7 @@ import CallToAction from "../components/Testimonials";
 import Examples from "../components/Examples";
 import Contact from "../components/Contact";
 import Footer from "../components/Footer";
+import FloatingCallButton from "../components/FloatingCallButton";
 
 const Index = () => {
   return (
@@ -21,6 +22,7 @@ const Index = () => {
       <Examples />
       <Contact />
       <Footer />
+      <FloatingCallButton />
     </div>
   );
 };
