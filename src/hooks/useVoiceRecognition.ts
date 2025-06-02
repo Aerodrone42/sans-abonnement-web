@@ -1,4 +1,5 @@
 
+
 import { useState, useRef, useEffect } from 'react';
 import { EnhancedChatGPTService } from '@/services/enhancedChatGptService';
 import { SpeechSynthesisService } from '@/services/speechSynthesisService';
@@ -42,6 +43,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
   const isStoppedRef = useRef(false);
   const microphoneMutedRef = useRef(false);
   const isInitializingRef = useRef(false);
+  const isReadyRef = useRef(false);
 
   const cleanup = () => {
     console.log('🧹 Nettoyage complet microphone');
@@ -50,6 +52,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     isStoppedRef.current = true;
     microphoneMutedRef.current = false;
     isInitializingRef.current = false;
+    isReadyRef.current = false;
     setIsListening(false);
     
     if (restartTimeoutRef.current) {
@@ -83,6 +86,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     isStoppedRef.current = true;
     microphoneMutedRef.current = false;
     isInitializingRef.current = false;
+    isReadyRef.current = false;
     setIsConversationActive(false);
     speechSynthesis.stop();
     setIsSpeaking(false);
@@ -111,7 +115,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     microphoneMutedRef.current = false;
     
     setTimeout(() => {
-      if (isConversationActive && !isStoppedRef.current && !speakingRef.current && !processingRef.current && !isInitializingRef.current) {
+      if (isConversationActive && !isStoppedRef.current && !speakingRef.current && !processingRef.current && !isInitializingRef.current && isReadyRef.current) {
         console.log('🔄 Redémarrage micro après synthèse');
         try {
           if (recognitionRef.current) {
@@ -139,14 +143,23 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       console.log('❌ Transcript trop court, ignoré:', finalTranscript);
       return;
     }
+
+    // VÉRIFICATION CRITIQUE: S'assurer que chatGPT est bien initialisé
+    if (!chatGPT) {
+      console.log('❌ ChatGPT non initialisé, mode dictée seulement');
+      setTimeout(() => {
+        onTranscript(finalTranscript, "message");
+      }, 500);
+      return;
+    }
     
     setIsProcessing(true);
     processingRef.current = true;
     
     muteMicrophoneForSpeech();
     
-    if (!conversationMode || !chatGPT) {
-      console.log('❌ Conditions non remplies - conversationMode:', conversationMode, 'chatGPT:', !!chatGPT);
+    if (!conversationMode) {
+      console.log('Mode dictée activé');
       setTimeout(() => {
         setIsProcessing(false);
         processingRef.current = false;
@@ -189,7 +202,14 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
   };
 
   const startListening = async () => {
-    console.log('🎯 DÉMARRAGE conversation - tentative immédiate');
+    console.log('🎯 DÉMARRAGE conversation - vérification de l\'état');
+    
+    // VÉRIFICATION CRITIQUE: S'assurer que tout est prêt
+    if (!isReadyRef.current) {
+      console.log('❌ Système pas encore prêt, attente...');
+      setTimeout(startListening, 1000);
+      return;
+    }
     
     if (isInitializingRef.current) {
       console.log('⚠️ Initialisation déjà en cours, ignoré');
@@ -249,7 +269,10 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     stopSpeaking();
   };
 
+  // EFFET CRITIQUE: Initialisation de la reconnaissance avec vérification de ChatGPT
   useEffect(() => {
+    console.log('🔄 Initialisation reconnaissance vocale - ChatGPT:', !!chatGPT);
+    
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognitionClass = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       const recognition = new SpeechRecognitionClass() as ExtendedSpeechRecognition;
@@ -326,10 +349,10 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
           return;
         }
         
-        if (isConversationActive && !processingRef.current && !speakingRef.current && !isStoppedRef.current && !microphoneMutedRef.current) {
+        if (isConversationActive && !processingRef.current && !speakingRef.current && !isStoppedRef.current && !microphoneMutedRef.current && isReadyRef.current) {
           console.log('🔄 Redémarrage après erreur dans 2s');
           restartTimeoutRef.current = setTimeout(() => {
-            if (isConversationActive && !speakingRef.current && !processingRef.current && !isStoppedRef.current && !microphoneMutedRef.current && recognitionRef.current) {
+            if (isConversationActive && !speakingRef.current && !processingRef.current && !isStoppedRef.current && !microphoneMutedRef.current && recognitionRef.current && isReadyRef.current) {
               try {
                 shouldContinueRef.current = true;
                 recognitionRef.current.start();
@@ -347,10 +370,10 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
         setIsListening(false);
         isInitializingRef.current = false;
         
-        if (isConversationActive && !processingRef.current && !speakingRef.current && !isStoppedRef.current && !microphoneMutedRef.current) {
+        if (isConversationActive && !processingRef.current && !speakingRef.current && !isStoppedRef.current && !microphoneMutedRef.current && isReadyRef.current) {
           console.log('🔄 Auto-restart recognition dans 1s');
           restartTimeoutRef.current = setTimeout(() => {
-            if (isConversationActive && !speakingRef.current && !processingRef.current && !isStoppedRef.current && !microphoneMutedRef.current && recognitionRef.current) {
+            if (isConversationActive && !speakingRef.current && !processingRef.current && !isStoppedRef.current && !microphoneMutedRef.current && recognitionRef.current && isReadyRef.current) {
               try {
                 shouldContinueRef.current = true;
                 recognitionRef.current.start();
@@ -366,11 +389,17 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
         }
       };
       
+      // MARQUER COMME PRÊT une fois la reconnaissance configurée
+      setTimeout(() => {
+        isReadyRef.current = true;
+        console.log('✅ Système prêt - ChatGPT:', !!chatGPT);
+      }, 1000);
+      
       console.log('🎙️ Speech Recognition configurée avec démarrage optimisé');
     }
 
     return cleanup;
-  }, [isConversationActive]);
+  }, [isConversationActive, chatGPT]); // Ajouter chatGPT comme dépendance
 
   return {
     isListening,
