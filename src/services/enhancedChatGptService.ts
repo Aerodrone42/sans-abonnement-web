@@ -17,6 +17,9 @@ interface ClientInfo {
   formulaireEtape?: string;
   entreprise?: string;
   message?: string;
+  siteDesire?: string;
+  tarif?: string;
+  preferenceContact?: string;
 }
 
 export class EnhancedChatGPTService extends ChatGPTService {
@@ -52,8 +55,8 @@ export class EnhancedChatGPTService extends ChatGPTService {
     try {
       console.log('📝 Message utilisateur reçu:', userMessage);
       
-      // Analyser le message utilisateur pour extraire les infos
-      this.extractClientInfo(userMessage);
+      // Extraire les informations détaillées du client
+      this.extractDetailedClientInfo(userMessage);
       
       // Détecter l'étape du questionnaire formulaire
       this.handleFormQuestionnaireFlow(userMessage);
@@ -67,8 +70,8 @@ export class EnhancedChatGPTService extends ChatGPTService {
       // Récupérer des patterns ou témoignages pertinents si on en a
       await this.enhancePromptWithLearning();
       
-      // Créer un prompt focalisé avec le vrai catalogue
-      const enhancedPrompt = this.createFocusedPromptWithCatalog(userMessage);
+      // Créer un prompt focalisé avec le catalogue officiel
+      const enhancedPrompt = this.createDetailedPrompt(userMessage);
       
       // Envoyer le message amélioré à ChatGPT
       const response = await super.sendMessage(enhancedPrompt);
@@ -82,8 +85,8 @@ export class EnhancedChatGPTService extends ChatGPTService {
         learningService.updateClientInfo(this.clientInfo);
       }
       
-      // Remplissage progressif du formulaire avec toutes les données
-      await this.fillFormWithCorrectData();
+      // REMPLIR IMMÉDIATEMENT le formulaire avec TOUTES les données disponibles
+      await this.fillFormImmediately();
       
       // Vérifier si le formulaire est complet et demander confirmation d'envoi
       await this.checkAndRequestSendConfirmation();
@@ -100,13 +103,74 @@ export class EnhancedChatGPTService extends ChatGPTService {
     }
   }
 
-  // MÉTHODE MISE À JOUR: Prompt avec le vrai catalogue
-  private createFocusedPromptWithCatalog(userMessage: string): string {
+  // NOUVELLE MÉTHODE: Extraction détaillée des informations client
+  private extractDetailedClientInfo(message: string): void {
+    const lowerMessage = message.toLowerCase();
+    
+    // Extraction du métier
+    const metiers = [
+      'plombier', 'électricien', 'maçon', 'peintre', 'chauffagiste', 'menuisier', 
+      'carreleur', 'couvreur', 'charpentier', 'serrurier', 'vitrier', 'fumiste',
+      'terrassier', 'façadier', 'étancheur', 'solier', 'platrier'
+    ];
+    
+    const foundMetier = metiers.find(metier => lowerMessage.includes(metier));
+    if (foundMetier && !this.clientInfo.metier) {
+      this.clientInfo.metier = foundMetier;
+      this.clientInfo.entreprise = foundMetier;
+      console.log('🔨 Métier détecté:', foundMetier);
+    }
+    
+    // Extraction du type de site souhaité
+    if (lowerMessage.includes('site vitrine') || lowerMessage.includes('site internet')) {
+      this.clientInfo.siteDesire = 'Site internet';
+      this.clientInfo.tarif = '300€';
+    } else if (lowerMessage.includes('site local 20') || lowerMessage.includes('20 villes')) {
+      this.clientInfo.siteDesire = 'Site Local 20 villes';
+      this.clientInfo.tarif = '1000€';
+    } else if (lowerMessage.includes('site local 50') || lowerMessage.includes('50 villes')) {
+      this.clientInfo.siteDesire = 'Site Local 50 villes';
+      this.clientInfo.tarif = '1500€';
+    } else if (lowerMessage.includes('site national')) {
+      this.clientInfo.siteDesire = 'Site national';
+      this.clientInfo.tarif = '3000€';
+    } else if (lowerMessage.includes('e-commerce national')) {
+      this.clientInfo.siteDesire = 'Site E-commerce National';
+      this.clientInfo.tarif = '3500€';
+    } else if (lowerMessage.includes('e-commerce') || lowerMessage.includes('boutique')) {
+      this.clientInfo.siteDesire = 'Site E-commerce';
+      this.clientInfo.tarif = '600€';
+    } else if (lowerMessage.includes('nova') || lowerMessage.includes('intelligence artificielle')) {
+      this.clientInfo.siteDesire = 'Nova IA';
+      this.clientInfo.tarif = '2000€ + 100€/mois';
+    }
+    
+    // Extraction de la préférence de contact
+    if (lowerMessage.includes('appeler') || lowerMessage.includes('rappel') || lowerMessage.includes('téléphone')) {
+      this.clientInfo.preferenceContact = 'Appel téléphonique';
+    } else if (lowerMessage.includes('formulaire') || lowerMessage.includes('message') || lowerMessage.includes('email')) {
+      this.clientInfo.preferenceContact = 'Message/Email';
+    }
+    
+    // Extraction des horaires de rappel
+    if (lowerMessage.includes('matin')) {
+      this.clientInfo.horaireRappel = 'matin (8h-12h)';
+    } else if (lowerMessage.includes('après-midi')) {
+      this.clientInfo.horaireRappel = 'après-midi (14h-18h)';
+    } else if (lowerMessage.includes('soir') || lowerMessage.includes('fin de journée')) {
+      this.clientInfo.horaireRappel = 'soir (18h-20h)';
+    }
+    
+    console.log('📊 Infos client détaillées extraites:', this.clientInfo);
+  }
+
+  // NOUVELLE MÉTHODE: Prompt détaillé avec catalogue complet
+  private createDetailedPrompt(userMessage: string): string {
     const catalog = `
 CATALOGUE OFFICIEL AERODRONE MULTISERVICES:
 
 📱 SITES WEB:
-• Site internet vitrine: 300€ (+ option: 5000 affichages + référencement express 24h sur 10 villes pour 200€)
+• Site internet: 300€ (option: 5000 affichages + référencement express 24h sur 10 villes pour 200€)
 • Site Local 20 villes: 1000€ (+ 15000 affichages inclus + référencement express 24h Google)
 • Site Local 50 villes: 1500€ (+ 15000 affichages inclus + référencement express 24h Google)
 • Site national: 3000€ (+ 15000 affichages inclus + référencement express 24h Google)
@@ -114,7 +178,7 @@ CATALOGUE OFFICIEL AERODRONE MULTISERVICES:
 • Site E-commerce National: 3500€ (+ 15000 affichages inclus + référencement express 24h Google)
 • Nova IA (avec intelligence artificielle): 2000€ + 100€/mois (+ 15000 affichages inclus + référencement express 24h Google)
 
-📈 MARKETING / VISIBILITÉ:
+📈 MARKETING/VISIBILITÉ:
 • Abonnement premium: 100€
 • 5000 affichages: 100€
 • 10000 affichages: 300€
@@ -123,36 +187,115 @@ CATALOGUE OFFICIEL AERODRONE MULTISERVICES:
 • 30000 affichages: 500€
 • 100000 affichages: 1000€
 
-IMPORTANT: Tous les sites (sauf le site vitrine 300€) bénéficient de 15000 affichages OFFERTS au lancement + référencement express en 24h sur Google.`;
+AVANTAGES: Tous les sites bénéficient de 15000 affichages au lancement + référencement express en 24h sur Google (sauf site vitrine 300€).`;
 
-    const basePrompt = `Tu es Nova, conseillère commerciale spécialisée pour Aerodrone Multiservices. 
+    const basePrompt = `Tu es Nova, conseillère commerciale pour Aerodrone Multiservices. 
 
 RÈGLES STRICTES:
-- Utilise UNIQUEMENT les prix et prestations du catalogue officiel ci-dessus
-- Ne propose QUE les prestations listées dans le catalogue
+- Utilise UNIQUEMENT les prix et prestations du catalogue ci-dessus
 - NE JAMAIS inventer de chiffres ou prestations
-- Concentre-toi sur: nom, email, téléphone, métier/entreprise, message
-- NE DEMANDE JAMAIS si c'est le décideur (question inutile)
 - Pose des questions courtes et précises
-- Reste professionnel et commercial
+- Collecte: nom, email, téléphone, métier, type de site souhaité, préférence de contact
+- NE DEMANDE JAMAIS si c'est le décideur (inutile)
+- Remplis le formulaire au fur et à mesure des réponses
 
 ${catalog}
 
 TON OBJECTIF:
-1. Identifier le métier du client (plombier, électricien, maçon, etc.)
-2. Comprendre ses besoins (site vitrine, local, national, e-commerce)
+1. Identifier le métier du client
+2. Comprendre ses besoins (quel type de site)
 3. Proposer la solution adaptée du catalogue
-4. Remplir le formulaire de contact
-5. Demander confirmation d'envoi quand tout est prêt
+4. Demander sa préférence de contact (appel vs formulaire)
+5. Si appel: demander horaire préféré
+6. Remplir le formulaire avec TOUTES les informations
 
 Message du client: "${userMessage}"
 
-Réponds de manière naturelle et professionnelle avec les vraies prestations.`;
+Réponds naturellement et remplis le formulaire immédiatement avec les infos disponibles.`;
 
     return basePrompt;
   }
 
-  // NOUVELLE MÉTHODE : Vérification et demande de confirmation d'envoi
+  // NOUVELLE MÉTHODE: Remplissage immédiat du formulaire
+  private async fillFormImmediately(): Promise<void> {
+    if (!this.fillFormCallback) return;
+    
+    const formData: any = {};
+    let hasData = false;
+    
+    // Remplir le nom
+    if (this.clientInfo.nom && this.clientInfo.nom.trim()) {
+      formData.name = this.clientInfo.nom.trim();
+      hasData = true;
+      console.log('👤 Remplissage immédiat nom:', formData.name);
+    }
+    
+    // Remplir l'email
+    if (this.clientInfo.email && this.clientInfo.email.trim()) {
+      formData.email = this.clientInfo.email.trim().toLowerCase();
+      hasData = true;
+      console.log('📧 Remplissage immédiat email:', formData.email);
+    }
+    
+    // Remplir le téléphone
+    if (this.clientInfo.telephone && this.clientInfo.telephone.trim()) {
+      formData.phone = this.clientInfo.telephone.trim();
+      hasData = true;
+      console.log('📞 Remplissage immédiat téléphone:', formData.phone);
+    }
+    
+    // Remplir l'entreprise/métier
+    if (this.clientInfo.metier || this.clientInfo.entreprise) {
+      const business = (this.clientInfo.metier || this.clientInfo.entreprise || '').trim();
+      if (business) {
+        formData.business = business;
+        hasData = true;
+        console.log('🏢 Remplissage immédiat entreprise:', formData.business);
+      }
+    }
+    
+    // Créer un message COMPLET avec tous les détails
+    if (hasData || this.clientInfo.siteDesire || this.clientInfo.preferenceContact) {
+      let message = '';
+      
+      // Informations de base
+      if (this.clientInfo.metier) {
+        message += `Secteur d'activité: ${this.clientInfo.metier}\n`;
+      }
+      
+      // Type de site souhaité et tarif
+      if (this.clientInfo.siteDesire && this.clientInfo.tarif) {
+        message += `Site souhaité: ${this.clientInfo.siteDesire} - ${this.clientInfo.tarif}\n`;
+      }
+      
+      // Préférence de contact
+      if (this.clientInfo.preferenceContact) {
+        message += `Préférence de contact: ${this.clientInfo.preferenceContact}\n`;
+      }
+      
+      // Horaire de rappel
+      if (this.clientInfo.horaireRappel) {
+        message += `Horaire de rappel souhaité: ${this.clientInfo.horaireRappel}\n`;
+      }
+      
+      // Demande spécifique du client
+      if (this.clientInfo.message && !this.clientInfo.message.toLowerCase().includes('décideur')) {
+        message += `\nDemande spécifique: ${this.clientInfo.message}\n`;
+      }
+      
+      message += '\n[Demande générée par l\'assistant IA Nova - Aerodrone Multiservices]';
+      
+      formData.message = message;
+      console.log('💬 Message complet créé:', message);
+    }
+    
+    if (hasData || formData.message) {
+      console.log('📝 REMPLISSAGE IMMÉDIAT du formulaire:', formData);
+      this.fillFormCallback(formData);
+    }
+  }
+
+  // NOUVELLE MÉTHODE: Vérification et demande de confirmation d'envoi
   private async checkAndRequestSendConfirmation(): Promise<void> {
     // Vérifier si le formulaire est suffisamment rempli
     const hasEssentialData = this.clientInfo.nom && this.clientInfo.email && 
@@ -160,9 +303,6 @@ Réponds de manière naturelle et professionnelle avec les vraies prestations.`;
     
     if (hasEssentialData && this.clientInfo.formulaireEtape === 'fini') {
       console.log('📋 Formulaire complet détecté - demande de confirmation d\'envoi');
-      
-      // Créer une réponse qui demande confirmation
-      const confirmationMessage = "Parfait ! J'ai toutes les informations nécessaires. Puis-je envoyer votre demande de devis maintenant ? Il suffit de me dire 'oui' ou 'envoyez' pour que je transmette votre demande.";
       
       // Marquer qu'on attend une confirmation
       this.clientInfo.formulaireEtape = 'attente_confirmation';
@@ -230,12 +370,6 @@ Réponds de manière naturelle et professionnelle avec les vraies prestations.`;
           break;
         case 'metier':
           if (this.extractProfession(message)) {
-            this.clientInfo.formulaireEtape = 'message';
-            console.log('📝 Passage à l\'étape message');
-          }
-          break;
-        case 'message':
-          if (this.extractMessage(message)) {
             this.clientInfo.formulaireEtape = 'fini';
             console.log('📝 Formulaire terminé - prêt pour envoi');
           }
@@ -379,37 +513,6 @@ Réponds de manière naturelle et professionnelle avec les vraies prestations.`;
     return false;
   }
 
-  private extractMessage(message: string): boolean {
-    const messageText = message.trim();
-    if (messageText.length > 5) {
-      this.clientInfo.message = messageText;
-      console.log('💬 Message détecté:', this.clientInfo.message);
-      return true;
-    }
-    return false;
-  }
-
-  // NOUVELLE MÉTHODE : Extraction de l'heure de rappel
-  private extractCallbackTime(message: string): boolean {
-    const lowerMessage = message.toLowerCase();
-    
-    if (lowerMessage.includes('matin')) {
-      this.clientInfo.horaireRappel = 'matin (8h-12h)';
-      console.log('⏰ Horaire rappel:', this.clientInfo.horaireRappel);
-      return true;
-    } else if (lowerMessage.includes('après-midi')) {
-      this.clientInfo.horaireRappel = 'après-midi (14h-18h)';
-      console.log('⏰ Horaire rappel:', this.clientInfo.horaireRappel);
-      return true;
-    } else if (lowerMessage.includes('soir')) {
-      this.clientInfo.horaireRappel = 'soir (18h-20h)';
-      console.log('⏰ Horaire rappel:', this.clientInfo.horaireRappel);
-      return true;
-    }
-    
-    return false;
-  }
-
   private isValidEmail(email: string): boolean {
     if (!email.includes('@') || !email.includes('.')) return false;
     if (email.startsWith('.') || email.endsWith('.')) return false;
@@ -432,69 +535,6 @@ Réponds de manière naturelle et professionnelle avec les vraies prestations.`;
     
     return cities.some(city => lowerText.includes(city)) || 
            businesses.some(business => lowerText.includes(business));
-  }
-
-  // MÉTHODE MISE À JOUR: Remplissage avec catalogue correct
-  private async fillFormWithCorrectData(): Promise<void> {
-    if (!this.fillFormCallback) return;
-    
-    const formData: any = {};
-    let hasNewData = false;
-    
-    if (this.clientInfo.nom && this.clientInfo.nom.trim()) {
-      formData.name = this.clientInfo.nom.trim();
-      hasNewData = true;
-      console.log('👤 Remplissage nom:', formData.name);
-    }
-    
-    if (this.clientInfo.email && this.clientInfo.email.trim()) {
-      formData.email = this.clientInfo.email.trim().toLowerCase();
-      hasNewData = true;
-      console.log('📧 Remplissage email:', formData.email);
-    }
-    
-    if (this.clientInfo.telephone && this.clientInfo.telephone.trim()) {
-      formData.phone = this.clientInfo.telephone.trim();
-      hasNewData = true;
-      console.log('📞 Remplissage téléphone:', formData.phone);
-    }
-    
-    if (this.clientInfo.metier || this.clientInfo.entreprise) {
-      const business = (this.clientInfo.metier || this.clientInfo.entreprise || '').trim();
-      if (business && !business.toLowerCase().includes('numéro') && !business.toLowerCase().includes('oui') && !business.toLowerCase().includes('non')) {
-        formData.business = business;
-        hasNewData = true;
-        console.log('🏢 Remplissage entreprise/métier:', formData.business);
-      }
-    }
-    
-    // Message professionnel avec demande spécifique
-    if (this.clientInfo.metier || this.clientInfo.message) {
-      let message = '';
-      
-      if (this.clientInfo.metier) {
-        message += `Demande de devis pour solution web - Secteur: ${this.clientInfo.metier}`;
-      }
-      
-      if (this.clientInfo.message && !this.clientInfo.message.toLowerCase().includes('décideur')) {
-        message += `\n\nDemande spécifique: ${this.clientInfo.message}`;
-      }
-      
-      if (this.clientInfo.horaireRappel) {
-        message += `\n\nPréférence d'horaire de contact: ${this.clientInfo.horaireRappel}`;
-      }
-      
-      message += '\n\n[Demande générée par l\'assistant IA Nova - Aerodrone Multiservices]';
-      
-      formData.message = message;
-      hasNewData = true;
-      console.log('💬 Message professionnel créé:', message);
-    }
-    
-    if (hasNewData) {
-      console.log('📝 Remplissage du formulaire avec catalogue officiel:', formData);
-      this.fillFormCallback(formData);
-    }
   }
 
   
