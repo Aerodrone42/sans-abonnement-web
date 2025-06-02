@@ -34,7 +34,7 @@ const VoiceRecognition = ({ onTranscript, currentField }: VoiceRecognitionProps)
         
         if (finalTranscript) {
           setTranscript(finalTranscript);
-          onTranscript(finalTranscript, currentField);
+          onTranscript(finalTranscript, "message");
         }
       };
 
@@ -49,7 +49,7 @@ const VoiceRecognition = ({ onTranscript, currentField }: VoiceRecognitionProps)
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [onTranscript, currentField]);
+  }, [onTranscript]);
 
   const startListening = async () => {
     if (recognitionRef.current) {
@@ -133,7 +133,7 @@ const VoiceRecognition = ({ onTranscript, currentField }: VoiceRecognitionProps)
           <div className="flex-1 h-px bg-gradient-to-r from-cyan-400/50 to-transparent"></div>
           <div className="flex items-center gap-2 text-sm text-gray-400">
             <Zap className="w-4 h-4 text-yellow-400 animate-pulse" />
-            <span>Champ actuel: {currentField}</span>
+            <span>Dictée de votre message</span>
           </div>
         </div>
 
@@ -182,7 +182,7 @@ const VoiceRecognition = ({ onTranscript, currentField }: VoiceRecognitionProps)
 
           <p className="text-center text-gray-300 text-sm max-w-xs">
             {isListening
-              ? `Parlez maintenant pour remplir le champ "${currentField}"...`
+              ? `Parlez maintenant pour remplir le champ "Message"...`
               : `Cliquez pour activer la reconnaissance vocale`
             }
           </p>

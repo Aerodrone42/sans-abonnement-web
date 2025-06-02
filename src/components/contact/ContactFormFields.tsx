@@ -18,7 +18,6 @@ interface ContactFormFieldsProps {
 
 const ContactFormFields = ({ formData, handleChange }: ContactFormFieldsProps) => {
   const [showVoiceInterface, setShowVoiceInterface] = useState(false);
-  const [currentVoiceField, setCurrentVoiceField] = useState<string>("name");
 
   const handleVoiceTranscript = (transcript: string, field: string) => {
     // Créer un événement synthétique pour la mise à jour
@@ -32,27 +31,18 @@ const ContactFormFields = ({ formData, handleChange }: ContactFormFieldsProps) =
     handleChange(syntheticEvent);
   };
 
-  const activateVoiceForField = (fieldName: string) => {
-    setCurrentVoiceField(fieldName);
+  const activateVoiceForMessage = () => {
     setShowVoiceInterface(true);
-  };
-
-  const fieldLabels: Record<string, string> = {
-    name: "Nom et prénom",
-    email: "Email",
-    phone: "Téléphone", 
-    business: "Entreprise",
-    message: "Message"
   };
 
   return (
     <>
-      {/* Interface vocale IA */}
+      {/* Interface vocale IA - uniquement pour le message */}
       {showVoiceInterface && (
         <div className="mb-8">
           <VoiceRecognition
             onTranscript={handleVoiceTranscript}
-            currentField={fieldLabels[currentVoiceField]}
+            currentField="Message"
           />
           <div className="flex justify-center mt-4">
             <button
@@ -68,19 +58,9 @@ const ContactFormFields = ({ formData, handleChange }: ContactFormFieldsProps) =
 
       <div className="grid md:grid-cols-2 gap-8">
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <label className="block text-sm font-semibold text-cyan-100 mb-3 tracking-wide">
-              Nom et prénom *
-            </label>
-            <button
-              type="button"
-              onClick={() => activateVoiceForField("name")}
-              className="flex items-center gap-2 text-xs text-cyan-400 hover:text-blue-400 transition-colors"
-            >
-              <Mic className="w-3 h-3" />
-              Vocal
-            </button>
-          </div>
+          <label className="block text-sm font-semibold text-cyan-100 mb-3 tracking-wide">
+            Nom et prénom *
+          </label>
           <div className="relative group">
             <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cyan-400 group-focus-within:text-blue-400 transition-colors" />
             <Input
@@ -96,19 +76,9 @@ const ContactFormFields = ({ formData, handleChange }: ContactFormFieldsProps) =
         </div>
 
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <label className="block text-sm font-semibold text-cyan-100 mb-3 tracking-wide">
-              Email professionnel *
-            </label>
-            <button
-              type="button"
-              onClick={() => activateVoiceForField("email")}
-              className="flex items-center gap-2 text-xs text-cyan-400 hover:text-blue-400 transition-colors"
-            >
-              <Mic className="w-3 h-3" />
-              Vocal
-            </button>
-          </div>
+          <label className="block text-sm font-semibold text-cyan-100 mb-3 tracking-wide">
+            Email professionnel *
+          </label>
           <div className="relative group">
             <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cyan-400 group-focus-within:text-blue-400 transition-colors" />
             <Input
@@ -127,19 +97,9 @@ const ContactFormFields = ({ formData, handleChange }: ContactFormFieldsProps) =
 
       <div className="grid md:grid-cols-2 gap-8">
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <label className="block text-sm font-semibold text-cyan-100 mb-3 tracking-wide">
-              Téléphone
-            </label>
-            <button
-              type="button"
-              onClick={() => activateVoiceForField("phone")}
-              className="flex items-center gap-2 text-xs text-cyan-400 hover:text-blue-400 transition-colors"
-            >
-              <Mic className="w-3 h-3" />
-              Vocal
-            </button>
-          </div>
+          <label className="block text-sm font-semibold text-cyan-100 mb-3 tracking-wide">
+            Téléphone
+          </label>
           <div className="relative group">
             <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cyan-400 group-focus-within:text-blue-400 transition-colors" />
             <Input
@@ -155,19 +115,9 @@ const ContactFormFields = ({ formData, handleChange }: ContactFormFieldsProps) =
         </div>
 
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <label className="block text-sm font-semibold text-cyan-100 mb-3 tracking-wide">
-              Entreprise / Secteur
-            </label>
-            <button
-              type="button"
-              onClick={() => activateVoiceForField("business")}
-              className="flex items-center gap-2 text-xs text-cyan-400 hover:text-blue-400 transition-colors"
-            >
-              <Mic className="w-3 h-3" />
-              Vocal
-            </button>
-          </div>
+          <label className="block text-sm font-semibold text-cyan-100 mb-3 tracking-wide">
+            Entreprise / Secteur
+          </label>
           <div className="relative group">
             <Building className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cyan-400 group-focus-within:text-blue-400 transition-colors" />
             <Input
@@ -189,7 +139,7 @@ const ContactFormFields = ({ formData, handleChange }: ContactFormFieldsProps) =
           </label>
           <button
             type="button"
-            onClick={() => activateVoiceForField("message")}
+            onClick={activateVoiceForMessage}
             className="flex items-center gap-2 text-xs text-cyan-400 hover:text-blue-400 transition-colors"
           >
             <Mic className="w-3 h-3" />
