@@ -1,4 +1,3 @@
-
 import { Gem, Flower2, Building2, Car, Plane, Shirt } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -8,14 +7,14 @@ const Examples = () => {
       icon: Gem,
       title: "Bijouterie de Luxe",
       description: "Showcase élégant pour collections de bijoux haut de gamme",
-      category: "E-commerce",
+      category: "Vitrine",
       color: "from-purple-600 to-pink-600"
     },
     {
       icon: Flower2,
       title: "Caves à Vins Premium",
       description: "Plateforme de vente en ligne pour vins d'exception",
-      category: "E-commerce",
+      category: "Boutique",
       color: "from-emerald-600 to-teal-600"
     },
     {
@@ -29,7 +28,7 @@ const Examples = () => {
       icon: Car,
       title: "Concessionnaire Auto",
       description: "Plateforme de présentation et vente de véhicules de luxe",
-      category: "E-commerce",
+      category: "Catalogue",
       color: "from-red-600 to-orange-600"
     },
     {
@@ -43,7 +42,7 @@ const Examples = () => {
       icon: Shirt,
       title: "Mode & Design",
       description: "Boutique en ligne pour créateurs de mode indépendants",
-      category: "E-commerce",
+      category: "Créatif",
       color: "from-pink-600 to-rose-600"
     }
   ];
