@@ -12,7 +12,10 @@ interface ClientInfo {
   decideur?: string;
   situation?: string;
   objectif?: string;
-  clientAccord?: boolean;
+  choixContact?: string;
+  formulaireEtape?: string;
+  entreprise?: string;
+  message?: string;
 }
 
 export class EnhancedChatGPTService extends ChatGPTService {
@@ -29,7 +32,6 @@ export class EnhancedChatGPTService extends ChatGPTService {
     console.log('🚀 EnhancedChatGPTService initialisé avec session:', this.sessionId);
   }
 
-  // Nouvelle méthode pour configurer les callbacks de formulaire
   setFormCallbacks(fillForm: (data: any) => void, submitForm: () => Promise<void>) {
     this.fillFormCallback = fillForm;
     this.submitFormCallback = submitForm;
@@ -44,6 +46,9 @@ export class EnhancedChatGPTService extends ChatGPTService {
     try {
       // Analyser le message utilisateur pour extraire les infos
       this.extractClientInfo(userMessage);
+      
+      // Détecter l'étape du questionnaire formulaire
+      this.handleFormQuestionnaireFlow(userMessage);
       
       // Déterminer l'étape actuelle
       this.currentStage = this.determineCurrentStage(userMessage);
@@ -70,12 +75,9 @@ export class EnhancedChatGPTService extends ChatGPTService {
         await learningService.saveConversation();
       }
       
-      // Détecter si la conversation est terminée avec succès ET si le client est d'accord
-      if (this.isSuccessfulConversion(response) && this.clientInfo.clientAccord) {
-        learningService.endConversation('success');
-        
-        // Remplir et envoyer le formulaire seulement maintenant
-        this.finalizeFormSubmission();
+      // Gérer le remplissage et envoi automatique du formulaire à la fin
+      if (this.shouldFillAndSubmitForm(response)) {
+        await this.finalizeFormSubmission();
       }
       
       return response;
@@ -85,55 +87,92 @@ export class EnhancedChatGPTService extends ChatGPTService {
     }
   }
 
-  private extractClientInfo(message: string): void {
+  private handleFormQuestionnaireFlow(message: string): void {
     const lowerMessage = message.toLowerCase();
     
-    // Détecter l'accord du client pour l'envoi
-    if (lowerMessage.includes('oui') || lowerMessage.includes('d\'accord') || lowerMessage.includes('ok') || lowerMessage.includes('parfait')) {
-      const hasContactKeywords = lowerMessage.includes('rappel') || lowerMessage.includes('contact') || lowerMessage.includes('devis') || lowerMessage.includes('envoyer');
-      if (hasContactKeywords) {
-        this.clientInfo.clientAccord = true;
-        console.log('✅ Accord client détecté pour l\'envoi');
+    // Détecter le choix de contact
+    if (lowerMessage.includes('formulaire') || lowerMessage.includes('demande') || lowerMessage.includes('contact')) {
+      this.clientInfo.choixContact = 'formulaire';
+      if (!this.clientInfo.formulaireEtape) {
+        this.clientInfo.formulaireEtape = 'nom';
       }
     }
     
-    // Détecter le nom - patterns améliorés
+    // Gérer les étapes du formulaire selon la réponse utilisateur
+    if (this.clientInfo.choixContact === 'formulaire') {
+      switch (this.clientInfo.formulaireEtape) {
+        case 'nom':
+          if (this.extractName(message)) {
+            this.clientInfo.formulaireEtape = 'email';
+          }
+          break;
+        case 'email':
+          if (this.extractAndValidateEmail(message)) {
+            this.clientInfo.formulaireEtape = 'tel';
+          }
+          break;
+        case 'tel':
+          if (this.extractPhone(message)) {
+            this.clientInfo.formulaireEtape = 'entreprise';
+          }
+          break;
+        case 'entreprise':
+          if (this.extractBusiness(message)) {
+            this.clientInfo.formulaireEtape = 'message';
+          }
+          break;
+        case 'message':
+          if (this.extractMessage(message)) {
+            this.clientInfo.formulaireEtape = 'fini';
+          }
+          break;
+      }
+    }
+  }
+
+  private extractName(message: string): boolean {
+    // Patterns pour détecter un nom
     const namePatterns = [
-      /(?:je\s+(?:m'appelle|suis)\s+)([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/,
-      /(?:mon\s+nom\s+(?:est|c'est)\s+)([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/,
-      /(?:c'est\s+)([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/,
-      /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/
+      /^([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]+(?:\s+[A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]+)*)/,
+      /(?:je\s+(?:m'appelle|suis)\s+)([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]+(?:\s+[A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]+)*)/,
+      /(?:mon\s+nom\s+(?:est|c'est)\s+)([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]+(?:\s+[A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]+)*)/
     ];
     
     for (const pattern of namePatterns) {
       const match = message.match(pattern);
-      if (match && !this.clientInfo.nom) {
+      if (match) {
         const detectedName = match[1].trim();
-        // Vérifier que ce n'est pas une ville ou un métier
-        const isNotCity = !['paris', 'lyon', 'marseille', 'toulouse', 'bordeaux', 'lille', 'nantes', 'strasbourg', 'saint-étienne'].some(city => 
-          detectedName.toLowerCase().includes(city)
-        );
-        const isNotJob = !['plombier', 'électricien', 'maçon', 'peintre', 'chauffagiste', 'menuisier', 'carreleur', 'couvreur'].some(job => 
-          detectedName.toLowerCase().includes(job)
-        );
-        
-        if (isNotCity && isNotJob && detectedName.length > 2) {
+        if (detectedName.length > 2 && !this.isBusinessOrCity(detectedName)) {
           this.clientInfo.nom = detectedName;
-          console.log('👤 Nom détecté:', this.clientInfo.nom);
-          break;
+          console.log('👤 Nom détecté et validé:', this.clientInfo.nom);
+          return true;
         }
       }
     }
-    
-    // Détecter l'email
+    return false;
+  }
+
+  private extractAndValidateEmail(message: string): boolean {
     const emailPattern = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/;
     const emailMatch = message.match(emailPattern);
-    if (emailMatch && !this.clientInfo.email) {
-      this.clientInfo.email = emailMatch[1];
-      console.log('📧 Email détecté:', this.clientInfo.email);
-    }
     
-    // Détecter le téléphone - patterns améliorés
+    if (emailMatch) {
+      const email = emailMatch[1].toLowerCase();
+      
+      // Vérifications basiques de validité
+      if (this.isValidEmail(email)) {
+        this.clientInfo.email = email;
+        console.log('📧 Email détecté et validé:', this.clientInfo.email);
+        return true;
+      } else {
+        console.log('❌ Email invalide détecté:', email);
+        return false; // L'IA demandera de corriger
+      }
+    }
+    return false;
+  }
+
+  private extractPhone(message: string): boolean {
     const phonePatterns = [
       /(?:0[1-9])(?:[\s.-]?\d{2}){4}/,
       /(?:\+33|0033)[1-9](?:[\s.-]?\d{2}){4}/,
@@ -142,12 +181,117 @@ export class EnhancedChatGPTService extends ChatGPTService {
     
     for (const pattern of phonePatterns) {
       const match = message.match(pattern);
-      if (match && !this.clientInfo.telephone) {
+      if (match) {
         this.clientInfo.telephone = match[0];
         console.log('📞 Téléphone détecté:', this.clientInfo.telephone);
-        break;
+        return true;
       }
     }
+    return false;
+  }
+
+  private extractBusiness(message: string): boolean {
+    // Extraire l'entreprise ou secteur d'activité
+    const businessText = message.trim();
+    if (businessText.length > 2) {
+      this.clientInfo.entreprise = businessText;
+      console.log('🏢 Entreprise détectée:', this.clientInfo.entreprise);
+      return true;
+    }
+    return false;
+  }
+
+  private extractMessage(message: string): boolean {
+    const messageText = message.trim();
+    if (messageText.length > 5) {
+      this.clientInfo.message = messageText;
+      console.log('💬 Message détecté:', this.clientInfo.message);
+      return true;
+    }
+    return false;
+  }
+
+  private isValidEmail(email: string): boolean {
+    // Vérifications basiques
+    if (!email.includes('@') || !email.includes('.')) return false;
+    if (email.startsWith('.') || email.endsWith('.')) return false;
+    if (email.includes('..')) return false;
+    
+    const parts = email.split('@');
+    if (parts.length !== 2) return false;
+    
+    const [local, domain] = parts;
+    if (local.length === 0 || domain.length === 0) return false;
+    if (!domain.includes('.')) return false;
+    
+    return true;
+  }
+
+  private isBusinessOrCity(text: string): boolean {
+    const lowerText = text.toLowerCase();
+    const cities = ['paris', 'lyon', 'marseille', 'toulouse', 'bordeaux', 'lille', 'nantes', 'strasbourg'];
+    const businesses = ['plombier', 'électricien', 'maçon', 'peintre', 'chauffagiste', 'menuisier'];
+    
+    return cities.some(city => lowerText.includes(city)) || 
+           businesses.some(business => lowerText.includes(business));
+  }
+
+  private shouldFillAndSubmitForm(response: string): boolean {
+    return this.clientInfo.formulaireEtape === 'fini' &&
+           this.clientInfo.nom &&
+           this.clientInfo.email &&
+           response.toLowerCase().includes('je remplis votre demande');
+  }
+
+  private async finalizeFormSubmission(): Promise<void> {
+    if (!this.fillFormCallback || !this.submitFormCallback) {
+      console.log('❌ Callbacks de formulaire manquants');
+      return;
+    }
+    
+    const formData: any = {};
+    
+    // Mapper les infos collectées vers les champs du formulaire
+    if (this.clientInfo.nom) formData.name = this.clientInfo.nom;
+    if (this.clientInfo.email) formData.email = this.clientInfo.email;
+    if (this.clientInfo.telephone) formData.phone = this.clientInfo.telephone;
+    if (this.clientInfo.entreprise || this.clientInfo.metier) {
+      formData.business = this.clientInfo.entreprise || this.clientInfo.metier;
+    }
+    
+    // Créer un message personnalisé complet
+    let message = `Demande générée par l'IA - ${this.clientInfo.metier || 'Professionnel'}`;
+    
+    if (this.clientInfo.zone) message += ` - Zone: ${this.clientInfo.zone}`;
+    if (this.clientInfo.budget) message += ` - Budget: ${this.clientInfo.budget}`;
+    if (this.clientInfo.message) message += `\n\nDemande du client: ${this.clientInfo.message}`;
+    
+    message += `\n\nSession IA: ${this.sessionId}`;
+    formData.message = message;
+    
+    console.log('🤖 Remplissage automatique du formulaire:', formData);
+    
+    // Remplir le formulaire
+    this.fillFormCallback(formData);
+    
+    // Attendre un peu puis envoyer
+    setTimeout(async () => {
+      try {
+        if (this.submitFormCallback) {
+          await this.submitFormCallback();
+          console.log('✅ Formulaire envoyé automatiquement avec succès');
+          
+          // Marquer la conversation comme réussie
+          learningService.endConversation('success');
+        }
+      } catch (error) {
+        console.error('❌ Erreur lors de l\'envoi automatique:', error);
+      }
+    }, 1500);
+  }
+
+  private extractClientInfo(message: string): void {
+    const lowerMessage = message.toLowerCase();
     
     // Détecter le métier
     const metiers = ['plombier', 'électricien', 'maçon', 'peintre', 'chauffagiste', 'menuisier', 'carreleur', 'couvreur'];
@@ -184,77 +328,13 @@ export class EnhancedChatGPTService extends ChatGPTService {
     }
   }
 
-  private finalizeFormSubmission(): void {
-    if (!this.fillFormCallback || !this.clientInfo.clientAccord) {
-      console.log('❌ Pas d\'accord client ou callback manquant');
-      return;
-    }
-    
-    const formData: any = {};
-    
-    // Mapper les infos collectées vers les champs du formulaire
-    if (this.clientInfo.nom) {
-      formData.name = this.clientInfo.nom;
-    }
-    
-    if (this.clientInfo.email) {
-      formData.email = this.clientInfo.email;
-    }
-    
-    if (this.clientInfo.telephone) {
-      formData.phone = this.clientInfo.telephone;
-    }
-    
-    if (this.clientInfo.metier) {
-      formData.business = this.clientInfo.metier;
-    }
-    
-    // Créer un message personnalisé basé sur les infos collectées
-    if (this.clientInfo.metier || this.clientInfo.zone || this.clientInfo.budget) {
-      let message = `Demande de devis - ${this.clientInfo.metier || 'Professionnel'}`;
-      
-      if (this.clientInfo.zone) {
-        message += ` - Zone: ${this.clientInfo.zone}`;
-      }
-      
-      if (this.clientInfo.budget) {
-        message += ` - Budget: ${this.clientInfo.budget}`;
-      }
-      
-      message += `\n\nConversation avec l'IA terminée avec succès. Le client a donné son accord pour être recontacté. Session: ${this.sessionId}`;
-      
-      formData.message = message;
-    }
-    
-    // Remplir le formulaire seulement si on a les infos essentielles
-    if (this.clientInfo.nom && (this.clientInfo.email || this.clientInfo.telephone)) {
-      console.log('🤖 Remplissage final du formulaire avec accord client:', formData);
-      this.fillFormCallback(formData);
-      
-      // Essayer d'envoyer automatiquement si toutes les infos sont là
-      setTimeout(() => {
-        this.tryAutoSubmitForm();
-      }, 2000);
-    }
-  }
-
-  private async tryAutoSubmitForm(): Promise<void> {
-    if (!this.submitFormCallback || !this.clientInfo.clientAccord) return;
-    
-    // Vérifier qu'on a les infos minimales ET l'accord du client
-    if (this.clientInfo.nom && this.clientInfo.email && this.clientInfo.clientAccord) {
-      console.log('🚀 Envoi automatique du formulaire avec accord client...');
-      try {
-        await this.submitFormCallback();
-        console.log('✅ Formulaire envoyé automatiquement avec succès');
-      } catch (error) {
-        console.error('❌ Erreur lors de l\'envoi automatique:', error);
-      }
-    }
-  }
-
   private determineCurrentStage(message: string): number {
     const lowerMessage = message.toLowerCase();
+    
+    // Étapes du questionnaire formulaire (15)
+    if (this.clientInfo.choixContact === 'formulaire') {
+      return 15;
+    }
     
     // Étape 1: Accueil (toujours au début)
     if (this.currentStage === 1) return 2;
@@ -277,7 +357,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
     if (lowerMessage.includes('témoignage') || lowerMessage.includes('exemple')) return 13;
     if (lowerMessage.includes('appel') || lowerMessage.includes('rappel')) return 14;
     
-    return Math.min(this.currentStage + 1, 14);
+    return Math.min(this.currentStage + 1, 15);
   }
 
   private async enhancePromptWithLearning(): Promise<void> {
@@ -326,17 +406,14 @@ export class EnhancedChatGPTService extends ChatGPTService {
     );
   }
 
-  // Nouvelle méthode pour obtenir les stats de performance
   async getPerformanceStats() {
     return await learningService.getPerformanceStats();
   }
 
-  // Méthode pour forcer la fin d'une conversation
   endConversation(outcome: ConversationData['outcome'] = 'abandoned'): void {
     learningService.endConversation(outcome);
   }
 
-  // Override de clearHistory pour démarrer une nouvelle session
   clearHistory(): void {
     learningService.endConversation('abandoned');
     super.clearHistory();
