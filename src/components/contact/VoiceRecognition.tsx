@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 import { Mic, MicOff, Brain, Zap, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -66,15 +65,29 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
 
     const handleApiKeySet = (apiKey: string) => {
       console.log('handleApiKeySet called with key length:', apiKey.length);
-      console.log('API key starts with sk-:', apiKey.startsWith('sk-'));
+      console.log('Raw API key:', apiKey);
+      
+      // Nettoyer la clé API de tous les espaces et caractères indésirables
+      const cleanedKey = apiKey.trim().replace(/\s+/g, '');
+      console.log('Cleaned API key length:', cleanedKey.length);
+      console.log('Cleaned API key starts with sk-:', cleanedKey.startsWith('sk-'));
+      
+      if (!cleanedKey.startsWith('sk-')) {
+        console.error('Invalid API key format - must start with sk-');
+        alert('Clé API invalide - elle doit commencer par "sk-"');
+        return;
+      }
       
       try {
-        const service = new ChatGPTService(apiKey);
+        console.log('Creating ChatGPT service...');
+        const service = new ChatGPTService(cleanedKey);
         setChatGPT(service);
-        localStorage.setItem('openai_api_key', apiKey);
-        console.log('ChatGPT service created and API key stored');
+        localStorage.setItem('openai_api_key', cleanedKey);
+        console.log('✅ ChatGPT service created and API key stored successfully');
+        alert('✅ ChatGPT connecté avec succès !');
       } catch (error) {
-        console.error('Error creating ChatGPT service:', error);
+        console.error('❌ Error creating ChatGPT service:', error);
+        alert('❌ Erreur lors de la connexion à ChatGPT: ' + error.message);
       }
     };
 
@@ -83,10 +96,15 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
       const storedKey = localStorage.getItem('openai_api_key');
       if (storedKey) {
         console.log('Found stored API key, creating ChatGPT service');
-        setChatGPT(new ChatGPTService(storedKey));
+        try {
+          setChatGPT(new ChatGPTService(storedKey));
+          console.log('✅ ChatGPT service restored from localStorage');
+        } catch (error) {
+          console.error('❌ Error restoring ChatGPT service:', error);
+          localStorage.removeItem('openai_api_key'); // Supprimer la clé corrompue
+        }
       }
 
-      // ... keep existing code (speech recognition setup)
       // Vérifier si la reconnaissance vocale est supportée
       if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const SpeechRecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition;
