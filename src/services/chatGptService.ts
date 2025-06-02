@@ -1,4 +1,3 @@
-
 interface ChatGPTMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -239,7 +238,6 @@ ATTENDEZ que le client clique sur "Envoyer".
 • Ne pas remplir le formulaire au fur et à mesure
 • Continuer sans attendre la réponse du client`;
 
-    // Initialiser l'historique avec le prompt système actualisé
     this.updateSystemPrompt();
   }
 
@@ -304,9 +302,11 @@ ${this.baseSystemPrompt}`;
         body: JSON.stringify({
           model: 'gpt-4o-mini',
           messages: this.conversationHistory,
-          max_tokens: 150, // Réduire pour éviter les coupures
-          temperature: 0.5, // Réduire pour plus de cohérence
-          stop: ["\n\n", "VOUS VOUS ARRÊTEZ"], // Arrêter aux marqueurs
+          max_tokens: 300, // Augmenté pour éviter les coupures
+          temperature: 0.3, // Réduit pour plus de cohérence
+          frequency_penalty: 0.3, // Éviter les répétitions
+          presence_penalty: 0.2, // Encourager la nouveauté
+          // Suppression des stop tokens qui pourraient couper prématurément
         }),
       });
 
@@ -329,7 +329,6 @@ ${this.baseSystemPrompt}`;
     }
   }
 
-  // Nouvelle méthode pour envoyer le message d'accueil automatiquement
   async sendAutoGreeting(): Promise<string> {
     if (this.hasAutoGreeted) {
       return '';
@@ -339,7 +338,6 @@ ${this.baseSystemPrompt}`;
       this.updateSystemPrompt();
       this.hasAutoGreeted = true;
 
-      // Envoyer un message système pour déclencher l'accueil automatique
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -355,8 +353,8 @@ ${this.baseSystemPrompt}`;
               content: 'DÉMARRER_CONVERSATION_AUTOMATIQUE'
             }
           ],
-          max_tokens: 100,
-          temperature: 0.5,
+          max_tokens: 200, // Augmenté pour le message d'accueil
+          temperature: 0.3,
         }),
       });
 
@@ -367,7 +365,6 @@ ${this.baseSystemPrompt}`;
       const data: ChatGPTResponse = await response.json();
       const greetingMessage = data.choices[0].message.content;
 
-      // Ajouter le message d'accueil à l'historique
       this.conversationHistory.push({
         role: 'assistant',
         content: greetingMessage

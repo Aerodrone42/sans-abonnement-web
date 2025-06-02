@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { EnhancedChatGPTService } from '@/services/enhancedChatGptService';
 import { SpeechSynthesisService } from '@/services/speechSynthesisService';
@@ -197,10 +198,11 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
             clearTimeout(responseTimeoutRef.current);
           }
           
+          // Augmentation du délai pour éviter les coupures prématurées
           responseTimeoutRef.current = setTimeout(() => {
             console.log('Processing final transcript with learning after delay:', finalTranscript);
             processAIResponse(finalTranscript);
-          }, 3000);
+          }, 2000); // Réduit de 3000ms à 2000ms pour plus de réactivité
         }
       };
 
