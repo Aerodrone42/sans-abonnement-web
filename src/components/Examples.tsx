@@ -1,5 +1,7 @@
+
 import { Gem, Flower2, Building2, Car, Plane, Shirt } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import StarField from "./effects/StarField";
 
 const Examples = () => {
   const examples = [
@@ -48,8 +50,11 @@ const Examples = () => {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="container mx-auto px-4">
+    <section className="relative py-20 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
+      {/* Star Field Effect */}
+      <StarField />
+      
+      <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             Clients d'Excellence
