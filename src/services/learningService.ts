@@ -168,7 +168,7 @@ export class LearningService {
       
       // Témoignages
       if (message.includes('J\'ai un') && message.includes('qui est passé')) {
-        keyPhrases.push('temoignage_resultat';
+        keyPhrases.push('temoignage_resultat');
       }
       
       // Questions qualifiantes
