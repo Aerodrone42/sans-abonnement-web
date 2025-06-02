@@ -2,32 +2,11 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ContactHeader from "./contact/ContactHeader";
-import ApiKeyInput from "./contact/ApiKeyInput";
 import ContactForm from "./contact/ContactForm";
 import VoiceRecognition from "./contact/VoiceRecognition";
 import NeuralBackground from "./contact/NeuralBackground";
-import { EnhancedChatGPTService } from "@/services/enhancedChatGptService";
 
 const Contact = () => {
-  const [apiKey, setApiKey] = useState("");
-  const [chatGPT, setChatGPT] = useState<EnhancedChatGPTService | null>(null);
-  const [conversationMode, setConversationMode] = useState(false);
-
-  const handleApiKeySubmit = (key: string) => {
-    setApiKey(key);
-    const newChatGPT = new EnhancedChatGPTService(key);
-    setChatGPT(newChatGPT);
-    console.log("🧠 Enhanced ChatGPT service with learning capabilities initialized");
-  };
-
-  const handleConversationToggle = (enabled: boolean) => {
-    setConversationMode(enabled);
-    if (!enabled && chatGPT) {
-      // Terminer la conversation quand on désactive le mode
-      chatGPT.endConversation('abandoned');
-    }
-  };
-
   return (
     <div id="contact" className="py-20 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
       <NeuralBackground />
@@ -49,26 +28,16 @@ const Contact = () => {
                 </p>
               </CardHeader>
               <CardContent className="space-y-6">
-                <ApiKeyInput 
-                  onApiKeySubmit={handleApiKeySubmit}
-                  apiKey={apiKey}
+                <VoiceRecognition 
+                  onTranscript={() => {}}
+                  currentField="message"
                 />
                 
-                {chatGPT && (
-                  <VoiceRecognition 
-                    chatGPT={chatGPT}
-                    conversationMode={conversationMode}
-                    onConversationToggle={handleConversationToggle}
-                  />
-                )}
-                
-                {conversationMode && (
-                  <div className="bg-cyan-900/20 border border-cyan-400/30 rounded-lg p-3">
-                    <p className="text-cyan-200 text-xs">
-                      🧠 Mode apprentissage actif : Nova analyse et mémorise cette conversation pour s'améliorer
-                    </p>
-                  </div>
-                )}
+                <div className="bg-cyan-900/20 border border-cyan-400/30 rounded-lg p-3">
+                  <p className="text-cyan-200 text-xs">
+                    🧠 Mode apprentissage actif : Nova analyse et mémorise cette conversation pour s'améliorer
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </div>

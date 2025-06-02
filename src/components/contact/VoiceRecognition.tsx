@@ -2,7 +2,7 @@
 import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { Brain, Zap, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ChatGPTService } from "@/services/chatGptService";
+import { EnhancedChatGPTService } from "@/services/enhancedChatGptService";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
 import AudioVisualization from "./AudioVisualization";
 import NeuralBackground from "./NeuralBackground";
@@ -23,7 +23,7 @@ const OPENAI_API_KEY = "sk-proj-RgM27-I7dI4A1nFsqXf2cAbpEIfa_8Xp26bCkvwTQJGhtNAp
 
 const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
   ({ onTranscript, currentField }, ref) => {
-    const [chatGPT, setChatGPT] = useState<ChatGPTService | null>(null);
+    const [chatGPT, setChatGPT] = useState<EnhancedChatGPTService | null>(null);
     const [conversationMode, setConversationMode] = useState(true);
     
     const {
@@ -44,16 +44,16 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
 
     useEffect(() => {
       // Initialiser ChatGPT automatiquement avec votre clé API
-      console.log('🔵 Initializing ChatGPT with company API key');
+      console.log('🔵 Initializing Enhanced ChatGPT with company API key');
       try {
-        setChatGPT(new ChatGPTService(OPENAI_API_KEY));
-        console.log('✅ ChatGPT service initialized successfully');
+        setChatGPT(new EnhancedChatGPTService(OPENAI_API_KEY));
+        console.log('✅ Enhanced ChatGPT service with learning capabilities initialized successfully');
       } catch (error) {
-        console.error('❌ Error initializing ChatGPT service:', error);
+        console.error('❌ Error initializing Enhanced ChatGPT service:', error);
       }
     }, []);
 
-    console.log('🔵 VoiceRecognition render - chatGPT connected:', !!chatGPT);
+    console.log('🔵 VoiceRecognition render - Enhanced chatGPT connected:', !!chatGPT);
 
     return (
       <div className="relative">

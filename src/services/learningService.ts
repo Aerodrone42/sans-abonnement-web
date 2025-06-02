@@ -15,7 +15,7 @@ export interface ConversationData {
   messages: Array<{
     role: 'user' | 'assistant';
     content: string;
-    timestamp: Date;
+    timestamp: string; // Changé de Date à string pour la sérialisation JSON
     stage?: number;
   }>;
   outcome?: 'success' | 'abandoned' | 'scheduled_callback' | 'objection' | 'in_progress';
@@ -43,7 +43,7 @@ export class LearningService {
     this.currentConversation.messages.push({
       role,
       content,
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(), // Convertir en string ISO
       stage
     });
 
@@ -215,7 +215,7 @@ export class LearningService {
         .eq('is_verified', true)
         .order('effectiveness_score', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (error || !data) {
         console.log('Aucun témoignage trouvé pour:', businessType);
