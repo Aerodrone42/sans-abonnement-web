@@ -1,3 +1,4 @@
+
 export class SpeechSynthesisService {
   private synth: SpeechSynthesis;
   private voice: SpeechSynthesisVoice | null = null;
@@ -46,8 +47,61 @@ export class SpeechSynthesisService {
     }
   }
 
+  // NOUVELLE MÉTHODE: Nettoyer le texte des caractères spéciaux
+  private cleanTextForSpeech(text: string): string {
+    return text
+      // Remplacer les caractères spéciaux par leur équivalent parlé
+      .replace(/€/g, ' euros')
+      .replace(/\$/g, ' dollars')
+      .replace(/%/g, ' pourcent')
+      .replace(/&/g, ' et ')
+      .replace(/@/g, ' arobase ')
+      .replace(/#/g, ' dièse ')
+      .replace(/\*/g, ' ')
+      .replace(/\+/g, ' plus ')
+      .replace(/=/g, ' égal ')
+      .replace(/_/g, ' ')
+      .replace(/\|/g, ' ')
+      .replace(/\\/g, ' ')
+      .replace(/\//g, ' ')
+      .replace(/\^/g, ' ')
+      .replace(/`/g, ' ')
+      .replace(/~/g, ' ')
+      .replace(/\[/g, ' ')
+      .replace(/\]/g, ' ')
+      .replace(/\{/g, ' ')
+      .replace(/\}/g, ' ')
+      .replace(/<>/g, ' ')
+      .replace(/</g, ' ')
+      .replace(/>/g, ' ')
+      
+      // Nettoyer les points de suspension
+      .replace(/\.{3,}/g, ' ')
+      .replace(/\.{2}/g, '. ')
+      
+      // Nettoyer les tirets multiples
+      .replace(/-{2,}/g, ' ')
+      .replace(/_{2,}/g, ' ')
+      
+      // Nettoyer les espaces multiples
+      .replace(/\s+/g, ' ')
+      
+      // Nettoyer les émojis et caractères Unicode spéciaux
+      .replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, ' ')
+      
+      // Nettoyer les caractères de contrôle
+      .replace(/[\x00-\x1F\x7F]/g, ' ')
+      
+      // Trim final
+      .trim();
+  }
+
   speak(text: string, onEnd?: () => void): void {
-    console.log('🔊 Starting speech synthesis for:', text.substring(0, 50) + '...');
+    console.log('🔊 Texte original:', text.substring(0, 50) + '...');
+    
+    // NETTOYER le texte avant la synthèse
+    const cleanText = this.cleanTextForSpeech(text);
+    console.log('🧹 Texte nettoyé:', cleanText.substring(0, 50) + '...');
     
     // Arrêter toute synthèse en cours
     this.synth.cancel();
@@ -55,8 +109,8 @@ export class SpeechSynthesisService {
     // Réinitialiser le flag d'arrêt forcé APRÈS avoir arrêté la synthèse précédente
     this.isForceStoppedRef.current = false;
 
-    // Créer l'utterance
-    const utterance = new SpeechSynthesisUtterance(text);
+    // Créer l'utterance avec le texte nettoyé
+    const utterance = new SpeechSynthesisUtterance(cleanText);
     this.currentUtterance = utterance;
     
     if (this.voice) {
