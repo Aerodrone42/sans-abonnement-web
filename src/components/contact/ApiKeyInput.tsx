@@ -13,17 +13,24 @@ const ApiKeyInput = ({ onApiKeySet, isConnected }: ApiKeyInputProps) => {
   const [apiKey, setApiKey] = useState('');
   const [showKey, setShowKey] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Form submitted, API key length:', apiKey.length);
-    console.log('API key starts with sk-:', apiKey.startsWith('sk-'));
+  const handleConnect = () => {
+    console.log('🔵 handleConnect called');
+    console.log('🔵 API key length:', apiKey.length);
+    console.log('🔵 API key starts with sk-:', apiKey.startsWith('sk-'));
     
     if (apiKey.trim()) {
-      console.log('Calling onApiKeySet with API key');
+      console.log('🔵 Calling onApiKeySet with API key');
       onApiKeySet(apiKey.trim());
     } else {
-      console.log('API key is empty or invalid');
+      console.log('🔵 API key is empty or invalid');
+      alert('Veuillez entrer une clé API valide');
     }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('🔵 Form submitted');
+    handleConnect();
   };
 
   if (isConnected) {
@@ -58,7 +65,7 @@ const ApiKeyInput = ({ onApiKeySet, isConnected }: ApiKeyInputProps) => {
             type={showKey ? "text" : "password"}
             value={apiKey}
             onChange={(e) => {
-              console.log('API key input changed, length:', e.target.value.length);
+              console.log('🔵 API key input changed, length:', e.target.value.length);
               setApiKey(e.target.value);
             }}
             placeholder="sk-..."
@@ -67,7 +74,7 @@ const ApiKeyInput = ({ onApiKeySet, isConnected }: ApiKeyInputProps) => {
           <button
             type="button"
             onClick={() => {
-              console.log('Toggle visibility clicked');
+              console.log('🔵 Toggle visibility clicked');
               setShowKey(!showKey);
             }}
             className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-cyan-400"
@@ -78,10 +85,6 @@ const ApiKeyInput = ({ onApiKeySet, isConnected }: ApiKeyInputProps) => {
         <Button 
           type="submit" 
           disabled={!apiKey.trim()}
-          onClick={(e) => {
-            console.log('Connect button clicked');
-            // Le handleSubmit sera appelé automatiquement par le formulaire
-          }}
           className="bg-cyan-500 hover:bg-cyan-600"
         >
           Connecter
