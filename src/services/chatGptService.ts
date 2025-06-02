@@ -1,3 +1,4 @@
+
 interface ChatGPTMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -15,6 +16,7 @@ export class ChatGPTService {
   private apiKey: string;
   private conversationHistory: ChatGPTMessage[] = [];
   private baseSystemPrompt: string;
+  private hasAutoGreeted: boolean = false;
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
@@ -323,8 +325,60 @@ ${this.baseSystemPrompt}`;
     }
   }
 
+  // Nouvelle méthode pour envoyer le message d'accueil automatiquement
+  async sendAutoGreeting(): Promise<string> {
+    if (this.hasAutoGreeted) {
+      return '';
+    }
+
+    try {
+      this.updateSystemPrompt();
+      this.hasAutoGreeted = true;
+
+      // Envoyer un message système pour déclencher l'accueil automatique
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            ...this.conversationHistory,
+            {
+              role: 'user',
+              content: 'DÉMARRER_CONVERSATION_AUTOMATIQUE'
+            }
+          ],
+          max_tokens: 200,
+          temperature: 0.7,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur API: ${response.status}`);
+      }
+
+      const data: ChatGPTResponse = await response.json();
+      const greetingMessage = data.choices[0].message.content;
+
+      // Ajouter le message d'accueil à l'historique
+      this.conversationHistory.push({
+        role: 'assistant',
+        content: greetingMessage
+      });
+
+      return greetingMessage;
+    } catch (error) {
+      console.error('Erreur accueil automatique:', error);
+      return 'Bonjour ! Je suis Nova, je vais vous poser quelques questions rapides pour vous conseiller au mieux. Cela vous convient ?';
+    }
+  }
+
   clearHistory() {
     this.conversationHistory = [];
+    this.hasAutoGreeted = false;
     this.updateSystemPrompt();
   }
 }

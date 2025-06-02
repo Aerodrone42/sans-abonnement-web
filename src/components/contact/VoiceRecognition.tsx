@@ -35,6 +35,7 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
     const [chatGPT, setChatGPT] = useState<EnhancedChatGPTService | null>(null);
     const [conversationMode, setConversationMode] = useState(true);
     const [isFormFilled, setIsFormFilled] = useState(false);
+    const [initialGreeting, setInitialGreeting] = useState("");
     
     const {
       isListening,
@@ -65,6 +66,20 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
         }
         
         setChatGPT(chatGPTInstance);
+        
+        // Déclencher automatiquement le message d'accueil
+        const startGreeting = async () => {
+          try {
+            const greeting = await chatGPTInstance.startConversation();
+            setInitialGreeting(greeting);
+            console.log('🎯 Message d\'accueil automatique envoyé:', greeting);
+          } catch (error) {
+            console.error('❌ Erreur message d\'accueil:', error);
+            setInitialGreeting("Bonjour ! Je suis Nova, je vais vous poser quelques questions rapides pour vous conseiller au mieux. Cela vous convient ?");
+          }
+        };
+        
+        startGreeting();
         
         console.log('✅ Enhanced ChatGPT service with learning capabilities and form integration initialized successfully');
       } catch (error) {
@@ -117,13 +132,20 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
             </div>
           </div>
 
-          {/* Message d'accueil amélioré */}
-          <div className="mb-6 p-4 bg-green-500/10 border border-green-400/30 rounded-lg">
-            <p className="text-green-200 text-sm">
-              ✅ Bonjour ! Je suis votre conseiller IA spécialisé en développement web. 
-              Parlez-moi de votre projet et je vous guiderai vers la meilleure solution !
-            </p>
-          </div>
+          {/* Message d'accueil automatique de Nova */}
+          {initialGreeting && (
+            <div className="mb-6 p-4 bg-green-500/10 border border-green-400/30 rounded-lg">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Brain className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <p className="text-green-200 text-sm font-medium mb-1">Nova - Conseiller IA</p>
+                  <p className="text-green-100 text-sm">{initialGreeting}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Indicateur de formulaire rempli par l'IA */}
           {isFormFilled && (

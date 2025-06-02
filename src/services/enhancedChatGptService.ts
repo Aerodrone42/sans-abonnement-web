@@ -39,6 +39,12 @@ export class EnhancedChatGPTService extends ChatGPTService {
     console.log('✅ Callbacks de formulaire configurés');
   }
 
+  // Nouvelle méthode pour déclencher l'accueil automatique
+  async startConversation(): Promise<string> {
+    console.log('🎯 Démarrage automatique de la conversation avec Nova');
+    return await this.sendAutoGreeting();
+  }
+
   private generateSessionId(): string {
     return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
