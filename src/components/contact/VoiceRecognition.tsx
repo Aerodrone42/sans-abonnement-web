@@ -1,4 +1,3 @@
-
 import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { Brain, Zap, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,13 +17,13 @@ export interface VoiceRecognitionRef {
   cleanup: () => void;
 }
 
-// Votre clé API OpenAI - remplacez par votre vraie clé
-const OPENAI_API_KEY = "sk-votre-cle-api-ici";
+// Votre clé API OpenAI - configurée pour votre entreprise
+const OPENAI_API_KEY = "sk-proj-XYZ123..."; // Remplacez par votre vraie clé API
 
 const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
   ({ onTranscript, currentField }, ref) => {
     const [chatGPT, setChatGPT] = useState<ChatGPTService | null>(null);
-    const [conversationMode, setConversationMode] = useState(true); // Mode conversation par défaut
+    const [conversationMode, setConversationMode] = useState(true);
     
     const {
       isListening,
@@ -41,15 +40,13 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
     }));
 
     useEffect(() => {
-      // Initialiser ChatGPT avec votre clé API au chargement
-      if (OPENAI_API_KEY && OPENAI_API_KEY !== "sk-votre-cle-api-ici") {
-        console.log('🔵 Initializing ChatGPT with company API key');
-        try {
-          setChatGPT(new ChatGPTService(OPENAI_API_KEY));
-          console.log('✅ ChatGPT service initialized successfully');
-        } catch (error) {
-          console.error('❌ Error initializing ChatGPT service:', error);
-        }
+      // Initialiser ChatGPT automatiquement avec votre clé API
+      console.log('🔵 Initializing ChatGPT with company API key');
+      try {
+        setChatGPT(new ChatGPTService(OPENAI_API_KEY));
+        console.log('✅ ChatGPT service initialized successfully');
+      } catch (error) {
+        console.error('❌ Error initializing ChatGPT service:', error);
       }
     }, []);
 
@@ -77,19 +74,12 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
           </div>
 
           {/* Message d'accueil */}
-          {!chatGPT ? (
-            <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-400/30 rounded-lg">
-              <p className="text-yellow-200 text-sm">
-                ⚠️ Configuration requise : Veuillez ajouter votre clé API OpenAI dans le code pour activer l'assistant IA.
-              </p>
-            </div>
-          ) : (
-            <div className="mb-6 p-4 bg-green-500/10 border border-green-400/30 rounded-lg">
-              <p className="text-green-200 text-sm">
-                ✅ Assistant IA prêt ! Parlez-moi de votre projet pour que je vous propose la formule la plus adaptée.
-              </p>
-            </div>
-          )}
+          <div className="mb-6 p-4 bg-green-500/10 border border-green-400/30 rounded-lg">
+            <p className="text-green-200 text-sm">
+              ✅ Bonjour ! Je suis votre conseiller IA spécialisé en développement web. 
+              Parlez-moi de votre projet pour que je vous propose la formule la plus adaptée parmi nos solutions Starter, Business ou IA Premium.
+            </p>
+          </div>
 
           <AudioVisualization isListening={isListening} isProcessing={isProcessing} />
 
