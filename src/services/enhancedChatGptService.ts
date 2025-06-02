@@ -100,8 +100,17 @@ export class EnhancedChatGPTService extends ChatGPTService {
     }
     else if (this.clientInfo.conversationStage === 'proposition_adaptee') {
       if (lowerMessage.includes('intéresse') || lowerMessage.includes('oui') || lowerMessage.includes('d\'accord')) {
+        this.clientInfo.conversationStage = 'proposition_contact';
+        console.log('📋 Passage à la proposition de contact');
+      }
+    }
+    else if (this.clientInfo.conversationStage === 'proposition_contact') {
+      if (lowerMessage.includes('appel') || lowerMessage.includes('téléphone') || lowerMessage.includes('rappel')) {
         this.clientInfo.conversationStage = 'collecte_infos';
-        console.log('📋 Passage à la collecte d\'informations');
+        console.log('📋 Passage à la collecte d\'informations pour rappel');
+      } else if (lowerMessage.includes('formulaire') || lowerMessage.includes('écrit') || lowerMessage.includes('email')) {
+        this.clientInfo.conversationStage = 'collecte_infos';
+        console.log('📋 Passage à la collecte d\'informations pour formulaire');
       }
     }
   }
@@ -172,11 +181,22 @@ PROPOSE INTELLIGEMMENT selon la zone:
 NE propose QUE les 2-3 solutions les plus adaptées à son cas.
 Explique pourquoi ces solutions correspondent à ses besoins.`;
         break;
+
+      case 'proposition_contact':
+        basePrompt += `
+ÉTAPE 5 - PROPOSITION DE CONTACT:
+Solution proposée et client intéressé.
+MAINTENANT propose 2 options :
+1. "Souhaitez-vous qu'on vous rappelle pour en discuter directement ?"
+2. "Ou préférez-vous qu'on vous envoie un devis par email ?"
+
+Laisse le client choisir sa préférence de contact.`;
+        break;
         
       case 'collecte_infos':
         basePrompt += `
-ÉTAPE 5 - COLLECTE D'INFORMATIONS:
-Solution choisie, maintenant collecte les infos pour le devis:
+ÉTAPE 6 - COLLECTE D'INFORMATIONS:
+Le client a choisi son mode de contact, maintenant collecte les infos :
 - Demande nom et prénom
 - Puis email
 - Puis téléphone
@@ -199,165 +219,14 @@ Réponds de manière consultative et intelligente.`;
     return basePrompt;
   }
 
-  private extractClientInfo(message: string): void {
-    const lowerMessage = message.toLowerCase();
-    
-    // Détection du métier
-    if (!this.clientInfo.metier) {
-      const metiers = [
-        'plombier', 'électricien', 'maçon', 'peintre', 'chauffagiste', 'menuisier', 
-        'carreleur', 'couvreur', 'charpentier', 'serrurier', 'vitrier', 'fumiste',
-        'terrassier', 'façadier', 'étancheur', 'solier', 'platrier'
-      ];
-      
-      const foundMetier = metiers.find(metier => lowerMessage.includes(metier));
-      if (foundMetier) {
-        this.clientInfo.metier = foundMetier;
-        console.log('🔨 Métier détecté:', foundMetier);
-      }
-    }
-    
-    // Détection de la situation (a un site ou pas)
-    if (!this.clientInfo.situation) {
-      if (lowerMessage.includes('pas de site') || lowerMessage.includes('aucun site') || 
-          lowerMessage.includes('non') && lowerMessage.includes('site')) {
-        this.clientInfo.situation = 'Aucun site web';
-        console.log('🌐 Situation: Pas de site');
-      } else if (lowerMessage.includes('j\'ai un site') || lowerMessage.includes('site existe') ||
-                 lowerMessage.includes('oui') && lowerMessage.includes('site')) {
-        this.clientInfo.situation = 'Site existant';
-        console.log('🌐 Situation: Site existant');
-      }
-    }
-    
-    // Détection de la zone d'intervention
-    if (!this.clientInfo.zone) {
-      if (lowerMessage.includes('national') || lowerMessage.includes('toute la france')) {
-        this.clientInfo.zone = 'National';
-      } else if (lowerMessage.includes('département') || lowerMessage.includes('région')) {
-        this.clientInfo.zone = 'Départemental';
-      } else if (lowerMessage.includes('ville') || lowerMessage.includes('local')) {
-        this.clientInfo.zone = 'Local';
-      } else {
-        // Extraction des km
-        const kmMatch = message.match(/(\d+)\s*km/);
-        if (kmMatch) {
-          const km = parseInt(kmMatch[1]);
-          if (km <= 30) this.clientInfo.zone = 'Local';
-          else if (km <= 100) this.clientInfo.zone = 'Départemental';
-          else this.clientInfo.zone = 'Régional';
-        }
-      }
-      
-      if (this.clientInfo.zone) {
-        console.log('🗺️ Zone détectée:', this.clientInfo.zone);
-      }
-    }
-    
-    // Extraction des infos personnelles (seulement à la fin)
-    if (this.clientInfo.conversationStage === 'collecte_infos') {
-      this.extractContactInfo(message);
-    }
-  }
-
-  private extractContactInfo(message: string): void {
-    // Extraction du nom
-    if (!this.clientInfo.nom) {
-      this.extractName(message);
-    }
-    
-    // Extraction de l'email
-    if (!this.clientInfo.email) {
-      this.extractAndValidateEmail(message);
-    }
-    
-    // Extraction du téléphone
-    if (!this.clientInfo.telephone) {
-      this.extractPhone(message);
-    }
-  }
-
-  private extractName(message: string): boolean {
-    const cleanMessage = message.replace(/\b(je\s+(?:m'appelle|suis)|mon\s+nom\s+(?:est|c'est)|c'est|bonjour|salut|ok|oui|non|voici|voilà)\b/gi, '').trim();
-    
-    const namePatterns = [
-      /^([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]{1,})\s+([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]{1,})$/,
-      /^([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]{1,})\s+(?:de\s+|du\s+|des\s+|le\s+|la\s+)?([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]{1,})$/i
-    ];
-    
-    for (const pattern of namePatterns) {
-      const match = cleanMessage.match(pattern);
-      if (match) {
-        const fullName = `${match[1]} ${match[2]}`;
-        if (fullName.length >= 4) {
-          this.clientInfo.nom = fullName;
-          console.log('👤 Nom détecté:', this.clientInfo.nom);
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  private extractAndValidateEmail(message: string): boolean {
-    const messageNoSpaces = message.replace(/\s+/g, '');
-    const emailPattern = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/;
-    const emailMatch = messageNoSpaces.match(emailPattern);
-    
-    if (emailMatch) {
-      const email = emailMatch[1].toLowerCase();
-      if (this.isValidEmail(email)) {
-        this.clientInfo.email = email;
-        console.log('📧 Email détecté:', this.clientInfo.email);
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private extractPhone(message: string): boolean {
-    const phonePatterns = [
-      /0[1-9](?:[\s.-]?\d{2}){4}/,
-      /(?:\+33|0033)\s?[1-9](?:[\s.-]?\d{2}){4}/,
-      /(?:\+33\s?|0)[1-9](?:[\s.-]?\d{2}){4}/,
-      /0[1-9](?:\s?\(\d{2}\)\s?\d{2}\s?\d{2}\s?\d{2})/,
-      /0[1-9]\d{8}/
-    ];
-    
-    for (const pattern of phonePatterns) {
-      const match = message.match(pattern);
-      if (match) {
-        let cleanPhone = match[0].replace(/[\s.-]/g, '');
-        if (cleanPhone.startsWith('+33')) {
-          cleanPhone = '0' + cleanPhone.substring(3);
-        } else if (cleanPhone.startsWith('0033')) {
-          cleanPhone = '0' + cleanPhone.substring(4);
-        }
-        this.clientInfo.telephone = cleanPhone;
-        console.log('📞 Téléphone détecté:', this.clientInfo.telephone);
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private isValidEmail(email: string): boolean {
-    if (!email.includes('@') || !email.includes('.')) return false;
-    if (email.startsWith('.') || email.endsWith('.')) return false;
-    if (email.includes('..')) return false;
-    
-    const parts = email.split('@');
-    if (parts.length !== 2) return false;
-    
-    const [local, domain] = parts;
-    if (local.length === 0 || domain.length === 0) return false;
-    if (!domain.includes('.')) return false;
-    
-    return true;
-  }
-
   private async fillFormImmediately(): Promise<void> {
     if (!this.fillFormCallback) return;
+    
+    // CORRECTION: Ne remplir le formulaire que si on a collecté les infos de contact
+    if (this.clientInfo.conversationStage !== 'collecte_infos') {
+      console.log('⚠️ Formulaire non rempli - pas encore à l\'étape collecte_infos');
+      return;
+    }
     
     const formData: any = {};
     let hasData = false;
