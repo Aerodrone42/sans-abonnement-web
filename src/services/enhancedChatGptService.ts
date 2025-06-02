@@ -13,6 +13,7 @@ interface ClientInfo {
   situation?: string;
   objectif?: string;
   choixContact?: string;
+  horaireRappel?: string;
   formulaireEtape?: string;
   entreprise?: string;
   message?: string;
@@ -70,14 +71,14 @@ export class EnhancedChatGPTService extends ChatGPTService {
         learningService.updateClientInfo(this.clientInfo);
       }
       
+      // Remplissage progressif du formulaire
+      if (this.shouldFillFormProgressively(response)) {
+        await this.fillFormProgressively();
+      }
+      
       // Sauvegarder automatiquement la conversation toutes les 3 étapes
       if (this.currentStage % 3 === 0) {
         await learningService.saveConversation();
-      }
-      
-      // Gérer le remplissage visuel du formulaire à la fin
-      if (this.shouldFillForm(response)) {
-        await this.fillFormVisually();
       }
       
       return response;
@@ -96,6 +97,15 @@ export class EnhancedChatGPTService extends ChatGPTService {
       if (!this.clientInfo.formulaireEtape) {
         this.clientInfo.formulaireEtape = 'nom';
       }
+    }
+
+    // Détecter les horaires de rappel
+    if (lowerMessage.includes('matin')) {
+      this.clientInfo.horaireRappel = 'matin';
+    } else if (lowerMessage.includes('après-midi')) {
+      this.clientInfo.horaireRappel = 'après-midi';
+    } else if (lowerMessage.includes('soir') || lowerMessage.includes('fin de journée')) {
+      this.clientInfo.horaireRappel = 'soir';
     }
     
     // Gérer les étapes du formulaire selon la réponse utilisateur
@@ -131,7 +141,6 @@ export class EnhancedChatGPTService extends ChatGPTService {
   }
 
   private extractName(message: string): boolean {
-    // Patterns pour détecter un nom
     const namePatterns = [
       /^([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]+(?:\s+[A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]+)*)/,
       /(?:je\s+(?:m'appelle|suis)\s+)([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]+(?:\s+[A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]+)*)/,
@@ -159,14 +168,13 @@ export class EnhancedChatGPTService extends ChatGPTService {
     if (emailMatch) {
       const email = emailMatch[1].toLowerCase();
       
-      // Vérifications basiques de validité
       if (this.isValidEmail(email)) {
         this.clientInfo.email = email;
         console.log('📧 Email détecté et validé:', this.clientInfo.email);
         return true;
       } else {
         console.log('❌ Email invalide détecté:', email);
-        return false; // L'IA demandera de corriger
+        return false;
       }
     }
     return false;
@@ -191,7 +199,6 @@ export class EnhancedChatGPTService extends ChatGPTService {
   }
 
   private extractBusiness(message: string): boolean {
-    // Extraire l'entreprise ou secteur d'activité
     const businessText = message.trim();
     if (businessText.length > 2) {
       this.clientInfo.entreprise = businessText;
@@ -212,7 +219,6 @@ export class EnhancedChatGPTService extends ChatGPTService {
   }
 
   private isValidEmail(email: string): boolean {
-    // Vérifications basiques
     if (!email.includes('@') || !email.includes('.')) return false;
     if (email.startsWith('.') || email.endsWith('.')) return false;
     if (email.includes('..')) return false;
@@ -236,14 +242,16 @@ export class EnhancedChatGPTService extends ChatGPTService {
            businesses.some(business => lowerText.includes(business));
   }
 
-  private shouldFillForm(response: string): boolean {
-    return this.clientInfo.formulaireEtape === 'fini' &&
-           this.clientInfo.nom &&
-           this.clientInfo.email &&
-           response.toLowerCase().includes('je remplis votre demande');
+  private shouldFillFormProgressively(response: string): boolean {
+    return this.clientInfo.choixContact === 'formulaire' &&
+           this.clientInfo.formulaireEtape &&
+           this.clientInfo.formulaireEtape !== 'fini' &&
+           (response.toLowerCase().includes('je note') || 
+            response.toLowerCase().includes('parfait') ||
+            response.toLowerCase().includes('je remplis'));
   }
 
-  private async fillFormVisually(): Promise<void> {
+  private async fillFormProgressively(): Promise<void> {
     if (!this.fillFormCallback) {
       console.log('❌ Callback de formulaire manquant');
       return;
@@ -251,37 +259,69 @@ export class EnhancedChatGPTService extends ChatGPTService {
     
     const formData: any = {};
     
-    // Mapper les infos collectées vers les champs du formulaire
-    if (this.clientInfo.nom) formData.name = this.clientInfo.nom;
-    if (this.clientInfo.email) formData.email = this.clientInfo.email;
-    if (this.clientInfo.telephone) formData.phone = this.clientInfo.telephone;
-    if (this.clientInfo.entreprise || this.clientInfo.metier) {
-      formData.business = this.clientInfo.entreprise || this.clientInfo.metier;
+    // Remplir progressivement selon l'étape
+    switch (this.clientInfo.formulaireEtape) {
+      case 'email':
+        if (this.clientInfo.nom) {
+          formData.name = this.clientInfo.nom;
+          console.log('📝 Remplissage progressif - Nom:', this.clientInfo.nom);
+        }
+        break;
+      case 'tel':
+        if (this.clientInfo.nom) formData.name = this.clientInfo.nom;
+        if (this.clientInfo.email) {
+          formData.email = this.clientInfo.email;
+          console.log('📝 Remplissage progressif - Email:', this.clientInfo.email);
+        }
+        break;
+      case 'entreprise':
+        if (this.clientInfo.nom) formData.name = this.clientInfo.nom;
+        if (this.clientInfo.email) formData.email = this.clientInfo.email;
+        if (this.clientInfo.telephone) {
+          formData.phone = this.clientInfo.telephone;
+          console.log('📝 Remplissage progressif - Téléphone:', this.clientInfo.telephone);
+        }
+        break;
+      case 'message':
+        if (this.clientInfo.nom) formData.name = this.clientInfo.nom;
+        if (this.clientInfo.email) formData.email = this.clientInfo.email;
+        if (this.clientInfo.telephone) formData.phone = this.clientInfo.telephone;
+        if (this.clientInfo.entreprise || this.clientInfo.metier) {
+          formData.business = this.clientInfo.entreprise || this.clientInfo.metier;
+          console.log('📝 Remplissage progressif - Entreprise:', this.clientInfo.entreprise || this.clientInfo.metier);
+        }
+        break;
+      case 'fini':
+        // Remplissage final complet
+        if (this.clientInfo.nom) formData.name = this.clientInfo.nom;
+        if (this.clientInfo.email) formData.email = this.clientInfo.email;
+        if (this.clientInfo.telephone) formData.phone = this.clientInfo.telephone;
+        if (this.clientInfo.entreprise || this.clientInfo.metier) {
+          formData.business = this.clientInfo.entreprise || this.clientInfo.metier;
+        }
+        
+        // Créer un message personnalisé complet
+        let message = `Demande générée par l'IA - ${this.clientInfo.metier || 'Professionnel'}`;
+        if (this.clientInfo.zone) message += ` - Zone: ${this.clientInfo.zone}`;
+        if (this.clientInfo.budget) message += ` - Budget: ${this.clientInfo.budget}`;
+        if (this.clientInfo.horaireRappel) message += ` - Rappel souhaité: ${this.clientInfo.horaireRappel}`;
+        if (this.clientInfo.message) message += `\n\nDemande du client: ${this.clientInfo.message}`;
+        message += `\n\nSession IA: ${this.sessionId}`;
+        
+        formData.message = message;
+        console.log('📝 Remplissage final complet du formulaire');
+        break;
     }
     
-    // Créer un message personnalisé complet
-    let message = `Demande générée par l'IA - ${this.clientInfo.metier || 'Professionnel'}`;
-    
-    if (this.clientInfo.zone) message += ` - Zone: ${this.clientInfo.zone}`;
-    if (this.clientInfo.budget) message += ` - Budget: ${this.clientInfo.budget}`;
-    if (this.clientInfo.message) message += `\n\nDemande du client: ${this.clientInfo.message}`;
-    
-    message += `\n\nSession IA: ${this.sessionId}`;
-    formData.message = message;
-    
-    console.log('🤖 Remplissage visuel du formulaire:', formData);
-    
-    // Remplir le formulaire visuellement
-    this.fillFormCallback(formData);
-    
-    // Note: Pas d'envoi automatique, le client doit cliquer sur "Envoyer"
-    console.log('✅ Formulaire rempli visuellement - En attente de validation client');
+    if (Object.keys(formData).length > 0) {
+      this.fillFormCallback(formData);
+      console.log('✅ Formulaire rempli progressivement:', this.clientInfo.formulaireEtape);
+    }
   }
 
   private extractClientInfo(message: string): void {
     const lowerMessage = message.toLowerCase();
     
-    // Détecter le métier
     const metiers = ['plombier', 'électricien', 'maçon', 'peintre', 'chauffagiste', 'menuisier', 'carreleur', 'couvreur'];
     const foundMetier = metiers.find(metier => lowerMessage.includes(metier));
     if (foundMetier && !this.clientInfo.metier) {
@@ -289,24 +329,20 @@ export class EnhancedChatGPTService extends ChatGPTService {
       console.log('🎯 Métier détecté:', foundMetier);
     }
     
-    // Détecter la zone - améliorer la détection
     if (!this.clientInfo.zone) {
-      // Détecter les kilomètres
       const kmMatch = message.match(/(\d+)\s*km/);
       if (kmMatch) {
         this.clientInfo.zone = `${kmMatch[1]}km`;
         console.log('🗺️ Zone détectée:', this.clientInfo.zone);
       }
       
-      // Détecter les villes - pattern amélioré
       const villeMatch = message.match(/(?:sur|à|de|dans)\s+([A-Z][a-z]+(?:-[A-Z][a-z]+)*)/);
       if (villeMatch) {
         this.clientInfo.zone = villeMatch[1];
-        console.log('🏙️ Ville détectée:', this.clientInfo.zone);
+        console.log('🏙 Ville détectée:', this.clientInfo.zone);
       }
     }
     
-    // Détecter le budget
     if (lowerMessage.includes('€') || lowerMessage.includes('euro')) {
       const budgetMatch = message.match(/(\d+)\s*€/);
       if (budgetMatch && !this.clientInfo.budget) {
@@ -319,31 +355,26 @@ export class EnhancedChatGPTService extends ChatGPTService {
   private determineCurrentStage(message: string): number {
     const lowerMessage = message.toLowerCase();
     
-    // Étapes du questionnaire formulaire (15)
     if (this.clientInfo.choixContact === 'formulaire') {
       return 15;
     }
     
-    // Étape 1: Accueil (toujours au début)
     if (this.currentStage === 1) return 2;
     
-    // Étape 2-6: Questions de qualification
     if (!this.clientInfo.metier && (lowerMessage.includes('je suis') || lowerMessage.includes('je fais'))) return 3;
     if (!this.clientInfo.zone && (lowerMessage.includes('km') || lowerMessage.includes('zone'))) return 4;
     if (lowerMessage.includes('site') && (lowerMessage.includes('oui') || lowerMessage.includes('non'))) return 5;
     if (lowerMessage.includes('objectif') || lowerMessage.includes('but')) return 6;
     
-    // Étapes 7-10: Problématique et qualification
     if (lowerMessage.includes('client') || lowerMessage.includes('trouvent')) return 7;
     if (lowerMessage.includes('concurrent') || lowerMessage.includes('problème')) return 8;
     if (lowerMessage.includes('solution') || lowerMessage.includes('intéresse')) return 9;
     if (lowerMessage.includes('budget') || lowerMessage.includes('prix')) return 10;
     
-    // Étapes 11-14: Proposition et closing
     if (lowerMessage.includes('option') || lowerMessage.includes('choix')) return 11;
     if (lowerMessage.includes('cher') || lowerMessage.includes('réfléchir')) return 12;
     if (lowerMessage.includes('témoignage') || lowerMessage.includes('exemple')) return 13;
-    if (lowerMessage.includes('appel') || lowerMessage.includes('rappel')) return 14;
+    if (lowerMessage.includes('appel') || lowerMessage.includes('rappel') || lowerMessage.includes('horaire')) return 14;
     
     return Math.min(this.currentStage + 1, 15);
   }
@@ -352,7 +383,6 @@ export class EnhancedChatGPTService extends ChatGPTService {
     if (!this.clientInfo.metier) return;
     
     try {
-      // Déterminer le type de zone
       let zoneType = 'local';
       if (this.clientInfo.zone) {
         if (this.clientInfo.zone.includes('50') || this.clientInfo.zone.includes('département')) {
@@ -363,15 +393,11 @@ export class EnhancedChatGPTService extends ChatGPTService {
         }
       }
       
-      // Récupérer les meilleurs patterns
       const patterns = await learningService.getBestPatterns(this.clientInfo.metier, zoneType);
-      
-      // Récupérer un témoignage pertinent
       const testimonial = await learningService.getRelevantTestimonial(this.clientInfo.metier);
       
       if (patterns.length > 0 || testimonial) {
         console.log('🧠 Amélioration du prompt avec apprentissage automatique');
-        // Note: Le prompt système est déjà optimisé, ces données servent pour l'analytics
       }
     } catch (error) {
       console.error('Erreur amélioration prompt:', error);
