@@ -67,8 +67,11 @@ export class EnhancedChatGPTService extends ChatGPTService {
       // Récupérer des patterns ou témoignages pertinents si on en a
       await this.enhancePromptWithLearning();
       
-      // Envoyer le message à ChatGPT (méthode parent)
-      const response = await super.sendMessage(userMessage);
+      // Créer un prompt focalisé avec le vrai catalogue
+      const enhancedPrompt = this.createFocusedPromptWithCatalog(userMessage);
+      
+      // Envoyer le message amélioré à ChatGPT
+      const response = await super.sendMessage(enhancedPrompt);
       console.log('🎯 Réponse IA reçue:', response);
       
       // Enregistrer la réponse de l'IA
@@ -95,6 +98,58 @@ export class EnhancedChatGPTService extends ChatGPTService {
       console.error('Erreur Enhanced ChatGPT:', error);
       return 'Désolé, je rencontre un problème technique. Pouvez-vous répéter votre question ?';
     }
+  }
+
+  // MÉTHODE MISE À JOUR: Prompt avec le vrai catalogue
+  private createFocusedPromptWithCatalog(userMessage: string): string {
+    const catalog = `
+CATALOGUE OFFICIEL AERODRONE MULTISERVICES:
+
+📱 SITES WEB:
+• Site internet vitrine: 300€ (+ option: 5000 affichages + référencement express 24h sur 10 villes pour 200€)
+• Site Local 20 villes: 1000€ (+ 15000 affichages inclus + référencement express 24h Google)
+• Site Local 50 villes: 1500€ (+ 15000 affichages inclus + référencement express 24h Google)
+• Site national: 3000€ (+ 15000 affichages inclus + référencement express 24h Google)
+• Site E-commerce: 600€ (+ 15000 affichages inclus + référencement express 24h Google)
+• Site E-commerce National: 3500€ (+ 15000 affichages inclus + référencement express 24h Google)
+• Nova IA (avec intelligence artificielle): 2000€ + 100€/mois (+ 15000 affichages inclus + référencement express 24h Google)
+
+📈 MARKETING / VISIBILITÉ:
+• Abonnement premium: 100€
+• 5000 affichages: 100€
+• 10000 affichages: 300€
+• 15000 affichages: 350€
+• 20000 affichages: 400€
+• 30000 affichages: 500€
+• 100000 affichages: 1000€
+
+IMPORTANT: Tous les sites (sauf le site vitrine 300€) bénéficient de 15000 affichages OFFERTS au lancement + référencement express en 24h sur Google.`;
+
+    const basePrompt = `Tu es Nova, conseillère commerciale spécialisée pour Aerodrone Multiservices. 
+
+RÈGLES STRICTES:
+- Utilise UNIQUEMENT les prix et prestations du catalogue officiel ci-dessus
+- Ne propose QUE les prestations listées dans le catalogue
+- NE JAMAIS inventer de chiffres ou prestations
+- Concentre-toi sur: nom, email, téléphone, métier/entreprise, message
+- NE DEMANDE JAMAIS si c'est le décideur (question inutile)
+- Pose des questions courtes et précises
+- Reste professionnel et commercial
+
+${catalog}
+
+TON OBJECTIF:
+1. Identifier le métier du client (plombier, électricien, maçon, etc.)
+2. Comprendre ses besoins (site vitrine, local, national, e-commerce)
+3. Proposer la solution adaptée du catalogue
+4. Remplir le formulaire de contact
+5. Demander confirmation d'envoi quand tout est prêt
+
+Message du client: "${userMessage}"
+
+Réponds de manière naturelle et professionnelle avec les vraies prestations.`;
+
+    return basePrompt;
   }
 
   // NOUVELLE MÉTHODE : Vérification et demande de confirmation d'envoi
@@ -181,14 +236,8 @@ export class EnhancedChatGPTService extends ChatGPTService {
           break;
         case 'message':
           if (this.extractMessage(message)) {
-            this.clientInfo.formulaireEtape = 'horaire';
-            console.log('📝 Passage à l\'étape horaire');
-          }
-          break;
-        case 'horaire':
-          if (this.extractCallbackTime(message)) {
             this.clientInfo.formulaireEtape = 'fini';
-            console.log('📝 Formulaire terminé');
+            console.log('📝 Formulaire terminé - prêt pour envoi');
           }
           break;
       }
@@ -296,7 +345,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
     return false;
   }
 
-  // NOUVELLE MÉTHODE : Extraction du métier/profession
+  // MÉTHODE MISE À JOUR: Extraction du métier sans question décideur
   private extractProfession(message: string): boolean {
     const lowerMessage = message.toLowerCase();
     
@@ -306,7 +355,8 @@ export class EnhancedChatGPTService extends ChatGPTService {
       'carreleur', 'couvreur', 'charpentier', 'serrurier', 'vitrier', 'fumiste',
       'terrassier', 'façadier', 'étancheur', 'solier', 'platrier', 'cloisons',
       'isolation', 'parquet', 'carrelage', 'plomberie', 'électricité', 'chauffage',
-      'climatisation', 'ventilation', 'toiture', 'charpente', 'bardage'
+      'climatisation', 'ventilation', 'toiture', 'charpente', 'bardage', 'architecte',
+      'bureau d\'études', 'promotion immobilière', 'agence immobilière'
     ];
     
     // Chercher le métier dans le message
@@ -320,7 +370,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
     
     // Si pas de métier spécifique trouvé, utiliser le texte comme entreprise
     const cleanText = message.trim();
-    if (cleanText.length > 2 && !lowerMessage.includes('oui') && !lowerMessage.includes('non') && !lowerMessage.includes('numéro')) {
+    if (cleanText.length > 2 && !lowerMessage.includes('oui') && !lowerMessage.includes('non')) {
       this.clientInfo.entreprise = cleanText;
       console.log('🏢 Entreprise détectée:', cleanText);
       return true;
@@ -384,7 +434,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
            businesses.some(business => lowerText.includes(business));
   }
 
-  // REMPLISSAGE CORRIGÉ - Données propres
+  // MÉTHODE MISE À JOUR: Remplissage avec catalogue correct
   private async fillFormWithCorrectData(): Promise<void> {
     if (!this.fillFormCallback) return;
     
@@ -409,49 +459,40 @@ export class EnhancedChatGPTService extends ChatGPTService {
       console.log('📞 Remplissage téléphone:', formData.phone);
     }
     
-    // CORRECTION : Utiliser le bon métier/entreprise
     if (this.clientInfo.metier || this.clientInfo.entreprise) {
       const business = (this.clientInfo.metier || this.clientInfo.entreprise || '').trim();
       if (business && !business.toLowerCase().includes('numéro') && !business.toLowerCase().includes('oui') && !business.toLowerCase().includes('non')) {
         formData.business = business;
         hasNewData = true;
-        console.log('🏢 Remplissage entreprise/métier CORRIGÉ:', formData.business);
+        console.log('🏢 Remplissage entreprise/métier:', formData.business);
       }
     }
     
-    // Message propre SANS phrases parasites
-    if (this.clientInfo.message || this.clientInfo.metier || this.clientInfo.zone || this.clientInfo.budget) {
+    // Message professionnel avec demande spécifique
+    if (this.clientInfo.metier || this.clientInfo.message) {
       let message = '';
       
       if (this.clientInfo.metier) {
-        message += `Demande de devis pour ${this.clientInfo.metier}`;
-      }
-      
-      if (this.clientInfo.zone) {
-        message += ` dans un rayon de ${this.clientInfo.zone}`;
-      }
-      
-      if (this.clientInfo.budget) {
-        message += ` avec un budget de ${this.clientInfo.budget}`;
-      }
-      
-      if (this.clientInfo.horaireRappel) {
-        message += `\n\nPréférence d'horaire de contact: ${this.clientInfo.horaireRappel}`;
+        message += `Demande de devis pour solution web - Secteur: ${this.clientInfo.metier}`;
       }
       
       if (this.clientInfo.message && !this.clientInfo.message.toLowerCase().includes('décideur')) {
         message += `\n\nDemande spécifique: ${this.clientInfo.message}`;
       }
       
-      message += '\n\n[Demande générée automatiquement par l\'assistant IA]';
+      if (this.clientInfo.horaireRappel) {
+        message += `\n\nPréférence d'horaire de contact: ${this.clientInfo.horaireRappel}`;
+      }
+      
+      message += '\n\n[Demande générée par l\'assistant IA Nova - Aerodrone Multiservices]';
       
       formData.message = message;
       hasNewData = true;
-      console.log('💬 Message propre créé:', message);
+      console.log('💬 Message professionnel créé:', message);
     }
     
     if (hasNewData) {
-      console.log('📝 Remplissage du formulaire CORRIGÉ:', formData);
+      console.log('📝 Remplissage du formulaire avec catalogue officiel:', formData);
       this.fillFormCallback(formData);
     }
   }
