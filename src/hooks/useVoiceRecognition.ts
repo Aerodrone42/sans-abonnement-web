@@ -19,11 +19,18 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const speechSynthesis = useRef(new SpeechSynthesisService()).current;
+  const responseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const cleanupMicrophone = () => {
     console.log('Cleaning up microphone and voice recognition...');
     setIsListening(false);
     setIsProcessing(false);
+    
+    // Nettoyer le timeout de réponse
+    if (responseTimeoutRef.current) {
+      clearTimeout(responseTimeoutRef.current);
+      responseTimeoutRef.current = null;
+    }
     
     if (mediaStreamRef.current) {
       mediaStreamRef.current.getTracks().forEach(track => {
@@ -47,6 +54,28 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     speechSynthesis.stop();
     setIsSpeaking(false);
     setIsProcessing(false);
+  };
+
+  const processAIResponse = async (finalTranscript: string) => {
+    if (conversationMode && chatGPT) {
+      setIsProcessing(true);
+      try {
+        console.log('Sending message to AI:', finalTranscript);
+        const response = await chatGPT.sendMessage(finalTranscript);
+        setLastResponse(response);
+        setIsSpeaking(true);
+        speechSynthesis.speak(response, () => {
+          setIsProcessing(false);
+          setIsSpeaking(false);
+        });
+      } catch (error) {
+        console.error('Erreur conversation:', error);
+        setIsProcessing(false);
+        setIsSpeaking(false);
+      }
+    } else {
+      onTranscript(finalTranscript, "message");
+    }
   };
 
   const startListening = async () => {
@@ -102,24 +131,16 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
         if (finalTranscript) {
           setTranscript(finalTranscript);
           
-          if (conversationMode && chatGPT) {
-            setIsProcessing(true);
-            try {
-              const response = await chatGPT.sendMessage(finalTranscript);
-              setLastResponse(response);
-              setIsSpeaking(true);
-              speechSynthesis.speak(response, () => {
-                setIsProcessing(false);
-                setIsSpeaking(false);
-              });
-            } catch (error) {
-              console.error('Erreur conversation:', error);
-              setIsProcessing(false);
-              setIsSpeaking(false);
-            }
-          } else {
-            onTranscript(finalTranscript, "message");
+          // Nettoyer le timeout précédent s'il existe
+          if (responseTimeoutRef.current) {
+            clearTimeout(responseTimeoutRef.current);
           }
+          
+          // Attendre 2.5 secondes avant de traiter la réponse pour laisser le temps au client de continuer
+          responseTimeoutRef.current = setTimeout(() => {
+            console.log('Processing final transcript after delay:', finalTranscript);
+            processAIResponse(finalTranscript);
+          }, 2500);
         }
       };
 
