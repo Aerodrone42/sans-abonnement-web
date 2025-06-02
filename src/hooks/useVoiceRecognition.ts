@@ -39,7 +39,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
   const speakingRef = useRef(false);
   const lastTranscriptRef = useRef("");
   const interimResultRef = useRef("");
-  const isStoppedRef = useRef(true); // ✅ Initialisé à true par défaut
+  const isStoppedRef = useRef(true);
   const microphoneMutedRef = useRef(false);
   const recognitionActiveRef = useRef(false);
 
@@ -146,7 +146,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
   };
 
   const processAIResponse = async (finalTranscript: string) => {
-    console.log('🤖 Début traitement IA:', finalTranscript);
+    console.log('🤖 DÉBUT TRAITEMENT IA:', finalTranscript);
     
     if (isStoppedRef.current) {
       console.log('❌ Traitement annulé - conversation arrêtée');
@@ -166,6 +166,8 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       return;
     }
     
+    // ✅ CORRECTION CRITIQUE: Activer isProcessing IMMÉDIATEMENT
+    console.log('🔥 ACTIVATION PROCESSING - ICÔNE VA APPARAÎTRE');
     setIsProcessing(true);
     processingRef.current = true;
     
@@ -242,14 +244,12 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
         console.log('✅ Permission micro obtenue');
       }
 
-      // ✅ CORRECTION CRITIQUE: États synchronisés AVANT démarrage
+      // ✅ États synchronisés AVANT démarrage
       isStoppedRef.current = false;
       microphoneMutedRef.current = false;
-      
-      // ✅ État de conversation AVANT démarrage recognition
       setIsConversationActive(true);
 
-      console.log('🚀 Démarrage reconnaissance vocale - isStoppedRef:', isStoppedRef.current, 'isConversationActive: true');
+      console.log('🚀 Démarrage reconnaissance vocale');
       const started = startRecognitionSafely();
       
       if (started) {
@@ -289,7 +289,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       };
 
       recognition.onresult = (event) => {
-        console.log('🎯 RÉSULTAT VOCAL REÇU - affichage immédiat');
+        console.log('🎯 RÉSULTAT VOCAL REÇU');
         let finalTranscript = '';
         let interimTranscript = '';
         
@@ -302,7 +302,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
           }
         }
         
-        // ✅ AFFICHAGE IMMÉDIAT - toujours afficher le texte
+        // ✅ AFFICHAGE IMMÉDIAT du texte
         if (interimTranscript) {
           interimResultRef.current = interimTranscript;
           const displayText = lastTranscriptRef.current + interimTranscript;
@@ -311,45 +311,43 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
         }
         
         if (finalTranscript.trim()) {
-          console.log('🎯 TRANSCRIPT FINAL UTILISATEUR:', finalTranscript);
+          console.log('🎯 TRANSCRIPT FINAL:', finalTranscript);
           lastTranscriptRef.current += finalTranscript;
           setTranscript(lastTranscriptRef.current);
           console.log('📝 AFFICHAGE FINAL:', lastTranscriptRef.current);
           
-          // ✅ TRAITEMENT IA - conditions simplifiées mais efficaces
-          console.log('🔍 État conversation active:', isConversationActive);
-          console.log('🔍 État isStoppedRef:', isStoppedRef.current);
-          console.log('🔍 État microphoneMutedRef:', microphoneMutedRef.current);
+          // ✅ ANNULER timeout précédent s'il existe
+          if (silenceTimeoutRef.current) {
+            console.log('⏰ Annulation timeout précédent');
+            clearTimeout(silenceTimeoutRef.current);
+            silenceTimeoutRef.current = null;
+          }
           
-          // ✅ LOGIC SIMPLE: Si conversation active ET pas arrêté ET micro pas coupé
-          const canProcessAI = isConversationActive && 
-                              !isStoppedRef.current && 
-                              !microphoneMutedRef.current &&
-                              lastTranscriptRef.current.trim().length > 0;
-          
-          if (canProcessAI) {
-            console.log('✅ CONDITIONS OK - DÉMARRAGE TRAITEMENT IA IMMÉDIAT');
-            
-            if (silenceTimeoutRef.current) {
-              clearTimeout(silenceTimeoutRef.current);
-            }
-            
-            silenceTimeoutRef.current = setTimeout(() => {
-              if (!isStoppedRef.current && !microphoneMutedRef.current && lastTranscriptRef.current.trim()) {
-                console.log('⏰ TRAITEMENT IA APRÈS SILENCE:', lastTranscriptRef.current);
-                processAIResponse(lastTranscriptRef.current.trim());
-                lastTranscriptRef.current = "";
-                interimResultRef.current = "";
-                setTranscript("");
-              }
-            }, 2500);
-          } else {
-            console.log('❌ TRAITEMENT IA BLOQUÉ:');
-            console.log('- Conversation active:', isConversationActive);
+          // ✅ NOUVEAU TIMEOUT pour traitement IA
+          console.log('⏰ NOUVEAU TIMEOUT de 2s pour traitement IA');
+          silenceTimeoutRef.current = setTimeout(() => {
+            console.log('⏰ TIMEOUT DÉCLENCHÉ - Vérification conditions');
+            console.log('- isConversationActive:', isConversationActive);
             console.log('- isStoppedRef:', isStoppedRef.current);
             console.log('- microphoneMutedRef:', microphoneMutedRef.current);
-            console.log('- Transcript length:', lastTranscriptRef.current.trim().length);
-          }
+            console.log('- processingRef:', processingRef.current);
+            console.log('- lastTranscriptRef:', lastTranscriptRef.current);
+            
+            if (isConversationActive && 
+                !isStoppedRef.current && 
+                !microphoneMutedRef.current && 
+                !processingRef.current &&
+                lastTranscriptRef.current.trim()) {
+              
+              console.log('🚀 LANCEMENT TRAITEMENT IA MAINTENANT');
+              processAIResponse(lastTranscriptRef.current.trim());
+              lastTranscriptRef.current = "";
+              interimResultRef.current = "";
+              setTranscript("");
+            } else {
+              console.log('❌ CONDITIONS NON REMPLIES pour traitement IA');
+            }
+          }, 2000);
         }
       };
 
