@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { EnhancedChatGPTService } from '@/services/enhancedChatGptService';
 import { SpeechSynthesisService } from '@/services/speechSynthesisService';
@@ -313,15 +312,14 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
           setTranscript(lastTranscriptRef.current);
           console.log('📝 AFFICHAGE FINAL:', lastTranscriptRef.current);
           
-          // ✅ CORRECTION CRITIQUE - Annuler le timeout précédent
           if (silenceTimeoutRef.current) {
             console.log('⏰ Annulation timeout précédent');
             clearTimeout(silenceTimeoutRef.current);
             silenceTimeoutRef.current = null;
           }
           
-          // ✅ CORRECTION - Timeout plus long (3 secondes) pour laisser plus de temps
-          console.log('⏰ NOUVEAU TIMEOUT de 3s pour traitement IA');
+          // ✅ CORRECTION CRITIQUE - Timeout beaucoup plus long (8 secondes)
+          console.log('⏰ NOUVEAU TIMEOUT de 8s pour traitement IA');
           silenceTimeoutRef.current = setTimeout(() => {
             console.log('⏰ TIMEOUT DÉCLENCHÉ - Traitement IA maintenant');
             
@@ -339,7 +337,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
             } else {
               console.log('❌ CONDITIONS NON REMPLIES pour traitement IA');
             }
-          }, 3000); // ✅ 3 secondes au lieu de 2
+          }, 8000); // ✅ 8 secondes pour laisser le temps à l'utilisateur de finir
         }
       };
 
@@ -355,7 +353,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
           return;
         }
         
-        // ✅ CORRECTION - Redémarrage seulement si nécessaire
         if (conversationActiveRef.current && !processingRef.current && !speakingRef.current && !isStoppedRef.current && !microphoneMutedRef.current) {
           console.log('🔄 Redémarrage après erreur dans 1s');
           restartTimeoutRef.current = setTimeout(() => {
@@ -371,7 +368,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
         recognitionActiveRef.current = false;
         setIsListening(false);
         
-        // ✅ CORRECTION - Ne pas redémarrer si on est en train de traiter
         if (conversationActiveRef.current && !processingRef.current && !speakingRef.current && !isStoppedRef.current && !microphoneMutedRef.current) {
           console.log('🔄 Auto-restart recognition dans 500ms');
           restartTimeoutRef.current = setTimeout(() => {
