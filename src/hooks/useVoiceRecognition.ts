@@ -21,11 +21,11 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
   const speechSynthesis = useRef(new SpeechSynthesisService()).current;
   const responseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const speechCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isStoppedRef = useRef(false);
 
   const cleanupMicrophone = () => {
     console.log('Cleaning up microphone and voice recognition...');
     setIsListening(false);
-    setIsProcessing(false);
     
     // Nettoyer le timeout de réponse
     if (responseTimeoutRef.current) {
@@ -58,6 +58,9 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
 
   const stopSpeaking = () => {
     console.log('🛑 ARRÊT FORCÉ DE L\'IA - stopSpeaking appelé');
+    
+    // Marquer comme arrêté
+    isStoppedRef.current = true;
     
     // Arrêt immédiat et agressif de la synthèse vocale
     speechSynthesis.stop();
@@ -98,19 +101,30 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
           speechCheckIntervalRef.current = null;
         }
       }
-    }, 200); // Plus fréquent pour une réactivité améliorée
+    }, 200);
   };
 
   const processAIResponse = async (finalTranscript: string) => {
     if (conversationMode && chatGPT) {
+      console.log('🤖 Début traitement réponse IA - isStoppedRef:', isStoppedRef.current);
+      
+      // Vérifier si l'utilisateur a demandé l'arrêt
+      if (isStoppedRef.current) {
+        console.log('❌ Arrêt détecté, pas de traitement IA');
+        return;
+      }
+
       setIsProcessing(true);
       try {
         console.log('Sending message to AI:', finalTranscript);
         const response = await chatGPT.sendMessage(finalTranscript);
         
-        // Vérifier si l'utilisateur n'a pas demandé l'arrêt entre temps
-        if (!isSpeaking && !isProcessing) {
-          console.log('User stopped conversation, not speaking response');
+        console.log('🎯 Réponse IA reçue:', response.substring(0, 50) + '...');
+        
+        // Vérifier encore une fois si l'utilisateur n'a pas demandé l'arrêt entre temps
+        if (isStoppedRef.current) {
+          console.log('❌ Arrêt détecté après réponse IA, pas de synthèse vocale');
+          setIsProcessing(false);
           return;
         }
         
@@ -151,6 +165,9 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
         cleanupMicrophone();
         return;
       }
+
+      // Réinitialiser le flag d'arrêt
+      isStoppedRef.current = false;
 
       // Arrêter l'IA si elle parle
       if (isSpeaking) {
