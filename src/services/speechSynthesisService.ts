@@ -31,13 +31,13 @@ export class SpeechSynthesisService {
   speak(text: string, onEnd?: () => void): void {
     console.log('🔊 Starting speech synthesis for:', text.substring(0, 50) + '...');
     
-    // Réinitialiser le flag d'arrêt forcé
-    this.isForceStoppedRef.current = false;
+    // Arrêter toute synthèse en cours
+    this.synth.cancel();
     
-    // Arrêter toute synthèse en cours proprement
-    this.stop();
+    // Réinitialiser le flag d'arrêt forcé APRÈS avoir arrêté la synthèse précédente
+    this.isForceStoppedRef.current = false;
 
-    // Créer l'utterance immédiatement
+    // Créer l'utterance
     const utterance = new SpeechSynthesisUtterance(text);
     this.currentUtterance = utterance;
     
@@ -46,12 +46,12 @@ export class SpeechSynthesisService {
       console.log('🎤 Using voice:', this.voice.name);
     }
     
-    // Paramètres optimisés pour éviter les coupures
+    // Paramètres de synthèse
     utterance.rate = 0.9;
     utterance.pitch = 1;
     utterance.volume = 1.0;
     
-    // Gestion des événements pour debugging
+    // Gestion des événements
     utterance.onstart = () => {
       console.log('🎯 Speech started successfully');
     };
@@ -59,7 +59,6 @@ export class SpeechSynthesisService {
     utterance.onend = () => {
       console.log('✅ Speech ended normally');
       this.currentUtterance = null;
-      // Ne pas appeler onEnd si l'arrêt a été forcé
       if (onEnd && !this.isForceStoppedRef.current) {
         onEnd();
       }
@@ -73,27 +72,9 @@ export class SpeechSynthesisService {
       }
     };
 
-    // Démarrer la synthèse immédiatement
-    try {
-      if (!this.isForceStoppedRef.current) {
-        console.log('🚀 Launching speech synthesis...');
-        this.synth.speak(utterance);
-        
-        // Vérifier que la synthèse a bien démarré
-        setTimeout(() => {
-          if (!this.synth.speaking && !this.isForceStoppedRef.current) {
-            console.warn('⚠️ Speech did not start, retrying...');
-            this.synth.speak(utterance);
-          }
-        }, 100);
-      }
-    } catch (error) {
-      console.error('❌ Error starting speech synthesis:', error);
-      this.currentUtterance = null;
-      if (onEnd) {
-        onEnd();
-      }
-    }
+    // Démarrer immédiatement
+    console.log('🚀 Launching speech synthesis...');
+    this.synth.speak(utterance);
   }
 
   stop(): void {
@@ -103,30 +84,15 @@ export class SpeechSynthesisService {
     this.isForceStoppedRef.current = true;
     
     if (this.currentUtterance) {
-      this.currentUtterance.onend = null; // Éviter les callbacks multiples
+      this.currentUtterance.onend = null;
       this.currentUtterance.onerror = null;
       this.currentUtterance = null;
     }
     
-    // Arrêter immédiatement et agressivement
+    // Arrêter immédiatement
     if (this.synth.speaking || this.synth.pending) {
       this.synth.cancel();
     }
-    
-    // Triple vérification avec délais échelonnés
-    setTimeout(() => {
-      if (this.synth.speaking) {
-        console.log('🔄 Force stopping remaining speech (2nd attempt)');
-        this.synth.cancel();
-      }
-    }, 10);
-    
-    setTimeout(() => {
-      if (this.synth.speaking) {
-        console.log('🔄 Force stopping remaining speech (3rd attempt)');
-        this.synth.cancel();
-      }
-    }, 50);
   }
 
   isSpeaking(): boolean {
