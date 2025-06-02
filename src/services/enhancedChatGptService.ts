@@ -124,7 +124,6 @@ RÈGLES DE VENTE INTELLIGENTE:
 - Ne propose QUE les solutions adaptées au besoin
 - Pose UNE question à la fois
 - Sois naturelle et consultative, pas robotique
-- NE DEMANDE JAMAIS nom, email, téléphone AVANT d'avoir vendu une solution
 
 ${catalog}`;
 
