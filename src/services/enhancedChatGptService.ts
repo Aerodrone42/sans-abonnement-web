@@ -1,3 +1,4 @@
+
 import { ChatGPTService } from './chatGptService';
 import { learningService, ConversationData } from './learningService';
 
@@ -56,7 +57,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
   private extractClientInfo(message: string): void {
     const lowerMessage = message.toLowerCase();
     
-    // Extraction du métier/secteur
+    // Extraction du métier/secteur - ÉVITER LES DOUBLONS
     if (!this.clientInfo.metier && (lowerMessage.includes('artisan') || lowerMessage.includes('plombier') || lowerMessage.includes('électricien') || lowerMessage.includes('maçon') || lowerMessage.includes('menuisier') || lowerMessage.includes('peintre') || lowerMessage.includes('chauffagiste') || lowerMessage.includes('couvreur'))) {
       this.clientInfo.metier = 'Artisan du bâtiment';
     } else if (!this.clientInfo.metier && (lowerMessage.includes('restaurant') || lowerMessage.includes('café') || lowerMessage.includes('bar') || lowerMessage.includes('boulangerie') || lowerMessage.includes('pâtisserie'))) {
@@ -65,12 +66,12 @@ export class EnhancedChatGPTService extends ChatGPTService {
       this.clientInfo.metier = 'Beauté/Bien-être';
     } else if (!this.clientInfo.metier && (lowerMessage.includes('commerce') || lowerMessage.includes('magasin') || lowerMessage.includes('boutique') || lowerMessage.includes('vente'))) {
       this.clientInfo.metier = 'Commerce/Retail';
-    } else if (!this.clientInfo.metier) {
-      // Extraction générale du métier
+    } else if (!this.clientInfo.metier && message.trim().length > 0) {
+      // Extraction générale du métier SEULEMENT si pas déjà défini
       this.clientInfo.metier = message.trim();
     }
     
-    // Extraction de la situation
+    // Extraction de la situation - ÉVITER LES DOUBLONS
     if (!this.clientInfo.situation) {
       if (lowerMessage.includes('pas de site') || lowerMessage.includes('aucun site') || lowerMessage.includes('pas encore')) {
         this.clientInfo.situation = 'Aucun site web actuellement';
@@ -81,7 +82,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
       }
     }
     
-    // Extraction de la zone
+    // Extraction de la zone - ÉVITER LES DOUBLONS
     if (!this.clientInfo.zone) {
       if (lowerMessage.includes('ville') || lowerMessage.includes('local') || lowerMessage.includes('quartier')) {
         this.clientInfo.zone = 'Local (1 ville)';
@@ -92,24 +93,28 @@ export class EnhancedChatGPTService extends ChatGPTService {
       }
     }
     
-    // Extraction nom/prénom
-    if (lowerMessage.includes('je suis') || lowerMessage.includes('je m\'appelle') || lowerMessage.includes('mon nom')) {
+    // Extraction nom/prénom - ÉVITER LES DOUBLONS
+    if (!this.clientInfo.nom && (lowerMessage.includes('je suis') || lowerMessage.includes('je m\'appelle') || lowerMessage.includes('mon nom'))) {
       const nameMatch = message.match(/(?:je suis|je m'appelle|mon nom est)\s+([A-Za-zÀ-ÿ\s]+)/i);
       if (nameMatch) {
         this.clientInfo.nom = nameMatch[1].trim();
       }
     }
     
-    // Extraction email
-    const emailMatch = message.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
-    if (emailMatch) {
-      this.clientInfo.email = emailMatch[1];
+    // Extraction email - ÉVITER LES DOUBLONS
+    if (!this.clientInfo.email) {
+      const emailMatch = message.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+      if (emailMatch) {
+        this.clientInfo.email = emailMatch[1];
+      }
     }
     
-    // Extraction téléphone
-    const phoneMatch = message.match(/(\+33|0)[1-9](\d{8}|\s\d{2}\s\d{2}\s\d{2}\s\d{2})/);
-    if (phoneMatch) {
-      this.clientInfo.telephone = phoneMatch[0];
+    // Extraction téléphone - ÉVITER LES DOUBLONS
+    if (!this.clientInfo.telephone) {
+      const phoneMatch = message.match(/(\+33|0)[1-9](\d{8}|\s\d{2}\s\d{2}\s\d{2}\s\d{2})/);
+      if (phoneMatch) {
+        this.clientInfo.telephone = phoneMatch[0];
+      }
     }
     
     console.log('📋 Infos client extraites:', this.clientInfo);
@@ -132,10 +137,8 @@ export class EnhancedChatGPTService extends ChatGPTService {
       const response = await super.sendMessage(enhancedPrompt);
       console.log('🎯 Réponse IA reçue:', response);
       
-      // Remplir le formulaire SEULEMENT à la fin du processus de vente
-      if (this.clientInfo.conversationStage === 'collecte_infos' || this.clientInfo.conversationStage === 'finalisation') {
-        await this.fillFormImmediately();
-      }
+      // CORRECTION CRITIQUE: Remplir le formulaire dès qu'on a des infos de contact
+      this.fillFormProgressively();
       
       return response;
     } catch (error) {
@@ -147,7 +150,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
   private updateConversationStage(message: string): void {
     const lowerMessage = message.toLowerCase();
     
-    // Progression intelligente selon les réponses du client
+    // CORRECTION: Progression plus intelligente sans répétitions
     if (this.clientInfo.conversationStage === 'accueil' && this.clientInfo.metier) {
       this.clientInfo.conversationStage = 'qualification_besoin';
       console.log('📋 Passage à la qualification du besoin');
@@ -161,7 +164,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
       console.log('📋 Passage à la proposition adaptée');
     }
     else if (this.clientInfo.conversationStage === 'proposition_adaptee') {
-      if (lowerMessage.includes('intéresse') || lowerMessage.includes('oui') || lowerMessage.includes('d\'accord')) {
+      if (lowerMessage.includes('intéresse') || lowerMessage.includes('oui') || lowerMessage.includes('d\'accord') || lowerMessage.includes('ok')) {
         this.clientInfo.conversationStage = 'proposition_contact';
         console.log('📋 Passage à la proposition de contact');
       }
@@ -170,7 +173,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
       if (lowerMessage.includes('appel') || lowerMessage.includes('téléphone') || lowerMessage.includes('rappel')) {
         this.clientInfo.conversationStage = 'collecte_infos';
         console.log('📋 Passage à la collecte d\'informations pour rappel');
-      } else if (lowerMessage.includes('formulaire') || lowerMessage.includes('écrit') || lowerMessage.includes('email')) {
+      } else if (lowerMessage.includes('formulaire') || lowerMessage.includes('écrit') || lowerMessage.includes('email') || lowerMessage.includes('contact')) {
         this.clientInfo.conversationStage = 'collecte_infos';
         console.log('📋 Passage à la collecte d\'informations pour formulaire');
       }
@@ -195,6 +198,7 @@ RÈGLES DE VENTE INTELLIGENTE:
 - Ne propose QUE les solutions adaptées au besoin
 - Pose UNE question à la fois
 - Sois naturelle et consultative, pas robotique
+- NE REDEMANDE JAMAIS une info déjà stockée
 
 ${catalog}`;
 
@@ -241,14 +245,15 @@ PROPOSE INTELLIGEMMENT selon la zone:
 - Si veut de l'IA → Nova IA (2000€)
 
 NE propose QUE les 2-3 solutions les plus adaptées à son cas.
-Explique pourquoi ces solutions correspondent à ses besoins.`;
+Explique pourquoi ces solutions correspondent à ses besoins.
+Termine OBLIGATOIREMENT par "Cela vous intéresse ?"`;
         break;
 
       case 'proposition_contact':
         basePrompt += `
 ÉTAPE 5 - PROPOSITION DE CONTACT:
 Solution proposée et client intéressé.
-MAINTENANT propose 2 options :
+MAINTENANT propose OBLIGATOIREMENT 2 options :
 1. "Souhaitez-vous qu'on vous rappelle pour en discuter directement ?"
 2. "Ou préférez-vous qu'on vous envoie un devis par email ?"
 
@@ -259,10 +264,11 @@ Laisse le client choisir sa préférence de contact.`;
         basePrompt += `
 ÉTAPE 6 - COLLECTE D'INFORMATIONS:
 Le client a choisi son mode de contact, maintenant collecte les infos :
-- Demande nom et prénom
-- Puis email
-- Puis téléphone
-- Une seule info à la fois`;
+- Demande nom et prénom si pas encore donné
+- Puis email si pas encore donné
+- Puis téléphone si pas encore donné
+- Une seule info à la fois
+- REMPLIS le formulaire au fur et à mesure`;
         break;
         
       default:
@@ -274,21 +280,17 @@ Continue la conversation de manière naturelle.`;
     basePrompt += `
 
 Message du client: "${userMessage}"
-Infos collectées: Métier=${this.clientInfo.metier}, Situation=${this.clientInfo.situation}, Zone=${this.clientInfo.zone}
+Infos déjà stockées: Métier=${this.clientInfo.metier}, Situation=${this.clientInfo.situation}, Zone=${this.clientInfo.zone}
 
+IMPORTANT: NE REDEMANDE JAMAIS les infos déjà stockées.
 Réponds de manière consultative et intelligente.`;
 
     return basePrompt;
   }
 
-  private async fillFormImmediately(): Promise<void> {
+  // CORRECTION CRITIQUE: Nouvelle fonction pour remplir progressivement
+  private fillFormProgressively(): void {
     if (!this.fillFormCallback) return;
-    
-    // CORRECTION: Ne remplir le formulaire que si on a collecté les infos de contact
-    if (this.clientInfo.conversationStage !== 'collecte_infos') {
-      console.log('⚠️ Formulaire non rempli - pas encore à l\'étape collecte_infos');
-      return;
-    }
     
     const formData: any = {};
     let hasData = false;
@@ -316,18 +318,15 @@ Réponds de manière consultative et intelligente.`;
       }
     }
     
+    // CORRECTION: Remplir le formulaire dès qu'on a des données
     if (hasData) {
       let message = `Secteur d'activité: ${this.clientInfo.metier || 'Non spécifié'}\n`;
       message += `Zone d'intervention: ${this.clientInfo.zone || 'Non spécifiée'}\n`;
-      
-      if (this.clientInfo.siteDesire && this.clientInfo.tarif) {
-        message += `Solution recommandée: ${this.clientInfo.siteDesire} - ${this.clientInfo.tarif}\n`;
-      }
-      
+      message += `Situation actuelle: ${this.clientInfo.situation || 'Non spécifiée'}\n`;
       message += '\n[Demande qualifiée par l\'assistant IA Nova - Aerodrone Multiservices]';
       formData.message = message;
       
-      console.log('📝 REMPLISSAGE du formulaire:', formData);
+      console.log('📝 REMPLISSAGE PROGRESSIF du formulaire:', formData);
       this.fillFormCallback(formData);
     }
   }
