@@ -39,7 +39,6 @@ export class EnhancedChatGPTService extends ChatGPTService {
     console.log('✅ Callbacks de formulaire configurés');
   }
 
-  // Nouvelle méthode pour déclencher l'accueil automatique
   async startConversation(): Promise<string> {
     console.log('🎯 Démarrage automatique de la conversation avec Nova');
     return await this.sendAutoGreeting();
@@ -80,7 +79,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
         learningService.updateClientInfo(this.clientInfo);
       }
       
-      // Remplissage progressif du formulaire - CORRIGÉ POUR TOUTES LES DONNÉES
+      // Remplissage progressif du formulaire avec toutes les données
       await this.fillFormWithRealData();
       
       // Sauvegarder automatiquement la conversation toutes les 3 étapes
@@ -153,61 +152,119 @@ export class EnhancedChatGPTService extends ChatGPTService {
     }
   }
 
+  // EXTRACTION CORRIGÉE DU NOM - Plus précise
   private extractName(message: string): boolean {
+    // Nettoyer le message des mots parasites
+    const cleanMessage = message.replace(/\b(je\s+(?:m'appelle|suis)|mon\s+nom\s+(?:est|c'est)|c'est|bonjour|salut|ok|oui|non|voici|voilà)\b/gi, '').trim();
+    
+    // Patterns pour détecter un nom et prénom
     const namePatterns = [
-      /^([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]+(?:\s+[A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]+)*)/,
-      /(?:je\s+(?:m'appelle|suis)\s+)([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]+(?:\s+[A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]+)*)/,
-      /(?:mon\s+nom\s+(?:est|c'est)\s+)([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]+(?:\s+[A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]+)*)/
+      // Prénom Nom (format classique)
+      /^([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]{1,})\s+([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]{1,})$/,
+      // Nom Prénom (format inversé)
+      /^([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]{1,})\s+([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]{1,})$/,
+      // Prénom Nom avec particules (de, du, des, etc.)
+      /^([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]{1,})\s+(?:de\s+|du\s+|des\s+|le\s+|la\s+)?([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]{1,})$/i
     ];
     
     for (const pattern of namePatterns) {
-      const match = message.match(pattern);
+      const match = cleanMessage.match(pattern);
       if (match) {
-        const detectedName = match[1].trim();
-        if (detectedName.length > 2 && !this.isBusinessOrCity(detectedName)) {
-          this.clientInfo.nom = detectedName;
-          console.log('👤 Nom détecté et validé:', this.clientInfo.nom);
+        const fullName = `${match[1]} ${match[2]}`;
+        // Vérifier que ce n'est pas un métier ou une ville
+        if (!this.isBusinessOrCity(fullName) && fullName.length >= 4) {
+          this.clientInfo.nom = fullName;
+          console.log('👤 Nom complet détecté et validé:', this.clientInfo.nom);
           return true;
         }
       }
     }
+    
+    // Fallback : si un seul mot de plus de 2 caractères
+    const singleWordMatch = cleanMessage.match(/^([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]{2,})$/);
+    if (singleWordMatch && !this.isBusinessOrCity(singleWordMatch[1])) {
+      this.clientInfo.nom = singleWordMatch[1];
+      console.log('👤 Nom simple détecté:', this.clientInfo.nom);
+      return true;
+    }
+    
+    console.log('❌ Aucun nom valide détecté dans:', cleanMessage);
     return false;
   }
 
+  // EXTRACTION CORRIGÉE DE L'EMAIL - Sans espaces
   private extractAndValidateEmail(message: string): boolean {
+    // Supprimer TOUS les espaces du message pour l'extraction email
+    const messageNoSpaces = message.replace(/\s+/g, '');
+    
+    // Pattern email amélioré
     const emailPattern = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/;
-    const emailMatch = message.match(emailPattern);
+    const emailMatch = messageNoSpaces.match(emailPattern);
     
     if (emailMatch) {
       const email = emailMatch[1].toLowerCase();
       
       if (this.isValidEmail(email)) {
         this.clientInfo.email = email;
-        console.log('📧 Email détecté et validé:', this.clientInfo.email);
+        console.log('📧 Email détecté et validé (sans espaces):', this.clientInfo.email);
         return true;
       } else {
         console.log('❌ Email invalide détecté:', email);
         return false;
       }
     }
+    
+    // Fallback : recherche dans le message original avec nettoyage manuel
+    const manualCleanPattern = /([a-zA-Z0-9._%+-]+)\s*@\s*([a-zA-Z0-9.-]+)\s*\.\s*([a-zA-Z]{2,})/;
+    const manualMatch = message.match(manualCleanPattern);
+    if (manualMatch) {
+      const cleanEmail = `${manualMatch[1]}@${manualMatch[2]}.${manualMatch[3]}`.toLowerCase();
+      if (this.isValidEmail(cleanEmail)) {
+        this.clientInfo.email = cleanEmail;
+        console.log('📧 Email nettoyé manuellement et validé:', this.clientInfo.email);
+        return true;
+      }
+    }
+    
+    console.log('❌ Aucun email valide trouvé dans:', message);
     return false;
   }
 
+  // EXTRACTION CORRIGÉE DU TÉLÉPHONE - Plus robuste
   private extractPhone(message: string): boolean {
     const phonePatterns = [
-      /(?:0[1-9])(?:[\s.-]?\d{2}){4}/,
-      /(?:\+33|0033)[1-9](?:[\s.-]?\d{2}){4}/,
-      /(?:\+33\s?|0)[1-9](?:[\s.-]?\d{2}){4}/
+      // Formats français standards
+      /0[1-9](?:[\s.-]?\d{2}){4}/,
+      // Avec indicatif +33
+      /(?:\+33|0033)\s?[1-9](?:[\s.-]?\d{2}){4}/,
+      // Format international simplifié
+      /(?:\+33\s?|0)[1-9](?:[\s.-]?\d{2}){4}/,
+      // Format avec parenthèses
+      /0[1-9](?:\s?\(\d{2}\)\s?\d{2}\s?\d{2}\s?\d{2})/,
+      // Format simple 10 chiffres
+      /0[1-9]\d{8}/
     ];
     
     for (const pattern of phonePatterns) {
       const match = message.match(pattern);
       if (match) {
-        this.clientInfo.telephone = match[0];
-        console.log('📞 Téléphone détecté:', this.clientInfo.telephone);
+        // Nettoyer le numéro (garder seulement chiffres et +)
+        let cleanPhone = match[0].replace(/[\s.-]/g, '');
+        
+        // Normaliser le format français
+        if (cleanPhone.startsWith('+33')) {
+          cleanPhone = '0' + cleanPhone.substring(3);
+        } else if (cleanPhone.startsWith('0033')) {
+          cleanPhone = '0' + cleanPhone.substring(4);
+        }
+        
+        this.clientInfo.telephone = cleanPhone;
+        console.log('📞 Téléphone détecté et nettoyé:', this.clientInfo.telephone);
         return true;
       }
     }
+    
+    console.log('❌ Aucun téléphone valide trouvé dans:', message);
     return false;
   }
 
@@ -255,7 +312,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
            businesses.some(business => lowerText.includes(business));
   }
 
-  // NOUVELLE MÉTHODE CORRIGÉE POUR REMPLIR TOUTES LES DONNÉES
+  // REMPLISSAGE CORRIGÉ - Chaque champ individuellement
   private async fillFormWithRealData(): Promise<void> {
     if (!this.fillFormCallback) {
       console.log('❌ Callback de formulaire manquant');
@@ -265,36 +322,38 @@ export class EnhancedChatGPTService extends ChatGPTService {
     const formData: any = {};
     let hasNewData = false;
     
-    // Remplir TOUS les champs disponibles avec les vraies données
-    if (this.clientInfo.nom) {
-      formData.name = this.clientInfo.nom;
+    // Remplir chaque champ individuellement avec validation
+    if (this.clientInfo.nom && this.clientInfo.nom.trim()) {
+      formData.name = this.clientInfo.nom.trim();
       hasNewData = true;
-      console.log('👤 Remplissage nom:', this.clientInfo.nom);
+      console.log('👤 Remplissage nom:', formData.name);
     }
     
-    if (this.clientInfo.email) {
-      formData.email = this.clientInfo.email;
+    if (this.clientInfo.email && this.clientInfo.email.trim()) {
+      formData.email = this.clientInfo.email.trim().toLowerCase();
       hasNewData = true;
-      console.log('📧 Remplissage email:', this.clientInfo.email);
+      console.log('📧 Remplissage email:', formData.email);
     }
     
-    if (this.clientInfo.telephone) {
-      formData.phone = this.clientInfo.telephone;
+    if (this.clientInfo.telephone && this.clientInfo.telephone.trim()) {
+      formData.phone = this.clientInfo.telephone.trim();
       hasNewData = true;
-      console.log('📞 Remplissage téléphone:', this.clientInfo.telephone);
+      console.log('📞 Remplissage téléphone:', formData.phone);
     }
     
     if (this.clientInfo.entreprise || this.clientInfo.metier) {
-      formData.business = this.clientInfo.entreprise || this.clientInfo.metier;
-      hasNewData = true;
-      console.log('🏢 Remplissage entreprise/métier:', formData.business);
+      const business = (this.clientInfo.entreprise || this.clientInfo.metier || '').trim();
+      if (business) {
+        formData.business = business;
+        hasNewData = true;
+        console.log('🏢 Remplissage entreprise/métier:', formData.business);
+      }
     }
     
-    // Message personnalisé SANS session ID
+    // Message personnalisé professionnel SANS session ID
     if (this.clientInfo.metier || this.clientInfo.zone || this.clientInfo.budget || this.clientInfo.message) {
       let message = '';
       
-      // Décrire les besoins du client de manière professionnelle
       if (this.clientInfo.metier) {
         message += `Demande de devis pour ${this.clientInfo.metier}`;
       }
@@ -315,7 +374,6 @@ export class EnhancedChatGPTService extends ChatGPTService {
         message += `\n\nDemande spécifique: ${this.clientInfo.message}`;
       }
       
-      // Ajouter des informations générées automatiquement SANS l'ID de session
       message += '\n\n[Demande générée automatiquement par l\'assistant IA]';
       
       formData.message = message;
@@ -324,7 +382,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
     }
     
     if (hasNewData) {
-      console.log('📝 Remplissage du formulaire avec toutes les données disponibles:', formData);
+      console.log('📝 Remplissage du formulaire avec toutes les données individuelles:', formData);
       this.fillFormCallback(formData);
     } else {
       console.log('ℹ️ Aucune nouvelle donnée à remplir dans le formulaire');
