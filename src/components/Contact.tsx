@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ContactHeader from "./contact/ContactHeader";
 import ContactForm from "./contact/ContactForm";
-import VoiceRecognition from "./contact/VoiceRecognition";
 import NeuralBackground from "./contact/NeuralBackground";
 import { useToast } from "@/hooks/use-toast";
 
@@ -82,17 +81,8 @@ const Contact = () => {
         <div className="max-w-4xl mx-auto">
           <ContactHeader />
           
-          <div className="mt-12 space-y-8">
-            {/* Composant de reconnaissance vocale avec callbacks */}
-            <VoiceRecognition
-              onTranscript={() => {}} 
-              currentField=""
-              fillFormFromAI={fillFormFromAI}
-              submitFromAI={submitFromAI}
-              formData={formData}
-            />
-            
-            {/* Formulaire de contact */}
+          <div className="mt-12">
+            {/* Formulaire de contact avec IA intégrée */}
             <ContactForm 
               formData={formData}
               setFormData={setFormData}
