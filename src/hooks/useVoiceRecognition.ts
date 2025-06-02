@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { EnhancedChatGPTService } from '@/services/enhancedChatGptService';
 import { SpeechSynthesisService } from '@/services/speechSynthesisService';
@@ -10,6 +9,11 @@ interface UseVoiceRecognitionProps {
 }
 
 interface ExtendedSpeechRecognition extends SpeechRecognition {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  maxAlternatives: number;
+  onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
   onend: ((this: SpeechRecognition, ev: Event) => any) | null;
   onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any) | null;
   onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null;
@@ -36,7 +40,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
   const interimResultRef = useRef("");
   const isStoppedRef = useRef(false);
   const microphoneMutedRef = useRef(false);
-  const isInitializingRef = useRef(false); // NOUVEAU: Flag pour éviter les doubles initialisations
+  const isInitializingRef = useRef(false);
 
   const cleanup = () => {
     console.log('🧹 Nettoyage complet microphone');
