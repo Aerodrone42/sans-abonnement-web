@@ -1,5 +1,4 @@
 
-
 import { useState, useRef, useEffect } from 'react';
 import { EnhancedChatGPTService } from '@/services/enhancedChatGptService';
 import { SpeechSynthesisService } from '@/services/speechSynthesisService';
@@ -40,7 +39,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
   const speakingRef = useRef(false);
   const lastTranscriptRef = useRef("");
   const interimResultRef = useRef("");
-  const isStoppedRef = useRef(false); // ✅ Initialisé à false
+  const isStoppedRef = useRef(true); // ✅ Initialisé à true par défaut
   const microphoneMutedRef = useRef(false);
   const recognitionActiveRef = useRef(false);
 
@@ -243,12 +242,14 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
         console.log('✅ Permission micro obtenue');
       }
 
-      // ✅ CORRECTION CRITIQUE: Réinitialiser isStoppedRef à false
+      // ✅ CORRECTION CRITIQUE: États synchronisés AVANT démarrage
       isStoppedRef.current = false;
       microphoneMutedRef.current = false;
+      
+      // ✅ État de conversation AVANT démarrage recognition
       setIsConversationActive(true);
 
-      console.log('🚀 Démarrage reconnaissance vocale - isStoppedRef:', isStoppedRef.current);
+      console.log('🚀 Démarrage reconnaissance vocale - isStoppedRef:', isStoppedRef.current, 'isConversationActive: true');
       const started = startRecognitionSafely();
       
       if (started) {
@@ -288,7 +289,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       };
 
       recognition.onresult = (event) => {
-        // ✅ AFFICHAGE IMMÉDIAT - toujours afficher le texte
         console.log('🎯 RÉSULTAT VOCAL REÇU - affichage immédiat');
         let finalTranscript = '';
         let interimTranscript = '';
@@ -302,7 +302,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
           }
         }
         
-        // ✅ AFFICHAGE IMMÉDIAT - peu importe l'état de l'IA
+        // ✅ AFFICHAGE IMMÉDIAT - toujours afficher le texte
         if (interimTranscript) {
           interimResultRef.current = interimTranscript;
           const displayText = lastTranscriptRef.current + interimTranscript;
@@ -316,28 +316,27 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
           setTranscript(lastTranscriptRef.current);
           console.log('📝 AFFICHAGE FINAL:', lastTranscriptRef.current);
           
-          // ✅ TRAITEMENT IA - vérifier la vraie valeur de isStoppedRef
-          console.log('🔍 État pour traitement IA:');
-          console.log('- isStoppedRef:', isStoppedRef.current);
-          console.log('- microphoneMutedRef:', microphoneMutedRef.current);
-          console.log('- isConversationActive:', isConversationActive);
-          console.log('- transcript length:', lastTranscriptRef.current.trim().length);
+          // ✅ TRAITEMENT IA - conditions simplifiées mais efficaces
+          console.log('🔍 État conversation active:', isConversationActive);
+          console.log('🔍 État isStoppedRef:', isStoppedRef.current);
+          console.log('🔍 État microphoneMutedRef:', microphoneMutedRef.current);
           
-          const shouldProcessAI = !isStoppedRef.current && 
-                                 !microphoneMutedRef.current &&
-                                 isConversationActive &&
-                                 lastTranscriptRef.current.trim().length > 0;
+          // ✅ LOGIC SIMPLE: Si conversation active ET pas arrêté ET micro pas coupé
+          const canProcessAI = isConversationActive && 
+                              !isStoppedRef.current && 
+                              !microphoneMutedRef.current &&
+                              lastTranscriptRef.current.trim().length > 0;
           
-          if (shouldProcessAI) {
-            console.log('✅ Conditions OK pour traitement IA - DÉMARRAGE TRAITEMENT');
+          if (canProcessAI) {
+            console.log('✅ CONDITIONS OK - DÉMARRAGE TRAITEMENT IA IMMÉDIAT');
             
             if (silenceTimeoutRef.current) {
               clearTimeout(silenceTimeoutRef.current);
             }
             
             silenceTimeoutRef.current = setTimeout(() => {
-              if (lastTranscriptRef.current.trim() && !isStoppedRef.current && !microphoneMutedRef.current) {
-                console.log('⏰ Traitement IA après silence:', lastTranscriptRef.current);
+              if (!isStoppedRef.current && !microphoneMutedRef.current && lastTranscriptRef.current.trim()) {
+                console.log('⏰ TRAITEMENT IA APRÈS SILENCE:', lastTranscriptRef.current);
                 processAIResponse(lastTranscriptRef.current.trim());
                 lastTranscriptRef.current = "";
                 interimResultRef.current = "";
@@ -345,11 +344,11 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
               }
             }, 2500);
           } else {
-            console.log('⚠️ Traitement IA impossible - conditions non remplies');
+            console.log('❌ TRAITEMENT IA BLOQUÉ:');
+            console.log('- Conversation active:', isConversationActive);
             console.log('- isStoppedRef:', isStoppedRef.current);
             console.log('- microphoneMutedRef:', microphoneMutedRef.current);
-            console.log('- isConversationActive:', isConversationActive);
-            console.log('- transcript length:', lastTranscriptRef.current.trim().length);
+            console.log('- Transcript length:', lastTranscriptRef.current.trim().length);
           }
         }
       };
@@ -396,7 +395,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     }
 
     return cleanup;
-  }, [isConversationActive, chatGPT]);
+  }, []);
 
   return {
     isListening,
@@ -411,4 +410,3 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     cleanupMicrophone: cleanup
   };
 };
-
