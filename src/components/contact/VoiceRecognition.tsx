@@ -68,7 +68,7 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
     // Vérifier si le formulaire est prêt pour l'envoi
     useEffect(() => {
       if (formData) {
-        const isComplete = formData.name && formData.email && formData.message;
+        const isComplete = Boolean(formData.name && formData.email && formData.message);
         setCanSendEmail(isComplete);
       }
     }, [formData]);
