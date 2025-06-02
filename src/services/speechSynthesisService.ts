@@ -1,4 +1,3 @@
-
 export class SpeechSynthesisService {
   private synth: SpeechSynthesis;
   private voice: SpeechSynthesisVoice | null = null;
@@ -13,12 +12,31 @@ export class SpeechSynthesisService {
   private initVoice() {
     const setVoice = () => {
       const voices = this.synth.getVoices();
-      // Chercher une voix française de qualité
-      this.voice = voices.find(voice => 
-        voice.lang.startsWith('fr') && (voice.name.includes('Google') || voice.name.includes('Microsoft'))
-      ) || voices.find(voice => voice.lang.startsWith('fr')) || voices[0];
       
-      console.log('Voice selected:', this.voice?.name);
+      // Prioriser les voix françaises les plus naturelles
+      this.voice = 
+        // Chercher d'abord les voix Google françaises (les plus naturelles)
+        voices.find(voice => 
+          voice.lang.startsWith('fr') && 
+          voice.name.includes('Google') && 
+          (voice.name.includes('Amélie') || voice.name.includes('Céline') || voice.name.includes('Française'))
+        ) ||
+        // Puis les voix Microsoft françaises
+        voices.find(voice => 
+          voice.lang.startsWith('fr') && 
+          voice.name.includes('Microsoft') &&
+          (voice.name.includes('Hortense') || voice.name.includes('Julie'))
+        ) ||
+        // Puis toute voix française premium
+        voices.find(voice => 
+          voice.lang.startsWith('fr') && 
+          (voice.name.includes('Premium') || voice.name.includes('Enhanced'))
+        ) ||
+        // Sinon première voix française disponible
+        voices.find(voice => voice.lang.startsWith('fr')) || 
+        voices[0];
+      
+      console.log('Voice selected:', this.voice?.name, 'Lang:', this.voice?.lang);
     };
 
     if (this.synth.getVoices().length > 0) {
@@ -46,10 +64,10 @@ export class SpeechSynthesisService {
       console.log('🎤 Using voice:', this.voice.name);
     }
     
-    // Paramètres de synthèse
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
-    utterance.volume = 1.0;
+    // Paramètres optimisés pour une voix plus naturelle
+    utterance.rate = 0.95;        // Légèrement plus lent pour être plus naturel
+    utterance.pitch = 1.1;        // Pitch légèrement plus élevé pour une voix féminine agréable
+    utterance.volume = 0.9;       // Volume légèrement réduit pour éviter la saturation
     
     // Gestion des événements
     utterance.onstart = () => {
