@@ -51,13 +51,13 @@ const VoiceControl = ({
 
       <p className="text-center text-gray-300 text-sm max-w-xs">
         {isProcessing
-          ? 'ChatGPT réfléchit...'
+          ? 'Conseiller IA réfléchit...'
           : isListening
           ? conversationMode 
-            ? 'Parlez avec ChatGPT...'
+            ? 'Parlez avec Conseiller IA...'
             : 'Dictez votre message...'
           : conversationMode
-          ? 'Cliquez pour parler avec ChatGPT'
+          ? 'Cliquez pour parler avec Conseiller IA'
           : 'Cliquez pour dicter votre message'
         }
       </p>
