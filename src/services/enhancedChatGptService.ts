@@ -1,3 +1,4 @@
+
 import { ChatGPTService } from './chatGptService';
 import { learningService, ConversationData } from './learningService';
 
@@ -51,6 +52,68 @@ export class EnhancedChatGPTService extends ChatGPTService {
 
   private generateSessionId(): string {
     return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  private extractClientInfo(message: string): void {
+    const lowerMessage = message.toLowerCase();
+    
+    // Extraction du métier/secteur
+    if (!this.clientInfo.metier && (lowerMessage.includes('artisan') || lowerMessage.includes('plombier') || lowerMessage.includes('électricien') || lowerMessage.includes('maçon') || lowerMessage.includes('menuisier') || lowerMessage.includes('peintre') || lowerMessage.includes('chauffagiste') || lowerMessage.includes('couvreur'))) {
+      this.clientInfo.metier = 'Artisan du bâtiment';
+    } else if (!this.clientInfo.metier && (lowerMessage.includes('restaurant') || lowerMessage.includes('café') || lowerMessage.includes('bar') || lowerMessage.includes('boulangerie') || lowerMessage.includes('pâtisserie'))) {
+      this.clientInfo.metier = 'Restauration/Alimentation';
+    } else if (!this.clientInfo.metier && (lowerMessage.includes('coiffeur') || lowerMessage.includes('esthétique') || lowerMessage.includes('massage') || lowerMessage.includes('spa'))) {
+      this.clientInfo.metier = 'Beauté/Bien-être';
+    } else if (!this.clientInfo.metier && (lowerMessage.includes('commerce') || lowerMessage.includes('magasin') || lowerMessage.includes('boutique') || lowerMessage.includes('vente'))) {
+      this.clientInfo.metier = 'Commerce/Retail';
+    } else if (!this.clientInfo.metier) {
+      // Extraction générale du métier
+      this.clientInfo.metier = message.trim();
+    }
+    
+    // Extraction de la situation
+    if (!this.clientInfo.situation) {
+      if (lowerMessage.includes('pas de site') || lowerMessage.includes('aucun site') || lowerMessage.includes('pas encore')) {
+        this.clientInfo.situation = 'Aucun site web actuellement';
+      } else if (lowerMessage.includes('ancien site') || lowerMessage.includes('obsolète') || lowerMessage.includes('refaire')) {
+        this.clientInfo.situation = 'Site existant à moderniser';
+      } else if (lowerMessage.includes('améliorer') || lowerMessage.includes('optimiser')) {
+        this.clientInfo.situation = 'Site à améliorer';
+      }
+    }
+    
+    // Extraction de la zone
+    if (!this.clientInfo.zone) {
+      if (lowerMessage.includes('ville') || lowerMessage.includes('local') || lowerMessage.includes('quartier')) {
+        this.clientInfo.zone = 'Local (1 ville)';
+      } else if (lowerMessage.includes('département') || lowerMessage.includes('région') || lowerMessage.includes('plusieurs villes')) {
+        this.clientInfo.zone = 'Départemental/Régional';
+      } else if (lowerMessage.includes('national') || lowerMessage.includes('france') || lowerMessage.includes('partout')) {
+        this.clientInfo.zone = 'National';
+      }
+    }
+    
+    // Extraction nom/prénom
+    if (lowerMessage.includes('je suis') || lowerMessage.includes('je m\'appelle') || lowerMessage.includes('mon nom')) {
+      const nameMatch = message.match(/(?:je suis|je m'appelle|mon nom est)\s+([A-Za-zÀ-ÿ\s]+)/i);
+      if (nameMatch) {
+        this.clientInfo.nom = nameMatch[1].trim();
+      }
+    }
+    
+    // Extraction email
+    const emailMatch = message.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+    if (emailMatch) {
+      this.clientInfo.email = emailMatch[1];
+    }
+    
+    // Extraction téléphone
+    const phoneMatch = message.match(/(\+33|0)[1-9](\d{8}|\s\d{2}\s\d{2}\s\d{2}\s\d{2})/);
+    if (phoneMatch) {
+      this.clientInfo.telephone = phoneMatch[0];
+    }
+    
+    console.log('📋 Infos client extraites:', this.clientInfo);
   }
 
   async sendMessage(userMessage: string): Promise<string> {
