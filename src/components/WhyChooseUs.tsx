@@ -1,5 +1,7 @@
+
 import { Shield, Zap, Users, Award, Sparkles, Code2, Stars, Cpu, Globe, Rocket, Eye, Target, TrendingUp, Layers } from "lucide-react";
 import MatrixRain from "./effects/MatrixRain";
+import StarField from "./effects/StarField";
 import BusinessImpactCard from "./BusinessImpactCard";
 import FeatureCard from "./FeatureCard";
 
@@ -114,88 +116,95 @@ const WhyChooseUs = () => {
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        {/* Revolutionary Business Impact Section */}
-        <div className="text-center mb-32">
-          <div className="relative inline-block mb-16">
-            {/* Multi-layer Quantum Halo */}
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-full blur-3xl opacity-40 animate-pulse scale-150"></div>
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-400 rounded-full blur-2xl opacity-30 animate-pulse-glow scale-125" style={{animationDelay: '0.5s'}}></div>
-            
-            <h2 className="relative text-4xl md:text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-400 mb-8 leading-tight">
-              <span className="relative block">
-                Développez Votre Activité
-                {/* Holographic Underline */}
-                <div className="absolute bottom-0 left-0 w-full h-3 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-full opacity-60 animate-glow blur-sm"></div>
-                
-                {/* Floating Tech Icons */}
-                <Cpu className="absolute -top-12 -right-16 w-10 h-10 text-cyan-400 animate-spin-slow opacity-70" />
-                <Globe className="absolute -top-8 -left-16 w-8 h-8 text-purple-400 animate-bounce-slow opacity-70" />
-              </span>
-              <span className="relative block mt-4">
-                Avec un Site Web 
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-rose-400">
-                  {" "}Professionnel
-                </span>
-                <Rocket className="absolute -bottom-8 -right-12 w-8 h-8 text-pink-400 animate-float opacity-70" />
-              </span>
-            </h2>
+        {/* Revolutionary Business Impact Section with StarField */}
+        <div className="text-center mb-32 relative">
+          {/* Star Field Effect for this section */}
+          <div className="absolute inset-0 rounded-3xl overflow-hidden">
+            <StarField />
           </div>
           
-          {/* Revolutionary Impact Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
-            {businessImpacts.map((impact, index) => (
-              <BusinessImpactCard
-                key={index}
-                {...impact}
-                index={index}
-              />
-            ))}
-          </div>
-
-          <div className="relative max-w-6xl mx-auto mb-16">
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-3xl blur-3xl opacity-20 animate-pulse"></div>
-            
-            <div className="relative bg-gradient-to-r from-black/95 via-gray-900/95 to-black/95 backdrop-blur-2xl p-16 rounded-3xl border-2 border-cyan-400/30 shadow-2xl">
-              {/* Quantum Tech Pattern Background */}
-              <div className="absolute inset-0 opacity-5">
-                <div className="w-full h-full" style={{
-                  backgroundImage: `radial-gradient(circle at 3px 3px, rgba(6,182,212,0.4) 2px, transparent 0)`,
-                  backgroundSize: '50px 50px'
-                }}></div>
-              </div>
+          <div className="relative z-10">
+            <div className="relative inline-block mb-16">
+              {/* Multi-layer Quantum Halo */}
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-full blur-3xl opacity-40 animate-pulse scale-150"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-400 rounded-full blur-2xl opacity-30 animate-pulse-glow scale-125" style={{animationDelay: '0.5s'}}></div>
               
-              <div className="relative z-10 text-center">
-                <h3 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 mb-8 leading-tight">
-                  Révolutionnez Votre Présence Digitale
-                </h3>
-                
-                <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-5xl leading-relaxed">
-                  Transformez votre vision en{" "}
-                  <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">
-                    expérience digitale d'exception
+              <h2 className="relative text-4xl md:text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-400 mb-8 leading-tight">
+                <span className="relative block">
+                  Développez Votre Activité
+                  {/* Holographic Underline */}
+                  <div className="absolute bottom-0 left-0 w-full h-3 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-full opacity-60 animate-glow blur-sm"></div>
+                  
+                  {/* Floating Tech Icons */}
+                  <Cpu className="absolute -top-12 -right-16 w-10 h-10 text-cyan-400 animate-spin-slow opacity-70" />
+                  <Globe className="absolute -top-8 -left-16 w-8 h-8 text-purple-400 animate-bounce-slow opacity-70" />
+                </span>
+                <span className="relative block mt-4">
+                  Avec un Site Web 
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-rose-400">
+                    {" "}Professionnel
                   </span>
-                  {" "}grâce à nos technologies de pointe et notre expertise premium
-                </p>
+                  <Rocket className="absolute -bottom-8 -right-12 w-8 h-8 text-pink-400 animate-float opacity-70" />
+                </span>
+              </h2>
+            </div>
+            
+            {/* Revolutionary Impact Grid */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
+              {businessImpacts.map((impact, index) => (
+                <BusinessImpactCard
+                  key={index}
+                  {...impact}
+                  index={index}
+                />
+              ))}
+            </div>
+
+            <div className="relative max-w-6xl mx-auto mb-16">
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-3xl blur-3xl opacity-20 animate-pulse"></div>
+              
+              <div className="relative bg-gradient-to-r from-black/95 via-gray-900/95 to-black/95 backdrop-blur-2xl p-16 rounded-3xl border-2 border-cyan-400/30 shadow-2xl">
+                {/* Quantum Tech Pattern Background */}
+                <div className="absolute inset-0 opacity-5">
+                  <div className="w-full h-full" style={{
+                    backgroundImage: `radial-gradient(circle at 3px 3px, rgba(6,182,212,0.4) 2px, transparent 0)`,
+                    backgroundSize: '50px 50px'
+                  }}></div>
+                </div>
                 
-                {/* Advanced Metrics Display */}
-                <div className="grid md:grid-cols-3 gap-8 mb-12">
-                  {[
-                    { label: "Projets Premium", value: "150+", icon: <Award className="w-8 h-8" /> },
-                    { label: "Technologies Next-Gen", value: "20+", icon: <Code2 className="w-8 h-8" /> },
-                    { label: "Satisfaction Client", value: "99.8%", icon: <Stars className="w-8 h-8" /> }
-                  ].map((stat, i) => (
-                    <div key={i} className="group text-center">
-                      <div className="bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 backdrop-blur-xl p-8 rounded-3xl border border-cyan-400/30 group-hover:border-cyan-400/60 transition-all duration-700 mb-4 transform group-hover:scale-110">
-                        <div className="text-cyan-400 mb-4 flex justify-center group-hover:animate-bounce-slow">
-                          {stat.icon}
+                <div className="relative z-10 text-center">
+                  <h3 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 mb-8 leading-tight">
+                    Rejoignez les entrepreneurs qui ont choisi l'excellence pour faire grandir leur business
+                  </h3>
+                  
+                  <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-5xl leading-relaxed">
+                    Transformez votre vision en{" "}
+                    <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">
+                      expérience digitale d'exception
+                    </span>
+                    {" "}grâce à nos technologies de pointe et notre expertise premium
+                  </p>
+                  
+                  {/* Advanced Metrics Display */}
+                  <div className="grid md:grid-cols-3 gap-8 mb-12">
+                    {[
+                      { label: "Projets Premium", value: "150+", icon: <Award className="w-8 h-8" /> },
+                      { label: "Technologies Next-Gen", value: "20+", icon: <Code2 className="w-8 h-8" /> },
+                      { label: "Satisfaction Client", value: "99.8%", icon: <Stars className="w-8 h-8" /> }
+                    ].map((stat, i) => (
+                      <div key={i} className="group text-center">
+                        <div className="bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 backdrop-blur-xl p-8 rounded-3xl border border-cyan-400/30 group-hover:border-cyan-400/60 transition-all duration-700 mb-4 transform group-hover:scale-110">
+                          <div className="text-cyan-400 mb-4 flex justify-center group-hover:animate-bounce-slow">
+                            {stat.icon}
+                          </div>
+                          <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 mb-2">
+                            {stat.value}
+                          </div>
+                          <div className="text-sm text-gray-400 font-medium tracking-wider">{stat.label}</div>
                         </div>
-                        <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 mb-2">
-                          {stat.value}
-                        </div>
-                        <div className="text-sm text-gray-400 font-medium tracking-wider">{stat.label}</div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
