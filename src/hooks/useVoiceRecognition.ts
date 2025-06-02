@@ -57,8 +57,12 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
   };
 
   const stopSpeaking = () => {
-    console.log('Stopping AI speech...');
+    console.log('🛑 ARRÊT FORCÉ DE L\'IA - stopSpeaking appelé');
+    
+    // Arrêt immédiat et agressif de la synthèse vocale
     speechSynthesis.stop();
+    
+    // Mise à jour immédiate de tous les états
     setIsSpeaking(false);
     setIsProcessing(false);
     
@@ -67,6 +71,14 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       clearInterval(speechCheckIntervalRef.current);
       speechCheckIntervalRef.current = null;
     }
+    
+    // Nettoyer également le timeout de réponse pour éviter qu'une nouvelle réponse démarre
+    if (responseTimeoutRef.current) {
+      clearTimeout(responseTimeoutRef.current);
+      responseTimeoutRef.current = null;
+    }
+    
+    console.log('✅ IA arrêtée - tous les états réinitialisés');
   };
 
   const startSpeechMonitoring = () => {
@@ -77,8 +89,8 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       
       console.log('Speech monitoring - State:', synthState, 'Speaking:', isCurrentlySpeaking, 'Component isSpeaking:', isSpeaking);
       
-      if (isSpeaking && !isCurrentlySpeaking && synthState === 'idle') {
-        console.log('Speech ended unexpectedly, cleaning up...');
+      if (isSpeaking && (!isCurrentlySpeaking || synthState === 'idle' || synthState === 'force-stopped')) {
+        console.log('Speech ended or force stopped, cleaning up...');
         setIsSpeaking(false);
         setIsProcessing(false);
         if (speechCheckIntervalRef.current) {
@@ -86,7 +98,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
           speechCheckIntervalRef.current = null;
         }
       }
-    }, 500);
+    }, 200); // Plus fréquent pour une réactivité améliorée
   };
 
   const processAIResponse = async (finalTranscript: string) => {
@@ -95,6 +107,13 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       try {
         console.log('Sending message to AI:', finalTranscript);
         const response = await chatGPT.sendMessage(finalTranscript);
+        
+        // Vérifier si l'utilisateur n'a pas demandé l'arrêt entre temps
+        if (!isSpeaking && !isProcessing) {
+          console.log('User stopped conversation, not speaking response');
+          return;
+        }
+        
         setLastResponse(response);
         setIsSpeaking(true);
         setIsProcessing(false);
