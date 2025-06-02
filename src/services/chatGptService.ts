@@ -1,3 +1,4 @@
+
 interface ChatGPTMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -66,11 +67,19 @@ Horaires d'ouverture : Lundi au Samedi 8h-19h
 • SITUATION = [a un site/pas de site]
 • OBJECTIF = [ce qu'il veut]
 
-🎯 CORRESPONDANCE ZONE → 3 SOLUTIONS OBLIGATOIRES :
-• 10-30km → Local 20 villes (1000€) + Local 50 villes (1500€) + National (3000€)
-• 50km/département → Local 50 villes (1500€) + National (3000€) + Nova IA (2000€) 
-• 1 ville → Local 20 villes (1000€) + Local 50 villes (1500€) + Nova IA (2000€)
-• National → Local 50 villes (1500€) + National (3000€) + Nova IA (2000€)
+🎯 CORRESPONDANCE ZONE → SOLUTIONS OBLIGATOIRES :
+⚠️ RÈGLE NATIONALE CRITIQUE : NE PROPOSEZ LE SITE NATIONAL (3000€) QUE SI LE CLIENT DIT EXPLICITEMENT :
+- "Je travaille sur toute la France"
+- "Je travaille au niveau national"
+- "Dans toute la France" 
+- "Partout en France"
+- "National"
+
+• 1 ville SEULEMENT → Local 20 villes (1000€) + Local 50 villes (1500€) + Nova IA (2000€)
+• 2-20 villes → Local 20 villes (1000€) + Local 50 villes (1500€) + Nova IA (2000€)
+• 20-50km/département → Local 50 villes (1500€) + Nova IA (2000€) + Site Vitrine (300€)
+• Plus de 50km MAIS PAS NATIONAL → Local 50 villes (1500€) + Nova IA (2000€) + Site E-commerce (600€)
+• NATIONAL EXPLICITE → Local 50 villes (1500€) + National (3000€) + Nova IA (2000€)
 
 ⚠️ Site Vitrine 300€ = SEULEMENT en repli si budget insuffisant + possibilité upgrade
 
@@ -218,7 +227,8 @@ VOUS VOUS ARRÊTEZ.
 • Trop expliquer ou argumenter
 • Proposer plusieurs choses à la fois
 • Oublier les infos stockées
-• Parler plus de 2 phrases d'affilée`;
+• Parler plus de 2 phrases d'affilée
+• Proposer un site national sans mention explicite du national`;
 
     // Initialiser l'historique avec le prompt système actualisé
     this.updateSystemPrompt();
