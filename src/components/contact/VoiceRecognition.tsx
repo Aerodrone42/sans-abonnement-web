@@ -1,3 +1,4 @@
+
 import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { Brain, Zap, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,7 @@ export interface VoiceRecognitionRef {
 }
 
 // Votre clé API OpenAI - configurée pour votre entreprise
-const OPENAI_API_KEY = "sk-proj-XYZ123..."; // Remplacez par votre vraie clé API
+const OPENAI_API_KEY = "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";
 
 const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
   ({ onTranscript, currentField }, ref) => {
