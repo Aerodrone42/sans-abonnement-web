@@ -1,7 +1,9 @@
-
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react";
-import { Mic, MicOff, Brain, Zap } from "lucide-react";
+import { Mic, MicOff, Brain, Zap, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ChatGPTService } from "@/services/chatGptService";
+import { SpeechSynthesisService } from "@/services/speechSynthesisService";
+import ApiKeyInput from "./ApiKeyInput";
 
 interface VoiceRecognitionProps {
   onTranscript: (text: string, field: string) => void;
@@ -17,6 +19,12 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
     const [isListening, setIsListening] = useState(false);
     const [transcript, setTranscript] = useState("");
     const [audioData, setAudioData] = useState<number[]>([]);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [lastResponse, setLastResponse] = useState("");
+    const [chatGPT, setChatGPT] = useState<ChatGPTService | null>(null);
+    const [speechSynthesis] = useState(() => new SpeechSynthesisService());
+    const [conversationMode, setConversationMode] = useState(false);
+    
     const recognitionRef = useRef<SpeechRecognition | null>(null);
     const animationRef = useRef<number>();
     const mediaStreamRef = useRef<MediaStream | null>(null);
@@ -24,8 +32,8 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
     const cleanupMicrophone = () => {
       console.log('Cleaning up microphone and voice recognition...');
       setIsListening(false);
+      setIsProcessing(false);
       
-      // Stop media stream if it exists
       if (mediaStreamRef.current) {
         mediaStreamRef.current.getTracks().forEach(track => {
           console.log('Stopping track:', track.kind);
@@ -34,13 +42,11 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
         mediaStreamRef.current = null;
       }
 
-      // Stop animation
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
         animationRef.current = undefined;
       }
 
-      // Stop speech recognition
       if (recognitionRef.current) {
         try {
           recognitionRef.current.stop();
@@ -49,7 +55,7 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
         }
       }
 
-      // Reset audio data
+      speechSynthesis.stop();
       setAudioData([]);
     };
 
@@ -57,7 +63,20 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
       cleanup: cleanupMicrophone
     }));
 
+    const handleApiKeySet = (apiKey: string) => {
+      const service = new ChatGPTService(apiKey);
+      setChatGPT(service);
+      localStorage.setItem('openai_api_key', apiKey);
+    };
+
     useEffect(() => {
+      // Récupérer la clé API stockée
+      const storedKey = localStorage.getItem('openai_api_key');
+      if (storedKey) {
+        setChatGPT(new ChatGPTService(storedKey));
+      }
+
+      // ... keep existing code (speech recognition setup)
       // Vérifier si la reconnaissance vocale est supportée
       if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const SpeechRecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -67,7 +86,7 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
         recognitionRef.current.interimResults = true;
         recognitionRef.current.lang = 'fr-FR';
 
-        recognitionRef.current.onresult = (event) => {
+        recognitionRef.current.onresult = async (event) => {
           let finalTranscript = '';
           for (let i = event.resultIndex; i < event.results.length; i++) {
             if (event.results[i].isFinal) {
@@ -77,7 +96,24 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
           
           if (finalTranscript) {
             setTranscript(finalTranscript);
-            onTranscript(finalTranscript, "message");
+            
+            if (conversationMode && chatGPT) {
+              // Mode conversation avec ChatGPT
+              setIsProcessing(true);
+              try {
+                const response = await chatGPT.sendMessage(finalTranscript);
+                setLastResponse(response);
+                speechSynthesis.speak(response, () => {
+                  setIsProcessing(false);
+                });
+              } catch (error) {
+                console.error('Erreur conversation:', error);
+                setIsProcessing(false);
+              }
+            } else {
+              // Mode dictée classique
+              onTranscript(finalTranscript, "message");
+            }
           }
         };
 
@@ -86,7 +122,6 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
           cleanupMicrophone();
         };
 
-        // Utiliser addEventListener pour l'événement onend qui peut ne pas être directement disponible
         if (recognitionRef.current.addEventListener) {
           recognitionRef.current.addEventListener('end', () => {
             console.log('Speech recognition ended');
@@ -96,28 +131,24 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
         }
       }
 
-      // Cleanup when component unmounts
       return () => {
         cleanupMicrophone();
       };
-    }, [onTranscript]);
+    }, [onTranscript, conversationMode, chatGPT]);
 
     const startListening = async () => {
       if (!recognitionRef.current) return;
 
       try {
-        // First check if we're already listening
         if (isListening) {
           console.log('Already listening, stopping first...');
           cleanupMicrophone();
           return;
         }
 
-        // Get microphone access
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         mediaStreamRef.current = stream;
 
-        // Start recognition
         recognitionRef.current.start();
         setIsListening(true);
         startAudioVisualization();
@@ -147,7 +178,6 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
 
     return (
       <div className="relative">
-        {/* Interface de reconnaissance vocale */}
         <div className="bg-gradient-to-br from-gray-900/90 via-blue-900/60 to-purple-900/90 backdrop-blur-xl border border-cyan-400/30 rounded-2xl p-8 relative overflow-hidden">
           
           {/* Effet de réseau neuronal de fond */}
@@ -185,23 +215,60 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
             <div className="flex items-center gap-2">
               <Brain className="w-6 h-6 text-cyan-400 animate-pulse" />
               <span className="text-xl font-bold text-transparent bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text">
-                Assistant IA Vocal
+                Assistant IA Vocal ChatGPT
               </span>
             </div>
             <div className="flex-1 h-px bg-gradient-to-r from-cyan-400/50 to-transparent"></div>
             <div className="flex items-center gap-2 text-sm text-gray-400">
               <Zap className="w-4 h-4 text-yellow-400 animate-pulse" />
-              <span>Dictée de votre message</span>
+              <span>{conversationMode ? 'Mode Conversation' : 'Mode Dictée'}</span>
             </div>
           </div>
 
-          {/* Visualisation audio - LA PARTIE QUI ÉTAIT MANQUANTE */}
-          {isListening && (
+          {/* Configuration API */}
+          {!chatGPT && (
+            <div className="mb-6 p-4 bg-gray-800/30 rounded-lg border border-cyan-400/20">
+              <ApiKeyInput onApiKeySet={handleApiKeySet} isConnected={false} />
+            </div>
+          )}
+
+          {chatGPT && (
+            <div className="mb-6 flex items-center justify-between">
+              <ApiKeyInput onApiKeySet={handleApiKeySet} isConnected={true} />
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant={conversationMode ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setConversationMode(true)}
+                  className="text-xs"
+                >
+                  <MessageCircle className="w-3 h-3 mr-1" />
+                  Conversation
+                </Button>
+                <Button
+                  type="button"
+                  variant={!conversationMode ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setConversationMode(false)}
+                  className="text-xs"
+                >
+                  <Mic className="w-3 h-3 mr-1" />
+                  Dictée
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Visualisation audio */}
+          {(isListening || isProcessing) && (
             <div className="flex items-center justify-center gap-1 mb-6 h-20">
               {audioData.map((height, index) => (
                 <div
                   key={index}
-                  className="bg-gradient-to-t from-cyan-400 to-blue-400 rounded-full transition-all duration-100"
+                  className={`rounded-full transition-all duration-100 ${
+                    isProcessing ? 'bg-gradient-to-t from-purple-400 to-pink-400' : 'bg-gradient-to-t from-cyan-400 to-blue-400'
+                  }`}
                   style={{
                     width: '4px',
                     height: `${Math.max(4, height / 2)}px`,
@@ -217,21 +284,25 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
             <Button
               type="button"
               onClick={isListening ? stopListening : startListening}
+              disabled={isProcessing || (!chatGPT && conversationMode)}
               className={`relative w-20 h-20 rounded-full transition-all duration-300 ${
-                isListening
+                isProcessing
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 scale-110 shadow-lg shadow-purple-500/50'
+                  : isListening
                   ? 'bg-gradient-to-r from-red-500 to-pink-500 scale-110 shadow-lg shadow-red-500/50'
                   : 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:scale-105 shadow-lg shadow-blue-500/30'
               }`}
             >
-              {/* Onde sonore animée */}
-              {isListening && (
+              {(isListening || isProcessing) && (
                 <>
                   <div className="absolute inset-0 rounded-full bg-red-400/30 animate-ping"></div>
                   <div className="absolute inset-0 rounded-full bg-red-400/20 animate-ping" style={{ animationDelay: '0.5s' }}></div>
                 </>
               )}
               
-              {isListening ? (
+              {isProcessing ? (
+                <Brain className="w-8 h-8 text-white relative z-10 animate-pulse" />
+              ) : isListening ? (
                 <MicOff className="w-8 h-8 text-white relative z-10" />
               ) : (
                 <Mic className="w-8 h-8 text-white relative z-10" />
@@ -239,17 +310,31 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
             </Button>
 
             <p className="text-center text-gray-300 text-sm max-w-xs">
-              {isListening
-                ? `Parlez maintenant pour remplir le champ "Message"...`
-                : `Cliquez pour activer la reconnaissance vocale`
+              {isProcessing
+                ? 'ChatGPT réfléchit...'
+                : isListening
+                ? conversationMode 
+                  ? 'Parlez avec ChatGPT...'
+                  : 'Dictez votre message...'
+                : conversationMode
+                ? 'Cliquez pour parler avec ChatGPT'
+                : 'Cliquez pour dicter votre message'
               }
             </p>
 
-            {/* Transcript en temps réel */}
+            {/* Transcription et réponse */}
             {transcript && (
               <div className="bg-gray-800/50 border border-cyan-400/30 rounded-lg p-4 max-w-md">
                 <p className="text-cyan-100 text-sm">
-                  <span className="text-cyan-400 font-semibold">Transcription:</span> {transcript}
+                  <span className="text-cyan-400 font-semibold">Vous:</span> {transcript}
+                </p>
+              </div>
+            )}
+
+            {lastResponse && (
+              <div className="bg-gray-800/50 border border-green-400/30 rounded-lg p-4 max-w-md">
+                <p className="text-green-100 text-sm">
+                  <span className="text-green-400 font-semibold">ChatGPT:</span> {lastResponse}
                 </p>
               </div>
             )}
