@@ -75,9 +75,9 @@ export class EnhancedChatGPTService extends ChatGPTService {
         await learningService.saveConversation();
       }
       
-      // Gérer le remplissage et envoi automatique du formulaire à la fin
-      if (this.shouldFillAndSubmitForm(response)) {
-        await this.finalizeFormSubmission();
+      // Gérer le remplissage visuel du formulaire à la fin
+      if (this.shouldFillForm(response)) {
+        await this.fillFormVisually();
       }
       
       return response;
@@ -236,16 +236,16 @@ export class EnhancedChatGPTService extends ChatGPTService {
            businesses.some(business => lowerText.includes(business));
   }
 
-  private shouldFillAndSubmitForm(response: string): boolean {
+  private shouldFillForm(response: string): boolean {
     return this.clientInfo.formulaireEtape === 'fini' &&
            this.clientInfo.nom &&
            this.clientInfo.email &&
            response.toLowerCase().includes('je remplis votre demande');
   }
 
-  private async finalizeFormSubmission(): Promise<void> {
-    if (!this.fillFormCallback || !this.submitFormCallback) {
-      console.log('❌ Callbacks de formulaire manquants');
+  private async fillFormVisually(): Promise<void> {
+    if (!this.fillFormCallback) {
+      console.log('❌ Callback de formulaire manquant');
       return;
     }
     
@@ -269,25 +269,13 @@ export class EnhancedChatGPTService extends ChatGPTService {
     message += `\n\nSession IA: ${this.sessionId}`;
     formData.message = message;
     
-    console.log('🤖 Remplissage automatique du formulaire:', formData);
+    console.log('🤖 Remplissage visuel du formulaire:', formData);
     
-    // Remplir le formulaire
+    // Remplir le formulaire visuellement
     this.fillFormCallback(formData);
     
-    // Attendre un peu puis envoyer
-    setTimeout(async () => {
-      try {
-        if (this.submitFormCallback) {
-          await this.submitFormCallback();
-          console.log('✅ Formulaire envoyé automatiquement avec succès');
-          
-          // Marquer la conversation comme réussie
-          learningService.endConversation('success');
-        }
-      } catch (error) {
-        console.error('❌ Erreur lors de l\'envoi automatique:', error);
-      }
-    }, 1500);
+    // Note: Pas d'envoi automatique, le client doit cliquer sur "Envoyer"
+    console.log('✅ Formulaire rempli visuellement - En attente de validation client');
   }
 
   private extractClientInfo(message: string): void {

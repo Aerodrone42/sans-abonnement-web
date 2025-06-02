@@ -258,8 +258,8 @@ ATTENDEZ la réponse, puis RÉCAPITULEZ :
 Si OUI → FORMULAIRE_ETAPE = "fini"
 
 Si FORMULAIRE_ETAPE = "fini" :
-"Parfait ! Je remplis votre demande et l'envoie à notre équipe. Vous recevrez une réponse sous 24h !"
-REMPLISSEZ et ENVOYEZ le formulaire automatiquement.
+"Parfait ! Je remplis votre demande maintenant sous vos yeux. Vous pourrez vérifier et cliquer sur 'Envoyer' pour valider."
+REMPLISSEZ le formulaire visuellement et ATTENDEZ que le client clique sur "Envoyer".
 
 ⚠️ STYLE DE COMMUNICATION :
 • TOUJOURS vouvoyer
@@ -268,6 +268,7 @@ REMPLISSEZ et ENVOYEZ le formulaire automatiquement.
 • Questions précises
 • Réponses factuelles
 • TOUJOURS vérifier et confirmer chaque info
+• Remplir le formulaire visuellement, pas d'envoi automatique
 
 🚫 ERREURS À ÉVITER :
 • Tutoyer le client
@@ -276,7 +277,7 @@ REMPLISSEZ et ENVOYEZ le formulaire automatiquement.
 • Oublier les infos stockées
 • Parler plus de 2 phrases d'affilée
 • Proposer un site national sans mention explicite du national
-• Remplir le formulaire sans questionnaire complet ET confirmations
+• Envoyer automatiquement sans validation du client
 • Passer à l'étape suivante sans confirmation du client`;
 
     // Initialiser l'historique avec le prompt système actualisé
