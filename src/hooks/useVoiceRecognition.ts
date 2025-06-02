@@ -40,7 +40,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
   const speakingRef = useRef(false);
   const lastTranscriptRef = useRef("");
   const interimResultRef = useRef("");
-  const isStoppedRef = useRef(false);
+  const isStoppedRef = useRef(false); // ✅ Initialisé à false
   const microphoneMutedRef = useRef(false);
   const recognitionActiveRef = useRef(false);
 
@@ -243,11 +243,12 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
         console.log('✅ Permission micro obtenue');
       }
 
+      // ✅ CORRECTION CRITIQUE: Réinitialiser isStoppedRef à false
       isStoppedRef.current = false;
       microphoneMutedRef.current = false;
       setIsConversationActive(true);
 
-      console.log('🚀 Démarrage reconnaissance vocale');
+      console.log('🚀 Démarrage reconnaissance vocale - isStoppedRef:', isStoppedRef.current);
       const started = startRecognitionSafely();
       
       if (started) {
@@ -315,13 +316,20 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
           setTranscript(lastTranscriptRef.current);
           console.log('📝 AFFICHAGE FINAL:', lastTranscriptRef.current);
           
-          // ✅ TRAITEMENT IA - conditions plus permissives
+          // ✅ TRAITEMENT IA - vérifier la vraie valeur de isStoppedRef
+          console.log('🔍 État pour traitement IA:');
+          console.log('- isStoppedRef:', isStoppedRef.current);
+          console.log('- microphoneMutedRef:', microphoneMutedRef.current);
+          console.log('- isConversationActive:', isConversationActive);
+          console.log('- transcript length:', lastTranscriptRef.current.trim().length);
+          
           const shouldProcessAI = !isStoppedRef.current && 
                                  !microphoneMutedRef.current &&
+                                 isConversationActive &&
                                  lastTranscriptRef.current.trim().length > 0;
           
           if (shouldProcessAI) {
-            console.log('✅ Conditions OK pour traitement IA');
+            console.log('✅ Conditions OK pour traitement IA - DÉMARRAGE TRAITEMENT');
             
             if (silenceTimeoutRef.current) {
               clearTimeout(silenceTimeoutRef.current);
@@ -340,6 +348,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
             console.log('⚠️ Traitement IA impossible - conditions non remplies');
             console.log('- isStoppedRef:', isStoppedRef.current);
             console.log('- microphoneMutedRef:', microphoneMutedRef.current);
+            console.log('- isConversationActive:', isConversationActive);
             console.log('- transcript length:', lastTranscriptRef.current.trim().length);
           }
         }
