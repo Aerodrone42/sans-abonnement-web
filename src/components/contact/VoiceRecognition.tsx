@@ -31,8 +31,10 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
       transcript,
       isProcessing,
       lastResponse,
+      isSpeaking,
       startListening,
       stopListening,
+      stopSpeaking,
       cleanupMicrophone
     } = useVoiceRecognition({ onTranscript, conversationMode, chatGPT });
 
@@ -89,8 +91,10 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
             isProcessing={isProcessing}
             conversationMode={conversationMode}
             chatGPT={chatGPT}
+            isSpeaking={isSpeaking}
             onStartListening={startListening}
             onStopListening={stopListening}
+            onStopSpeaking={stopSpeaking}
           />
 
           <ConversationDisplay transcript={transcript} lastResponse={lastResponse} />

@@ -14,6 +14,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
   const [transcript, setTranscript] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [lastResponse, setLastResponse] = useState("");
+  const [isSpeaking, setIsSpeaking] = useState(false);
   
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
@@ -39,8 +40,13 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
         console.log('Recognition already stopped');
       }
     }
+  };
 
+  const stopSpeaking = () => {
+    console.log('Stopping AI speech...');
     speechSynthesis.stop();
+    setIsSpeaking(false);
+    setIsProcessing(false);
   };
 
   const startListening = async () => {
@@ -51,6 +57,11 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
         console.log('Already listening, stopping first...');
         cleanupMicrophone();
         return;
+      }
+
+      // Arrêter l'IA si elle parle
+      if (isSpeaking) {
+        stopSpeaking();
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -96,12 +107,15 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
             try {
               const response = await chatGPT.sendMessage(finalTranscript);
               setLastResponse(response);
+              setIsSpeaking(true);
               speechSynthesis.speak(response, () => {
                 setIsProcessing(false);
+                setIsSpeaking(false);
               });
             } catch (error) {
               console.error('Erreur conversation:', error);
               setIsProcessing(false);
+              setIsSpeaking(false);
             }
           } else {
             onTranscript(finalTranscript, "message");
@@ -125,6 +139,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
 
     return () => {
       cleanupMicrophone();
+      stopSpeaking();
     };
   }, [onTranscript, conversationMode, chatGPT]);
 
@@ -133,8 +148,10 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     transcript,
     isProcessing,
     lastResponse,
+    isSpeaking,
     startListening,
     stopListening,
+    stopSpeaking,
     cleanupMicrophone
   };
 };
