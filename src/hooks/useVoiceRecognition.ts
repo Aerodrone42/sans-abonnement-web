@@ -9,6 +9,13 @@ interface UseVoiceRecognitionProps {
   chatGPT: EnhancedChatGPTService | null;
 }
 
+// Extension des types pour SpeechRecognition
+interface ExtendedSpeechRecognition extends SpeechRecognition {
+  onend: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any) | null;
+  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null;
+}
+
 export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }: UseVoiceRecognitionProps) => {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
@@ -17,7 +24,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isConversationActive, setIsConversationActive] = useState(false);
   
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<ExtendedSpeechRecognition | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const speechSynthesis = useRef(new SpeechSynthesisService()).current;
   const responseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -223,14 +230,15 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
   // Configuration de la reconnaissance vocale
   useEffect(() => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognitionRef.current = new SpeechRecognitionClass();
+      const SpeechRecognitionClass = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const recognition = new SpeechRecognitionClass() as ExtendedSpeechRecognition;
+      recognitionRef.current = recognition;
       
-      recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = 'fr-FR';
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'fr-FR';
 
-      recognitionRef.current.onresult = (event) => {
+      recognition.onresult = (event) => {
         let finalTranscript = '';
         for (let i = event.resultIndex; i < event.results.length; i++) {
           if (event.results[i].isFinal) {
@@ -253,11 +261,11 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
               console.log('⚡ Traitement du transcript après délai');
               processAIResponse(finalTranscript);
             }
-          }, 1500);
+          }, 2000);
         }
       };
 
-      recognitionRef.current.onerror = (event) => {
+      recognition.onerror = (event) => {
         console.error('❌ Erreur reconnaissance:', event.error);
         
         // Gestion intelligente des erreurs
@@ -278,7 +286,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
         }
       };
 
-      recognitionRef.current.onend = () => {
+      recognition.onend = () => {
         console.log('🏁 Reconnaissance terminée - Active:', isConversationActive, 'Stopped:', isStoppedRef.current);
         setIsListening(false);
         
