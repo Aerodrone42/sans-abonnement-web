@@ -1,4 +1,3 @@
-
 import { ChatGPTService } from './chatGptService';
 import { learningService, ConversationData } from './learningService';
 
@@ -6,12 +5,21 @@ export class EnhancedChatGPTService extends ChatGPTService {
   private sessionId: string;
   private currentStage: number = 1;
   private clientInfo: ConversationData['clientInfo'] = {};
+  private fillFormCallback: ((data: any) => void) | null = null;
+  private submitFormCallback: (() => Promise<void>) | null = null;
 
   constructor(apiKey: string) {
     super(apiKey);
     this.sessionId = this.generateSessionId();
     learningService.startConversation(this.sessionId);
     console.log('🚀 EnhancedChatGPTService initialisé avec session:', this.sessionId);
+  }
+
+  // Nouvelle méthode pour configurer les callbacks de formulaire
+  setFormCallbacks(fillForm: (data: any) => void, submitForm: () => Promise<void>) {
+    this.fillFormCallback = fillForm;
+    this.submitFormCallback = submitForm;
+    console.log('✅ Callbacks de formulaire configurés');
   }
 
   private generateSessionId(): string {
@@ -41,6 +49,9 @@ export class EnhancedChatGPTService extends ChatGPTService {
       // Mettre à jour les infos client si nouvelles données
       if (Object.keys(this.clientInfo).length > 0) {
         learningService.updateClientInfo(this.clientInfo);
+        
+        // Remplir le formulaire automatiquement si on a assez d'infos
+        this.tryAutoFillForm();
       }
       
       // Sauvegarder automatiquement la conversation toutes les 3 étapes
@@ -51,6 +62,9 @@ export class EnhancedChatGPTService extends ChatGPTService {
       // Détecter si la conversation est terminée avec succès
       if (this.isSuccessfulConversion(response)) {
         learningService.endConversation('success');
+        
+        // Essayer d'envoyer automatiquement si le formulaire est complet
+        this.tryAutoSubmitForm();
       }
       
       return response;
@@ -62,6 +76,46 @@ export class EnhancedChatGPTService extends ChatGPTService {
 
   private extractClientInfo(message: string): void {
     const lowerMessage = message.toLowerCase();
+    
+    // Détecter le nom
+    const namePatterns = [
+      /je\s+(?:m'appelle|suis)\s+([a-zA-Z\-\s]+)/i,
+      /mon\s+nom\s+(?:est|c'est)\s+([a-zA-Z\-\s]+)/i,
+      /c'est\s+([a-zA-Z\-\s]+)/i
+    ];
+    
+    for (const pattern of namePatterns) {
+      const match = message.match(pattern);
+      if (match && !this.clientInfo.nom) {
+        this.clientInfo.nom = match[1].trim();
+        console.log('👤 Nom détecté:', this.clientInfo.nom);
+        break;
+      }
+    }
+    
+    // Détecter l'email
+    const emailPattern = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/;
+    const emailMatch = message.match(emailPattern);
+    if (emailMatch && !this.clientInfo.email) {
+      this.clientInfo.email = emailMatch[1];
+      console.log('📧 Email détecté:', this.clientInfo.email);
+    }
+    
+    // Détecter le téléphone
+    const phonePatterns = [
+      /(?:0[1-9])(?:[\s.-]?\d{2}){4}/,
+      /(?:\+33|0033)[1-9](?:[\s.-]?\d{2}){4}/,
+      /(?:\+33\s?|0)[1-9](?:[\s.-]?\d{2}){4}/
+    ];
+    
+    for (const pattern of phonePatterns) {
+      const match = message.match(pattern);
+      if (match && !this.clientInfo.telephone) {
+        this.clientInfo.telephone = match[0];
+        console.log('📞 Téléphone détecté:', this.clientInfo.telephone);
+        break;
+      }
+    }
     
     // Détecter le métier
     const metiers = ['plombier', 'électricien', 'maçon', 'peintre', 'chauffagiste', 'menuisier', 'carreleur', 'couvreur'];
@@ -94,6 +148,67 @@ export class EnhancedChatGPTService extends ChatGPTService {
       if (budgetMatch && !this.clientInfo.budget) {
         this.clientInfo.budget = `${budgetMatch[1]}€`;
         console.log('💰 Budget détecté:', this.clientInfo.budget);
+      }
+    }
+  }
+
+  private tryAutoFillForm(): void {
+    if (!this.fillFormCallback) return;
+    
+    const formData: any = {};
+    
+    // Mapper les infos collectées vers les champs du formulaire
+    if (this.clientInfo.nom) {
+      formData.name = this.clientInfo.nom;
+    }
+    
+    if (this.clientInfo.email) {
+      formData.email = this.clientInfo.email;
+    }
+    
+    if (this.clientInfo.telephone) {
+      formData.phone = this.clientInfo.telephone;
+    }
+    
+    if (this.clientInfo.metier) {
+      formData.business = this.clientInfo.metier;
+    }
+    
+    // Créer un message personnalisé basé sur les infos collectées
+    if (this.clientInfo.metier || this.clientInfo.zone || this.clientInfo.budget) {
+      let message = `Demande de devis - ${this.clientInfo.metier || 'Professionnel'}`;
+      
+      if (this.clientInfo.zone) {
+        message += ` - Zone: ${this.clientInfo.zone}`;
+      }
+      
+      if (this.clientInfo.budget) {
+        message += ` - Budget: ${this.clientInfo.budget}`;
+      }
+      
+      message += `\n\nConversation avec l'IA : Le client a exprimé un intérêt pour nos services. Session: ${this.sessionId}`;
+      
+      formData.message = message;
+    }
+    
+    // Remplir le formulaire si on a au moins quelques infos
+    if (Object.keys(formData).length > 0) {
+      console.log('🤖 Remplissage automatique du formulaire:', formData);
+      this.fillFormCallback(formData);
+    }
+  }
+
+  private async tryAutoSubmitForm(): Promise<void> {
+    if (!this.submitFormCallback) return;
+    
+    // Vérifier qu'on a les infos minimales (nom, email, message)
+    if (this.clientInfo.nom && this.clientInfo.email) {
+      console.log('🚀 Envoi automatique du formulaire...');
+      try {
+        await this.submitFormCallback();
+        console.log('✅ Formulaire envoyé automatiquement avec succès');
+      } catch (error) {
+        console.error('❌ Erreur lors de l\'envoi automatique:', error);
       }
     }
   }

@@ -57,13 +57,20 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
       console.log('🔵 Initializing Enhanced ChatGPT with company API key');
       try {
         const chatGPTInstance = new EnhancedChatGPTService(OPENAI_API_KEY);
+        
+        // Configurer les callbacks pour le remplissage automatique du formulaire
+        if (fillFormFromAI && submitFromAI) {
+          chatGPTInstance.setFormCallbacks(fillFormFromAI, submitFromAI);
+          console.log('✅ Callbacks de formulaire configurés dans ChatGPT');
+        }
+        
         setChatGPT(chatGPTInstance);
         
-        console.log('✅ Enhanced ChatGPT service with learning capabilities initialized successfully');
+        console.log('✅ Enhanced ChatGPT service with learning capabilities and form integration initialized successfully');
       } catch (error) {
         console.error('❌ Error initializing Enhanced ChatGPT service:', error);
       }
-    }, [fillFormFromAI]);
+    }, [fillFormFromAI, submitFromAI]);
 
     // Vérifier si le formulaire est prêt pour l'envoi
     useEffect(() => {
@@ -104,11 +111,11 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
             </div>
           </div>
 
-          {/* Message d'accueil */}
+          {/* Message d'accueil amélioré */}
           <div className="mb-6 p-4 bg-green-500/10 border border-green-400/30 rounded-lg">
             <p className="text-green-200 text-sm">
               ✅ Bonjour ! Je suis votre conseiller IA spécialisé en développement web. 
-              Parlez-moi de votre projet pour que je vous propose la formule la plus adaptée et remplisse automatiquement votre demande.
+              Parlez-moi de votre projet (nom, email, téléphone, métier) et je remplirai automatiquement votre demande de devis !
             </p>
           </div>
 
@@ -117,7 +124,7 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
             <div className="mb-4 p-3 bg-blue-500/10 border border-blue-400/30 rounded-lg">
               <div className="flex items-center justify-between">
                 <span className="text-blue-200 text-sm">
-                  📝 Formulaire: {canSendEmail ? '✅ Prêt à envoyer' : '⏳ En cours de remplissage...'}
+                  📝 Formulaire: {canSendEmail ? '✅ Prêt à envoyer' : '⏳ En cours de remplissage automatique...'}
                 </span>
                 {canSendEmail && (
                   <Button
