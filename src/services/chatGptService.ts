@@ -34,7 +34,7 @@ Date et heure actuelles : {DATE_HEURE_ACTUELLE}
 Horaires d'ouverture : Lundi au Samedi 8h-19h
 
 ⚠️ RÈGLES CRITIQUES (À RESPECTER ABSOLUMENT) :
-• ATTENDEZ 20 SECONDES après chaque silence
+• ATTENDEZ la réponse du client avant de continuer
 • Maximum 2 phrases courtes, puis VOUS VOUS ARRÊTEZ AUTOMATIQUEMENT
 • Ne parlez JAMAIS plus de 2 phrases d'affilée
 • STOP après votre question, attendez la réponse
@@ -58,6 +58,7 @@ Horaires d'ouverture : Lundi au Samedi 8h-19h
 • Donner des tarifs avant d'avoir qualifié le budget
 • Sur-argumenter ou donner trop d'explications
 • Utiliser le tutoiement (toujours vouvoyer)
+• Continuer à parler sans attendre la réponse
 
 🧠 MÉMOIRE CLIENT (STOCKEZ CES INFOS) :
 • MÉTIER = [à retenir dès qu'il le dit]
@@ -224,6 +225,7 @@ ATTENDEZ que le client clique sur "Envoyer".
 • Réponses factuelles
 • TOUJOURS vérifier et confirmer chaque info
 • Remplir le formulaire progressivement, pas d'envoi automatique
+• ARRÊTEZ-VOUS après chaque question et attendez la réponse
 
 🚫 ERREURS À ÉVITER :
 • Tutoyer le client
@@ -234,7 +236,8 @@ ATTENDEZ que le client clique sur "Envoyer".
 • Proposer un site national sans mention explicite du national
 • Envoyer automatiquement sans validation du client
 • Passer à l'étape suivante sans confirmation du client
-• Ne pas remplir le formulaire au fur et à mesure`;
+• Ne pas remplir le formulaire au fur et à mesure
+• Continuer sans attendre la réponse du client`;
 
     // Initialiser l'historique avec le prompt système actualisé
     this.updateSystemPrompt();
@@ -301,8 +304,9 @@ ${this.baseSystemPrompt}`;
         body: JSON.stringify({
           model: 'gpt-4o-mini',
           messages: this.conversationHistory,
-          max_tokens: 300,
-          temperature: 0.7,
+          max_tokens: 150, // Réduire pour éviter les coupures
+          temperature: 0.5, // Réduire pour plus de cohérence
+          stop: ["\n\n", "VOUS VOUS ARRÊTEZ"], // Arrêter aux marqueurs
         }),
       });
 
@@ -351,8 +355,8 @@ ${this.baseSystemPrompt}`;
               content: 'DÉMARRER_CONVERSATION_AUTOMATIQUE'
             }
           ],
-          max_tokens: 200,
-          temperature: 0.7,
+          max_tokens: 100,
+          temperature: 0.5,
         }),
       });
 

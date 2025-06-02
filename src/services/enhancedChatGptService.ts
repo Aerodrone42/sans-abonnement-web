@@ -51,6 +51,8 @@ export class EnhancedChatGPTService extends ChatGPTService {
 
   async sendMessage(userMessage: string): Promise<string> {
     try {
+      console.log('📝 Message utilisateur reçu:', userMessage);
+      
       // Analyser le message utilisateur pour extraire les infos
       this.extractClientInfo(userMessage);
       
@@ -68,6 +70,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
       
       // Envoyer le message à ChatGPT (méthode parent)
       const response = await super.sendMessage(userMessage);
+      console.log('🎯 Réponse IA reçue:', response);
       
       // Enregistrer la réponse de l'IA
       learningService.addMessage('assistant', response, this.currentStage);
@@ -77,10 +80,8 @@ export class EnhancedChatGPTService extends ChatGPTService {
         learningService.updateClientInfo(this.clientInfo);
       }
       
-      // Remplissage progressif du formulaire
-      if (this.shouldFillFormProgressively(response)) {
-        await this.fillFormProgressively();
-      }
+      // Remplissage progressif du formulaire - IMMÉDIATEMENT après extraction des infos
+      await this.fillFormProgressively();
       
       // Sauvegarder automatiquement la conversation toutes les 3 étapes
       if (this.currentStage % 3 === 0) {
@@ -103,6 +104,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
       if (!this.clientInfo.formulaireEtape) {
         this.clientInfo.formulaireEtape = 'nom';
       }
+      console.log('📝 Mode formulaire activé - étape:', this.clientInfo.formulaireEtape);
     }
 
     // Détecter les horaires de rappel
@@ -120,26 +122,31 @@ export class EnhancedChatGPTService extends ChatGPTService {
         case 'nom':
           if (this.extractName(message)) {
             this.clientInfo.formulaireEtape = 'email';
+            console.log('📝 Passage à l\'étape email');
           }
           break;
         case 'email':
           if (this.extractAndValidateEmail(message)) {
             this.clientInfo.formulaireEtape = 'tel';
+            console.log('📝 Passage à l\'étape téléphone');
           }
           break;
         case 'tel':
           if (this.extractPhone(message)) {
             this.clientInfo.formulaireEtape = 'entreprise';
+            console.log('📝 Passage à l\'étape entreprise');
           }
           break;
         case 'entreprise':
           if (this.extractBusiness(message)) {
             this.clientInfo.formulaireEtape = 'message';
+            console.log('📝 Passage à l\'étape message');
           }
           break;
         case 'message':
           if (this.extractMessage(message)) {
             this.clientInfo.formulaireEtape = 'fini';
+            console.log('📝 Formulaire terminé');
           }
           break;
       }
@@ -248,15 +255,6 @@ export class EnhancedChatGPTService extends ChatGPTService {
            businesses.some(business => lowerText.includes(business));
   }
 
-  private shouldFillFormProgressively(response: string): boolean {
-    return this.clientInfo.choixContact === 'formulaire' &&
-           this.clientInfo.formulaireEtape &&
-           this.clientInfo.formulaireEtape !== 'fini' &&
-           (response.toLowerCase().includes('je note') || 
-            response.toLowerCase().includes('parfait') ||
-            response.toLowerCase().includes('je remplis'));
-  }
-
   private async fillFormProgressively(): Promise<void> {
     if (!this.fillFormCallback) {
       console.log('❌ Callback de formulaire manquant');
@@ -264,64 +262,46 @@ export class EnhancedChatGPTService extends ChatGPTService {
     }
     
     const formData: any = {};
+    let hasNewData = false;
     
-    // Remplir progressivement selon l'étape
-    switch (this.clientInfo.formulaireEtape) {
-      case 'email':
-        if (this.clientInfo.nom) {
-          formData.name = this.clientInfo.nom;
-          console.log('📝 Remplissage progressif - Nom:', this.clientInfo.nom);
-        }
-        break;
-      case 'tel':
-        if (this.clientInfo.nom) formData.name = this.clientInfo.nom;
-        if (this.clientInfo.email) {
-          formData.email = this.clientInfo.email;
-          console.log('📝 Remplissage progressif - Email:', this.clientInfo.email);
-        }
-        break;
-      case 'entreprise':
-        if (this.clientInfo.nom) formData.name = this.clientInfo.nom;
-        if (this.clientInfo.email) formData.email = this.clientInfo.email;
-        if (this.clientInfo.telephone) {
-          formData.phone = this.clientInfo.telephone;
-          console.log('📝 Remplissage progressif - Téléphone:', this.clientInfo.telephone);
-        }
-        break;
-      case 'message':
-        if (this.clientInfo.nom) formData.name = this.clientInfo.nom;
-        if (this.clientInfo.email) formData.email = this.clientInfo.email;
-        if (this.clientInfo.telephone) formData.phone = this.clientInfo.telephone;
-        if (this.clientInfo.entreprise || this.clientInfo.metier) {
-          formData.business = this.clientInfo.entreprise || this.clientInfo.metier;
-          console.log('📝 Remplissage progressif - Entreprise:', this.clientInfo.entreprise || this.clientInfo.metier);
-        }
-        break;
-      case 'fini':
-        // Remplissage final complet
-        if (this.clientInfo.nom) formData.name = this.clientInfo.nom;
-        if (this.clientInfo.email) formData.email = this.clientInfo.email;
-        if (this.clientInfo.telephone) formData.phone = this.clientInfo.telephone;
-        if (this.clientInfo.entreprise || this.clientInfo.metier) {
-          formData.business = this.clientInfo.entreprise || this.clientInfo.metier;
-        }
-        
-        // Créer un message personnalisé complet
-        let message = `Demande générée par l'IA - ${this.clientInfo.metier || 'Professionnel'}`;
-        if (this.clientInfo.zone) message += ` - Zone: ${this.clientInfo.zone}`;
-        if (this.clientInfo.budget) message += ` - Budget: ${this.clientInfo.budget}`;
-        if (this.clientInfo.horaireRappel) message += ` - Rappel souhaité: ${this.clientInfo.horaireRappel}`;
-        if (this.clientInfo.message) message += `\n\nDemande du client: ${this.clientInfo.message}`;
-        message += `\n\nSession IA: ${this.sessionId}`;
-        
-        formData.message = message;
-        console.log('📝 Remplissage final complet du formulaire');
-        break;
+    // Toujours remplir les champs disponibles
+    if (this.clientInfo.nom) {
+      formData.name = this.clientInfo.nom;
+      hasNewData = true;
     }
     
-    if (Object.keys(formData).length > 0) {
+    if (this.clientInfo.email) {
+      formData.email = this.clientInfo.email;
+      hasNewData = true;
+    }
+    
+    if (this.clientInfo.telephone) {
+      formData.phone = this.clientInfo.telephone;
+      hasNewData = true;
+    }
+    
+    if (this.clientInfo.entreprise || this.clientInfo.metier) {
+      formData.business = this.clientInfo.entreprise || this.clientInfo.metier;
+      hasNewData = true;
+    }
+    
+    // Créer un message complet si on a toutes les infos
+    if (this.clientInfo.metier || this.clientInfo.zone || this.clientInfo.budget || this.clientInfo.message) {
+      let message = 'Demande générée par l\'IA - ';
+      if (this.clientInfo.metier) message += `${this.clientInfo.metier} `;
+      if (this.clientInfo.zone) message += `- Zone: ${this.clientInfo.zone} `;
+      if (this.clientInfo.budget) message += `- Budget: ${this.clientInfo.budget} `;
+      if (this.clientInfo.horaireRappel) message += `- Rappel souhaité: ${this.clientInfo.horaireRappel} `;
+      if (this.clientInfo.message) message += `\n\nDemande du client: ${this.clientInfo.message}`;
+      message += `\n\nSession IA: ${this.sessionId}`;
+      
+      formData.message = message;
+      hasNewData = true;
+    }
+    
+    if (hasNewData) {
+      console.log('📝 Remplissage progressif du formulaire avec:', formData);
       this.fillFormCallback(formData);
-      console.log('✅ Formulaire rempli progressivement:', this.clientInfo.formulaireEtape);
     }
   }
 
