@@ -19,7 +19,7 @@ const Footer = () => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Particules technologiques
+    // Particules technologiques réparties sur toute la largeur
     const particles: Array<{
       x: number;
       y: number;
@@ -33,19 +33,19 @@ const Footer = () => {
 
     const createParticle = () => {
       return {
-        x: Math.random() * canvas.width,
+        x: Math.random() * canvas.width, // Répartition sur toute la largeur
         y: canvas.height + 10,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: -Math.random() * 2 - 0.5,
-        size: Math.random() * 3 + 1,
+        vx: (Math.random() - 0.5) * 0.8, // Augmenté pour plus de mouvement
+        vy: -Math.random() * 2.5 - 0.8, // Augmenté pour plus de dynamisme
+        size: Math.random() * 4 + 1,
         life: 0,
-        maxLife: Math.random() * 100 + 50,
-        color: Math.random() > 0.5 ? '#00ffff' : '#c084fc'
+        maxLife: Math.random() * 120 + 60,
+        color: Math.random() > 0.3 ? '#00ffff' : '#c084fc'
       };
     };
 
-    // Initialiser les particules
-    for (let i = 0; i < 20; i++) {
+    // Augmenté le nombre de particules pour couvrir toute la largeur
+    for (let i = 0; i < 40; i++) {
       particles.push(createParticle());
     }
 
@@ -62,7 +62,7 @@ const Footer = () => {
         particle.y += particle.vy;
         particle.life++;
 
-        if (particle.life > particle.maxLife || particle.y < -10) {
+        if (particle.life > particle.maxLife || particle.y < -10 || particle.x < -10 || particle.x > canvas.width + 10) {
           particles[index] = createParticle();
           return;
         }
@@ -72,7 +72,7 @@ const Footer = () => {
         // Effet de brillance
         ctx.save();
         ctx.globalAlpha = opacity;
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 12;
         ctx.shadowColor = particle.color;
         
         ctx.fillStyle = particle.color;
@@ -83,8 +83,8 @@ const Footer = () => {
         ctx.restore();
       });
 
-      // Lignes de connexion entre particules proches
-      ctx.strokeStyle = 'rgba(0, 255, 255, 0.2)';
+      // Lignes de connexion entre particules proches sur toute la largeur
+      ctx.strokeStyle = 'rgba(0, 255, 255, 0.15)';
       ctx.lineWidth = 1;
       
       for (let i = 0; i < particles.length; i++) {
@@ -93,8 +93,8 @@ const Footer = () => {
           const dy = particles[i].y - particles[j].y;
           const distance = Math.sqrt(dx * dx + dy * dy);
           
-          if (distance < 100) {
-            const opacity = (100 - distance) / 100 * 0.3;
+          if (distance < 120) {
+            const opacity = (120 - distance) / 120 * 0.25;
             ctx.globalAlpha = opacity;
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
@@ -117,26 +117,28 @@ const Footer = () => {
 
   return (
     <footer className="relative bg-gradient-to-br from-slate-900 via-gray-900 to-black text-white py-16 overflow-hidden">
-      {/* Canvas pour les effets de particules */}
+      {/* Canvas pour les effets de particules sur toute la largeur */}
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 pointer-events-none opacity-60"
+        className="absolute inset-0 pointer-events-none opacity-70"
       />
       
-      {/* Effet de grille technologique */}
-      <div className="absolute inset-0 opacity-10">
+      {/* Effet de grille technologique étendu */}
+      <div className="absolute inset-0 opacity-8">
         <div className="w-full h-full" style={{
           backgroundImage: `
-            linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px)
+            linear-gradient(rgba(0, 255, 255, 0.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 255, 255, 0.08) 1px, transparent 1px)
           `,
-          backgroundSize: '50px 50px'
+          backgroundSize: '60px 60px'
         }} />
       </div>
 
-      {/* Effets de brillance animés */}
-      <div className="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-transparent via-cyan-400 to-transparent opacity-30 animate-pulse" />
-      <div className="absolute top-0 right-1/3 w-px h-full bg-gradient-to-b from-transparent via-purple-400 to-transparent opacity-30 animate-pulse" style={{ animationDelay: '1s' }} />
+      {/* Effets de brillance animés répartis */}
+      <div className="absolute top-0 left-1/6 w-px h-full bg-gradient-to-b from-transparent via-cyan-400 to-transparent opacity-25 animate-pulse" />
+      <div className="absolute top-0 left-2/6 w-px h-full bg-gradient-to-b from-transparent via-purple-400 to-transparent opacity-25 animate-pulse" style={{ animationDelay: '1s' }} />
+      <div className="absolute top-0 left-4/6 w-px h-full bg-gradient-to-b from-transparent via-cyan-300 to-transparent opacity-20 animate-pulse" style={{ animationDelay: '2s' }} />
+      <div className="absolute top-0 right-1/6 w-px h-full bg-gradient-to-b from-transparent via-purple-300 to-transparent opacity-25 animate-pulse" style={{ animationDelay: '0.5s' }} />
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
@@ -164,7 +166,7 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Services */}
+          {/* Services avec effet de poussière dorée */}
           <div className="group">
             <h3 className="font-bold text-lg mb-4 text-cyan-400 group-hover:text-cyan-300 transition-colors duration-300">
               Nos services
@@ -178,15 +180,36 @@ const Footer = () => {
                 "Formation incluse",
                 "Support technique"
               ].map((service, index) => (
-                <li key={index} className="hover:text-white hover:translate-x-2 transition-all duration-300 cursor-pointer flex items-center group">
-                  <span className="w-1 h-1 bg-cyan-400 rounded-full mr-3 group-hover:w-2 transition-all duration-300"></span>
-                  {service}
+                <li key={index} className="relative overflow-hidden cursor-pointer group/item">
+                  <div className="relative z-10 flex items-center transition-all duration-500 hover:translate-x-2 hover:text-yellow-300 group-hover/item:animate-pulse">
+                    <span className="w-1 h-1 bg-cyan-400 rounded-full mr-3 group-hover/item:w-2 group-hover/item:bg-yellow-400 transition-all duration-300"></span>
+                    <span className="relative">
+                      {service}
+                      {/* Effet de dispersion en poussière dorée */}
+                      <div className="absolute inset-0 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300">
+                        {[...Array(12)].map((_, i) => (
+                          <div
+                            key={i}
+                            className="absolute w-1 h-1 bg-yellow-400 rounded-full animate-electric-particle"
+                            style={{
+                              left: `${Math.random() * 100}%`,
+                              top: `${Math.random() * 100}%`,
+                              animationDelay: `${Math.random() * 2}s`,
+                              animationDuration: `${2 + Math.random() * 2}s`
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </span>
+                  </div>
+                  {/* Effet de reconstitution */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/10 to-transparent scale-x-0 group-hover/item:scale-x-100 origin-left transition-transform duration-700"></div>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Secteurs */}
+          {/* Secteurs avec effet de poussière dorée */}
           <div className="group">
             <h3 className="font-bold text-lg mb-4 text-purple-400 group-hover:text-purple-300 transition-colors duration-300">
               Secteurs d'activité
@@ -200,9 +223,30 @@ const Footer = () => {
                 "Auto-entrepreneurs",
                 "Services à la personne"
               ].map((secteur, index) => (
-                <li key={index} className="hover:text-white hover:translate-x-2 transition-all duration-300 cursor-pointer flex items-center group">
-                  <span className="w-1 h-1 bg-purple-400 rounded-full mr-3 group-hover:w-2 transition-all duration-300"></span>
-                  {secteur}
+                <li key={index} className="relative overflow-hidden cursor-pointer group/item">
+                  <div className="relative z-10 flex items-center transition-all duration-500 hover:translate-x-2 hover:text-yellow-300 group-hover/item:animate-pulse">
+                    <span className="w-1 h-1 bg-purple-400 rounded-full mr-3 group-hover/item:w-2 group-hover/item:bg-yellow-400 transition-all duration-300"></span>
+                    <span className="relative">
+                      {secteur}
+                      {/* Effet de dispersion en poussière dorée */}
+                      <div className="absolute inset-0 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300">
+                        {[...Array(12)].map((_, i) => (
+                          <div
+                            key={i}
+                            className="absolute w-1 h-1 bg-yellow-400 rounded-full animate-electric-particle"
+                            style={{
+                              left: `${Math.random() * 100}%`,
+                              top: `${Math.random() * 100}%`,
+                              animationDelay: `${Math.random() * 2}s`,
+                              animationDuration: `${2 + Math.random() * 2}s`
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </span>
+                  </div>
+                  {/* Effet de reconstitution */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/10 to-transparent scale-x-0 group-hover/item:scale-x-100 origin-left transition-transform duration-700"></div>
                 </li>
               ))}
             </ul>
@@ -231,10 +275,10 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Zone SEO avec effet holographique */}
+        {/* Zone SEO avec effet holographique étendu */}
         <div className="mt-8 pt-8 border-t border-gray-700/50">
           <div className="text-center text-gray-400 text-sm relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/5 to-transparent animate-pulse"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/5 via-purple-400/10 to-cyan-400/5 animate-pulse"></div>
             <p className="mb-2 relative z-10">
               <strong className="text-cyan-400">Création site internet sans abonnement</strong> | Site vitrine professionnel | 
               Site internet pas cher | Site web sur mesure
