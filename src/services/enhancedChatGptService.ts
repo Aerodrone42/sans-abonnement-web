@@ -20,6 +20,7 @@ interface ClientInfo {
   siteDesire?: string;
   tarif?: string;
   preferenceContact?: string;
+  conversationStage?: string;
 }
 
 export class EnhancedChatGPTService extends ChatGPTService {
@@ -44,7 +45,8 @@ export class EnhancedChatGPTService extends ChatGPTService {
 
   async startConversation(): Promise<string> {
     console.log('🎯 Démarrage automatique de la conversation avec Nova');
-    return await this.sendAutoGreeting();
+    this.clientInfo.conversationStage = 'accueil';
+    return "Bonjour ! Je suis Nova, votre conseillère IA d'Aerodrone Multiservices. Je vais d'abord vous présenter nos différentes solutions de sites web, puis nous verrons ensemble laquelle correspond le mieux à vos besoins. Quel est votre secteur d'activité ?";
   }
 
   private generateSessionId(): string {
@@ -55,8 +57,11 @@ export class EnhancedChatGPTService extends ChatGPTService {
     try {
       console.log('📝 Message utilisateur reçu:', userMessage);
       
-      // Extraire les informations détaillées du client
+      // Extraire les informations du client
       this.extractDetailedClientInfo(userMessage);
+      
+      // Déterminer l'étape actuelle de la conversation
+      this.updateConversationStage(userMessage);
       
       // Détecter l'étape du questionnaire formulaire
       this.handleFormQuestionnaireFlow(userMessage);
@@ -103,7 +108,30 @@ export class EnhancedChatGPTService extends ChatGPTService {
     }
   }
 
-  // NOUVELLE MÉTHODE: Extraction détaillée des informations client
+  // NOUVELLE MÉTHODE: Gestion des étapes de conversation
+  private updateConversationStage(message: string): void {
+    const lowerMessage = message.toLowerCase();
+    
+    // Si c'est le premier message et qu'on détecte un métier
+    if (this.clientInfo.conversationStage === 'accueil' && this.clientInfo.metier) {
+      this.clientInfo.conversationStage = 'presentation_solutions';
+      console.log('📋 Passage à l\'étape présentation des solutions');
+    }
+    
+    // Si le client exprime un intérêt pour un type de site
+    if (lowerMessage.includes('intéresse') || lowerMessage.includes('veux') || lowerMessage.includes('souhaite')) {
+      this.clientInfo.conversationStage = 'details_solution';
+      console.log('📋 Passage aux détails de la solution');
+    }
+    
+    // Si le client accepte une solution
+    if (lowerMessage.includes('oui') || lowerMessage.includes('d\'accord') || lowerMessage.includes('ça me va')) {
+      this.clientInfo.conversationStage = 'collecte_infos';
+      console.log('📋 Passage à la collecte d\'informations');
+    }
+  }
+
+  // MÉTHODE MISE À JOUR: Extraction détaillée des informations client
   private extractDetailedClientInfo(message: string): void {
     const lowerMessage = message.toLowerCase();
     
@@ -121,28 +149,45 @@ export class EnhancedChatGPTService extends ChatGPTService {
       console.log('🔨 Métier détecté:', foundMetier);
     }
     
-    // Extraction du type de site souhaité
-    if (lowerMessage.includes('site vitrine') || lowerMessage.includes('site internet')) {
-      this.clientInfo.siteDesire = 'Site internet';
-      this.clientInfo.tarif = '300€';
-    } else if (lowerMessage.includes('site local 20') || lowerMessage.includes('20 villes')) {
-      this.clientInfo.siteDesire = 'Site Local 20 villes';
-      this.clientInfo.tarif = '1000€';
-    } else if (lowerMessage.includes('site local 50') || lowerMessage.includes('50 villes')) {
-      this.clientInfo.siteDesire = 'Site Local 50 villes';
-      this.clientInfo.tarif = '1500€';
-    } else if (lowerMessage.includes('site national')) {
-      this.clientInfo.siteDesire = 'Site national';
-      this.clientInfo.tarif = '3000€';
-    } else if (lowerMessage.includes('e-commerce national')) {
-      this.clientInfo.siteDesire = 'Site E-commerce National';
-      this.clientInfo.tarif = '3500€';
-    } else if (lowerMessage.includes('e-commerce') || lowerMessage.includes('boutique')) {
-      this.clientInfo.siteDesire = 'Site E-commerce';
-      this.clientInfo.tarif = '600€';
-    } else if (lowerMessage.includes('nova') || lowerMessage.includes('intelligence artificielle')) {
-      this.clientInfo.siteDesire = 'Nova IA';
-      this.clientInfo.tarif = '2000€ + 100€/mois';
+    // Extraction du nom et prénom
+    if (!this.clientInfo.nom) {
+      this.extractName(message);
+    }
+    
+    // Extraction de l'email
+    if (!this.clientInfo.email) {
+      this.extractAndValidateEmail(message);
+    }
+    
+    // Extraction du téléphone
+    if (!this.clientInfo.telephone) {
+      this.extractPhone(message);
+    }
+    
+    // Extraction du type de site souhaité (seulement après présentation)
+    if (this.clientInfo.conversationStage === 'details_solution' || this.clientInfo.conversationStage === 'collecte_infos') {
+      if (lowerMessage.includes('site vitrine') || lowerMessage.includes('site internet')) {
+        this.clientInfo.siteDesire = 'Site internet';
+        this.clientInfo.tarif = '300€';
+      } else if (lowerMessage.includes('site local 20') || lowerMessage.includes('20 villes')) {
+        this.clientInfo.siteDesire = 'Site Local 20 villes';
+        this.clientInfo.tarif = '1000€';
+      } else if (lowerMessage.includes('site local 50') || lowerMessage.includes('50 villes')) {
+        this.clientInfo.siteDesire = 'Site Local 50 villes';
+        this.clientInfo.tarif = '1500€';
+      } else if (lowerMessage.includes('site national')) {
+        this.clientInfo.siteDesire = 'Site national';
+        this.clientInfo.tarif = '3000€';
+      } else if (lowerMessage.includes('e-commerce national')) {
+        this.clientInfo.siteDesire = 'Site E-commerce National';
+        this.clientInfo.tarif = '3500€';
+      } else if (lowerMessage.includes('e-commerce') || lowerMessage.includes('boutique')) {
+        this.clientInfo.siteDesire = 'Site E-commerce';
+        this.clientInfo.tarif = '600€';
+      } else if (lowerMessage.includes('nova') || lowerMessage.includes('intelligence artificielle')) {
+        this.clientInfo.siteDesire = 'Nova IA';
+        this.clientInfo.tarif = '2000€ + 100€/mois';
+      }
     }
     
     // Extraction de la préférence de contact
@@ -164,7 +209,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
     console.log('📊 Infos client détaillées extraites:', this.clientInfo);
   }
 
-  // NOUVELLE MÉTHODE: Prompt détaillé avec catalogue complet
+  // MÉTHODE MISE À JOUR: Prompt détaillé avec flux de conversation structuré
   private createDetailedPrompt(userMessage: string): string {
     const catalog = `
 CATALOGUE OFFICIEL AERODRONE MULTISERVICES:
@@ -189,34 +234,65 @@ CATALOGUE OFFICIEL AERODRONE MULTISERVICES:
 
 AVANTAGES: Tous les sites bénéficient de 15000 affichages au lancement + référencement express en 24h sur Google (sauf site vitrine 300€).`;
 
-    const basePrompt = `Tu es Nova, conseillère commerciale pour Aerodrone Multiservices. 
+    // Prompt adapté selon l'étape de conversation
+    let basePrompt = `Tu es Nova, conseillère commerciale pour Aerodrone Multiservices. 
 
 RÈGLES STRICTES:
 - Utilise UNIQUEMENT les prix et prestations du catalogue ci-dessus
 - NE JAMAIS inventer de chiffres ou prestations
-- Pose des questions courtes et précises
-- Collecte: nom, email, téléphone, métier, type de site souhaité, préférence de contact
-- NE DEMANDE JAMAIS si c'est le décideur (inutile)
+- SUIS LE FLUX DE CONVERSATION STRUCTURÉ
 - Remplis le formulaire au fur et à mesure des réponses
 
 ${catalog}
 
-TON OBJECTIF:
-1. Identifier le métier du client
-2. Comprendre ses besoins (quel type de site)
-3. Proposer la solution adaptée du catalogue
-4. Demander sa préférence de contact (appel vs formulaire)
-5. Si appel: demander horaire préféré
-6. Remplir le formulaire avec TOUTES les informations
+FLUX DE CONVERSATION OBLIGATOIRE:`;
+
+    switch (this.clientInfo.conversationStage) {
+      case 'accueil':
+        basePrompt += `
+1. ACCUEIL: Saluer et demander le métier/secteur d'activité
+2. Attendre la réponse avant de passer à l'étape suivante`;
+        break;
+        
+      case 'presentation_solutions':
+        basePrompt += `
+2. PRÉSENTATION COMPLÈTE: Présente TOUTES les solutions du catalogue adaptées au métier "${this.clientInfo.metier}"
+   - Commence par expliquer les différentes gammes disponibles
+   - Détaille chaque option avec prix et avantages
+   - Demande ce qui l'intéresse le plus`;
+        break;
+        
+      case 'details_solution':
+        basePrompt += `
+3. DÉTAILS: Explique en détail la solution qui l'intéresse
+   - Avantages spécifiques
+   - Ce qui est inclus
+   - Demande confirmation de son intérêt`;
+        break;
+        
+      case 'collecte_infos':
+        basePrompt += `
+4. COLLECTE D'INFOS: Collecte nom, email, téléphone, préférence de contact
+   - Une seule question à la fois
+   - Remplis le formulaire immédiatement`;
+        break;
+        
+      default:
+        basePrompt += `
+1. TOUJOURS commencer par présenter TOUTES les solutions disponibles
+2. Ne jamais proposer directement un prix sans avoir présenté toutes les options`;
+    }
+
+    basePrompt += `
 
 Message du client: "${userMessage}"
+Étape actuelle: ${this.clientInfo.conversationStage || 'accueil'}
 
-Réponds naturellement et remplis le formulaire immédiatement avec les infos disponibles.`;
+Réponds selon l'étape de conversation et remplis le formulaire immédiatement.`;
 
     return basePrompt;
   }
 
-  // NOUVELLE MÉTHODE: Remplissage immédiat du formulaire
   private async fillFormImmediately(): Promise<void> {
     if (!this.fillFormCallback) return;
     
@@ -295,16 +371,12 @@ Réponds naturellement et remplis le formulaire immédiatement avec les infos di
     }
   }
 
-  // NOUVELLE MÉTHODE: Vérification et demande de confirmation d'envoi
   private async checkAndRequestSendConfirmation(): Promise<void> {
-    // Vérifier si le formulaire est suffisamment rempli
     const hasEssentialData = this.clientInfo.nom && this.clientInfo.email && 
                            (this.clientInfo.metier || this.clientInfo.entreprise);
     
     if (hasEssentialData && this.clientInfo.formulaireEtape === 'fini') {
       console.log('📋 Formulaire complet détecté - demande de confirmation d\'envoi');
-      
-      // Marquer qu'on attend une confirmation
       this.clientInfo.formulaireEtape = 'attente_confirmation';
       console.log('✋ En attente de confirmation client pour envoi');
     }
@@ -313,7 +385,6 @@ Réponds naturellement et remplis le formulaire immédiatement avec les infos di
   private handleFormQuestionnaireFlow(message: string): void {
     const lowerMessage = message.toLowerCase();
     
-    // Gérer la confirmation d'envoi
     if (this.clientInfo.formulaireEtape === 'attente_confirmation') {
       if (lowerMessage.includes('oui') || lowerMessage.includes('envoyez') || 
           lowerMessage.includes('envoyer') || lowerMessage.includes('d\'accord') ||
@@ -329,7 +400,6 @@ Réponds naturellement et remplis le formulaire immédiatement avec les infos di
       }
     }
     
-    // Détecter le choix de contact
     if (lowerMessage.includes('formulaire') || lowerMessage.includes('demande') || lowerMessage.includes('contact')) {
       this.clientInfo.choixContact = 'formulaire';
       if (!this.clientInfo.formulaireEtape) {
@@ -338,7 +408,6 @@ Réponds naturellement et remplis le formulaire immédiatement avec les infos di
       console.log('📝 Mode formulaire activé - étape:', this.clientInfo.formulaireEtape);
     }
 
-    // Détecter les horaires de rappel
     if (lowerMessage.includes('matin')) {
       this.clientInfo.horaireRappel = 'matin (8h-12h)';
     } else if (lowerMessage.includes('après-midi')) {
@@ -347,7 +416,6 @@ Réponds naturellement et remplis le formulaire immédiatement avec les infos di
       this.clientInfo.horaireRappel = 'soir (18h-20h)';
     }
     
-    // Gérer les étapes du formulaire selon la réponse utilisateur
     if (this.clientInfo.choixContact === 'formulaire') {
       switch (this.clientInfo.formulaireEtape) {
         case 'nom':
@@ -378,7 +446,6 @@ Réponds naturellement et remplis le formulaire immédiatement avec les infos di
     }
   }
 
-  // NOUVELLE MÉTHODE : Déclencher l'envoi du formulaire après confirmation
   private async triggerFormSubmission(): Promise<void> {
     console.log('🚀 Déclenchement de l\'envoi automatique du formulaire');
     if (this.submitFormCallback) {
@@ -392,7 +459,6 @@ Réponds naturellement et remplis le formulaire immédiatement avec les infos di
     }
   }
 
-  // EXTRACTION CORRIGÉE DU NOM
   private extractName(message: string): boolean {
     const cleanMessage = message.replace(/\b(je\s+(?:m'appelle|suis)|mon\s+nom\s+(?:est|c'est)|c'est|bonjour|salut|ok|oui|non|voici|voilà)\b/gi, '').trim();
     
@@ -423,7 +489,6 @@ Réponds naturellement et remplis le formulaire immédiatement avec les infos di
     return false;
   }
 
-  // EXTRACTION CORRIGÉE DE L'EMAIL
   private extractAndValidateEmail(message: string): boolean {
     const messageNoSpaces = message.replace(/\s+/g, '');
     const emailPattern = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/;
@@ -452,7 +517,6 @@ Réponds naturellement et remplis le formulaire immédiatement avec les infos di
     return false;
   }
 
-  // EXTRACTION CORRIGÉE DU TÉLÉPHONE
   private extractPhone(message: string): boolean {
     const phonePatterns = [
       /0[1-9](?:[\s.-]?\d{2}){4}/,
@@ -479,11 +543,9 @@ Réponds naturellement et remplis le formulaire immédiatement avec les infos di
     return false;
   }
 
-  // MÉTHODE MISE À JOUR: Extraction du métier sans question décideur
   private extractProfession(message: string): boolean {
     const lowerMessage = message.toLowerCase();
     
-    // Liste étendue des métiers du bâtiment
     const metiers = [
       'plombier', 'électricien', 'maçon', 'peintre', 'chauffagiste', 'menuisier', 
       'carreleur', 'couvreur', 'charpentier', 'serrurier', 'vitrier', 'fumiste',
@@ -493,16 +555,14 @@ Réponds naturellement et remplis le formulaire immédiatement avec les infos di
       'bureau d\'études', 'promotion immobilière', 'agence immobilière'
     ];
     
-    // Chercher le métier dans le message
     const foundMetier = metiers.find(metier => lowerMessage.includes(metier));
     if (foundMetier) {
       this.clientInfo.metier = foundMetier;
-      this.clientInfo.entreprise = foundMetier; // Remplir aussi entreprise
+      this.clientInfo.entreprise = foundMetier;
       console.log('🔨 Métier détecté:', foundMetier);
       return true;
     }
     
-    // Si pas de métier spécifique trouvé, utiliser le texte comme entreprise
     const cleanText = message.trim();
     if (cleanText.length > 2 && !lowerMessage.includes('oui') && !lowerMessage.includes('non')) {
       this.clientInfo.entreprise = cleanText;
@@ -537,7 +597,6 @@ Réponds naturellement et remplis le formulaire immédiatement avec les infos di
            businesses.some(business => lowerText.includes(business));
   }
 
-  
   private extractClientInfo(message: string): void {
     const lowerMessage = message.toLowerCase();
     
@@ -652,7 +711,7 @@ Réponds naturellement et remplis le formulaire immédiatement avec les infos di
     super.clearHistory();
     this.sessionId = this.generateSessionId();
     this.currentStage = 1;
-    this.clientInfo = {};
+    this.clientInfo = { conversationStage: 'accueil' };
     learningService.startConversation(this.sessionId);
     console.log('🔄 Nouvelle session démarrée:', this.sessionId);
   }
