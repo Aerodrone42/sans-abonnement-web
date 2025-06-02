@@ -59,11 +59,6 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
         const chatGPTInstance = new EnhancedChatGPTService(OPENAI_API_KEY);
         setChatGPT(chatGPTInstance);
         
-        // Configurer l'IA pour remplir automatiquement le formulaire
-        if (fillFormFromAI) {
-          chatGPTInstance.onFormDataUpdate = fillFormFromAI;
-        }
-        
         console.log('✅ Enhanced ChatGPT service with learning capabilities initialized successfully');
       } catch (error) {
         console.error('❌ Error initializing Enhanced ChatGPT service:', error);
