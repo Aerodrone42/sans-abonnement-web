@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { EnhancedChatGPTService } from '@/services/enhancedChatGptService';
 import { SpeechSynthesisService } from '@/services/speechSynthesisService';
@@ -187,11 +188,9 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     }
   };
 
-  // MÉTHODE AMÉLIORÉE: Démarrage immédiat et plus fiable
   const startListening = async () => {
     console.log('🎯 DÉMARRAGE conversation - tentative immédiate');
     
-    // Éviter les doubles initialisations
     if (isInitializingRef.current) {
       console.log('⚠️ Initialisation déjà en cours, ignoré');
       return;
@@ -204,7 +203,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
 
     isInitializingRef.current = true;
 
-    // Arrêter toute synthèse en cours
     if (isSpeaking) {
       speechSynthesis.stop();
       setIsSpeaking(false);
@@ -212,7 +210,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     }
 
     try {
-      // Demander permission micro immédiatement
       console.log('🎤 Demande permission micro...');
       if (!mediaStreamRef.current) {
         const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -226,13 +223,11 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
         console.log('✅ Permission micro obtenue avec optimisations');
       }
 
-      // Réinitialiser tous les flags
       shouldContinueRef.current = true;
       isStoppedRef.current = false;
       microphoneMutedRef.current = false;
       setIsConversationActive(true);
 
-      // Démarrer immédiatement la reconnaissance
       console.log('🚀 Démarrage immédiat de la reconnaissance vocale');
       recognitionRef.current.start();
       setIsListening(true);
@@ -242,7 +237,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       console.error('❌ Erreur démarrage:', error);
       cleanup();
     } finally {
-      // Libérer le flag d'initialisation après un délai court
       setTimeout(() => {
         isInitializingRef.current = false;
       }, 500);
@@ -261,7 +255,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       const recognition = new SpeechRecognitionClass() as ExtendedSpeechRecognition;
       recognitionRef.current = recognition;
       
-      // Configuration optimisée pour une reconnaissance plus rapide
       recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = 'fr-FR';
@@ -310,7 +303,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
             clearTimeout(silenceTimeoutRef.current);
           }
           
-          // Délai de silence optimisé
           silenceTimeoutRef.current = setTimeout(() => {
             if (lastTranscriptRef.current.trim() && !isStoppedRef.current && !microphoneMutedRef.current && !isInitializingRef.current) {
               console.log('⏰ Traitement après silence:', lastTranscriptRef.current);
@@ -319,7 +311,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
               interimResultRef.current = "";
               setTranscript("");
             }
-          }, 2500); // Réduit à 2.5 secondes pour plus de réactivité
+          }, 2500);
         }
       };
 
@@ -328,7 +320,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
         setIsListening(false);
         isInitializingRef.current = false;
         
-        // Gestion d'erreur améliorée
         if (event.error === 'not-allowed') {
           console.error('❌ Permission microphone refusée');
           setIsConversationActive(false);
