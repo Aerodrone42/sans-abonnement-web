@@ -1,7 +1,8 @@
-import { useState, useRef } from "react";
+
+import { useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, Phone, Building, User, Mic } from "lucide-react";
+import { Mail, Phone, Building, User } from "lucide-react";
 import VoiceRecognition, { VoiceRecognitionRef } from "./VoiceRecognition";
 
 interface ContactFormFieldsProps {
@@ -16,7 +17,6 @@ interface ContactFormFieldsProps {
 }
 
 const ContactFormFields = ({ formData, handleChange }: ContactFormFieldsProps) => {
-  const [showVoiceInterface, setShowVoiceInterface] = useState(false);
   const voiceRecognitionRef = useRef<VoiceRecognitionRef>(null);
 
   const handleVoiceTranscript = (transcript: string, field: string) => {
@@ -31,40 +31,16 @@ const ContactFormFields = ({ formData, handleChange }: ContactFormFieldsProps) =
     handleChange(syntheticEvent);
   };
 
-  const activateVoiceForMessage = () => {
-    setShowVoiceInterface(true);
-  };
-
-  const closeVoiceInterface = () => {
-    setShowVoiceInterface(false);
-    // Force cleanup of any active microphone/recognition when closing
-    if (voiceRecognitionRef.current) {
-      voiceRecognitionRef.current.cleanup();
-    }
-    console.log('Closing voice interface and cleaning up...');
-  };
-
   return (
     <>
-      {/* Interface vocale IA - uniquement pour le message */}
-      {showVoiceInterface && (
-        <div className="mb-8">
-          <VoiceRecognition
-            ref={voiceRecognitionRef}
-            onTranscript={handleVoiceTranscript}
-            currentField="Message"
-          />
-          <div className="flex justify-center mt-4">
-            <button
-              type="button"
-              onClick={closeVoiceInterface}
-              className="text-sm text-gray-400 hover:text-cyan-400 transition-colors"
-            >
-              Fermer l'assistant vocal
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Interface vocale IA - toujours visible */}
+      <div className="mb-8">
+        <VoiceRecognition
+          ref={voiceRecognitionRef}
+          onTranscript={handleVoiceTranscript}
+          currentField="Message"
+        />
+      </div>
 
       <div className="grid md:grid-cols-2 gap-8">
         <div className="space-y-3">
@@ -143,19 +119,9 @@ const ContactFormFields = ({ formData, handleChange }: ContactFormFieldsProps) =
       </div>
 
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <label className="block text-sm font-semibold text-cyan-100 mb-3 tracking-wide">
-            Message *
-          </label>
-          <button
-            type="button"
-            onClick={activateVoiceForMessage}
-            className="flex items-center gap-2 text-xs text-cyan-400 hover:text-blue-400 transition-colors"
-          >
-            <Mic className="w-3 h-3" />
-            Vocal
-          </button>
-        </div>
+        <label className="block text-sm font-semibold text-cyan-100 mb-3 tracking-wide">
+          Message *
+        </label>
         <div className="relative group">
           <Textarea
             name="message"
