@@ -1,74 +1,7 @@
 import { Shield, Zap, Users, Award, Sparkles, Code2, Stars, Cpu, Globe, Rocket, Eye, Target, TrendingUp, Layers } from "lucide-react";
-import { useEffect, useRef } from "react";
-
-const MatrixRain = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Set canvas size
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    // Matrix characters (mix of letters, numbers, and symbols)
-    const matrixChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=[]{}|;:,.<>?';
-    const fontSize = 14;
-    const columns = canvas.width / fontSize;
-    const drops: number[] = [];
-
-    // Initialize drops
-    for (let i = 0; i < columns; i++) {
-      drops[i] = 1;
-    }
-
-    const draw = () => {
-      // Semi-transparent black background for trailing effect
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = '#00ff41'; // Matrix green
-      ctx.font = `${fontSize}px monospace`;
-
-      for (let i = 0; i < drops.length; i++) {
-        // Random character
-        const text = matrixChars[Math.floor(Math.random() * matrixChars.length)];
-        
-        // Draw character
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-        // Reset drop randomly or when it reaches bottom
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0;
-        }
-        drops[i]++;
-      }
-    };
-
-    const interval = setInterval(draw, 35);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener('resize', resizeCanvas);
-    };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 opacity-20"
-      style={{ pointerEvents: 'none' }}
-    />
-  );
-};
+import MatrixRain from "./effects/MatrixRain";
+import BusinessImpactCard from "./BusinessImpactCard";
+import FeatureCard from "./FeatureCard";
 
 const WhyChooseUs = () => {
   const features = [
@@ -211,97 +144,14 @@ const WhyChooseUs = () => {
           {/* Revolutionary Impact Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
             {businessImpacts.map((impact, index) => (
-              <div 
+              <BusinessImpactCard
                 key={index}
-                className="group relative"
-                style={{animationDelay: `${index * 0.2}s`}}
-              >
-                {/* Holographic Field */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${impact.gradient} opacity-0 group-hover:opacity-40 rounded-3xl blur-3xl transition-all duration-1000 scale-110`}></div>
-                
-                {/* Quantum Border */}
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-cyan-500/30 via-purple-500/30 to-pink-500/30 p-[3px] group-hover:from-cyan-400/50 group-hover:via-purple-400/50 group-hover:to-pink-400/50 transition-all duration-700">
-                  <div className="w-full h-full bg-black/90 backdrop-blur-xl rounded-3xl"></div>
-                </div>
-                
-                {/* Main Content */}
-                <div className="relative p-10 rounded-3xl backdrop-blur-xl transition-all duration-700 transform hover:scale-110 hover:-translate-y-6 group border border-white/20">
-                  {/* Floating Energy Particles */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                    {[...Array(12)].map((_, i) => (
-                      <div
-                        key={i}
-                        className={`absolute w-1 h-1 bg-${impact.glow}-400 rounded-full animate-ping`}
-                        style={{
-                          left: `${15 + Math.random() * 70}%`,
-                          top: `${15 + Math.random() * 70}%`,
-                          animationDelay: `${Math.random() * 3}s`
-                        }}
-                      />
-                    ))}
-                  </div>
-                  
-                  {/* Premium Icon with Holographic Effect */}
-                  <div className="relative mb-8">
-                    <div className={`bg-gradient-to-br ${impact.gradient} p-8 rounded-3xl shadow-2xl group-hover:shadow-${impact.glow}-500/40 transition-all duration-700 transform group-hover:rotate-12 group-hover:scale-125 relative overflow-hidden`}>
-                      {/* Icon Holographic Shine */}
-                      <div className="absolute inset-0 bg-white/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                      <div className="relative text-white group-hover:animate-energy-pulse z-10">
-                        {impact.icon}
-                      </div>
-                      
-                      {/* Quantum Shine Effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 opacity-0 group-hover:opacity-100 group-hover:animate-[slide-in-right_1s_ease-out] transition-all duration-700"></div>
-                    </div>
-                    
-                    {/* Orbital Rings */}
-                    <div className="absolute inset-0 border-2 border-cyan-400/0 group-hover:border-cyan-400/40 rounded-3xl animate-spin-slow transition-all duration-1000"></div>
-                    <div className="absolute inset-2 border border-purple-400/0 group-hover:border-purple-400/30 rounded-3xl animate-spin-slow transition-all duration-1000" style={{animationDirection: 'reverse'}}></div>
-                  </div>
-                  
-                  {/* Impact Metrics */}
-                  <div className="text-center mb-6">
-                    <div className={`text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r ${impact.gradient} mb-2 group-hover:animate-glow`}>
-                      {impact.metric}
-                    </div>
-                    <div className="text-xs text-cyan-400 font-bold tracking-widest">IMPACT MESURÉ</div>
-                  </div>
-                  
-                  {/* Typography with Advanced Effects */}
-                  <h3 className="text-2xl font-black text-white mb-4 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-cyan-400 group-hover:to-purple-400 transition-all duration-700">
-                    {impact.title}
-                  </h3>
-                  
-                  <p className="text-gray-400 leading-relaxed text-lg group-hover:text-gray-300 transition-colors duration-500 mb-6">
-                    {impact.description}
-                  </p>
-
-                  {/* Quantum Status Display */}
-                  <div className="flex items-center justify-between pt-6 border-t border-white/20">
-                    <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg shadow-green-400/50"></div>
-                      <span className="text-xs text-green-400 font-bold tracking-wider">OPTIMISÉ</span>
-                    </div>
-                    <div className="flex gap-2">
-                      {[...Array(4)].map((_, i) => (
-                        <div key={i} className={`w-1 h-6 bg-gradient-to-t ${impact.gradient} rounded-full opacity-80 group-hover:animate-pulse`} style={{animationDelay: `${i * 0.1}s`}}></div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Corner Quantum Indicators */}
-                  <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-700">
-                    <div className="w-4 h-4 border-t-3 border-r-3 border-cyan-400 animate-pulse"></div>
-                  </div>
-                  <div className="absolute bottom-6 left-6 opacity-0 group-hover:opacity-100 transition-all duration-1000">
-                    <div className="w-4 h-4 border-b-3 border-l-3 border-purple-400 animate-pulse"></div>
-                  </div>
-                </div>
-              </div>
+                {...impact}
+                index={index}
+              />
             ))}
           </div>
 
-          {/* Advanced Value Proposition */}
           <div className="relative max-w-6xl mx-auto mb-16">
             <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-3xl blur-3xl opacity-20 animate-pulse"></div>
             
@@ -352,92 +202,16 @@ const WhyChooseUs = () => {
           </div>
         </div>
 
-        {/* Premium Feature Cards - keep existing implementation */}
+        {/* Premium Feature Cards */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 mb-20">
           {features.map((feature, index) => (
-            
-            <div 
+            <FeatureCard
               key={index}
-              className="group relative animate-fade-in"
-              style={{animationDelay: feature.delay}}
-            >
-              {/* Quantum Field Effect */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-30 rounded-3xl blur-2xl transition-all duration-700 scale-110`}></div>
-              
-              {/* Holographic Border */}
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 p-[2px] group-hover:from-cyan-400/40 group-hover:via-purple-400/40 group-hover:to-pink-400/40 transition-all duration-500">
-                <div className="w-full h-full bg-black/80 backdrop-blur-xl rounded-3xl"></div>
-              </div>
-              
-              {/* Main Card Content */}
-              <div className="relative p-8 md:p-10 rounded-3xl backdrop-blur-xl transition-all duration-700 transform hover:scale-105 hover:-translate-y-4 group border border-white/10">
-                {/* Floating Particles for each card */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                  {[...Array(8)].map((_, i) => (
-                    <div
-                      key={i}
-                      className={`absolute w-1 h-1 bg-${feature.particles}-400 rounded-full animate-ping`}
-                      style={{
-                        left: `${20 + Math.random() * 60}%`,
-                        top: `${20 + Math.random() * 60}%`,
-                        animationDelay: `${Math.random() * 2}s`
-                      }}
-                    />
-                  ))}
-                </div>
-                
-                {/* Premium Icon Container */}
-                <div className="relative mb-8">
-                  <div className={`bg-gradient-to-br ${feature.gradient} p-6 rounded-2xl shadow-2xl group-hover:shadow-cyan-500/25 transition-all duration-700 transform group-hover:rotate-6 group-hover:scale-110 relative overflow-hidden`}>
-                    {/* Icon Glow Effect */}
-                    <div className="absolute inset-0 bg-white/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    <div className="relative text-white group-hover:animate-pulse z-10">
-                      {feature.icon}
-                    </div>
-                    
-                    {/* Holographic shine */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 opacity-0 group-hover:opacity-100 group-hover:animate-[slide-in-right_0.6s_ease-out] transition-all duration-500"></div>
-                  </div>
-                  
-                  {/* Quantum Orbit Ring */}
-                  <div className="absolute inset-0 border-2 border-cyan-400/0 group-hover:border-cyan-400/30 rounded-2xl animate-spin-slow transition-all duration-700"></div>
-                </div>
-                
-                {/* Premium Typography */}
-                <h3 className="text-xl md:text-2xl font-black text-white mb-6 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-cyan-400 group-hover:to-purple-400 transition-all duration-500">
-                  {feature.title}
-                </h3>
-                
-                <p className="text-gray-400 leading-relaxed text-lg group-hover:text-gray-300 transition-colors duration-500">
-                  {feature.description}
-                </p>
-
-                {/* Tech Status Indicators */}
-                <div className="flex items-center justify-between mt-8 pt-6 border-t border-white/10">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-xs text-green-400 font-medium">ACTIF</span>
-                  </div>
-                  <div className="flex gap-1">
-                    {[...Array(3)].map((_, i) => (
-                      <div key={i} className={`w-1 h-4 bg-gradient-to-t ${feature.gradient} rounded-full opacity-70`}></div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Corner Tech Details */}
-                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-500">
-                  <div className="w-3 h-3 border-t-2 border-r-2 border-cyan-400 animate-pulse"></div>
-                </div>
-                <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-700">
-                  <div className="w-3 h-3 border-b-2 border-l-2 border-purple-400 animate-pulse"></div>
-                </div>
-              </div>
-            </div>
+              {...feature}
+            />
           ))}
         </div>
 
-        {/* Quantum CTA Section - Enhanced Version */}
         <div className="text-center mt-20 md:mt-32">
           <div className="relative inline-block">
             {/* Multi-layer Quantum Field */}
