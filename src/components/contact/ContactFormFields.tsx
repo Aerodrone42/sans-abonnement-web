@@ -1,9 +1,7 @@
 
-import { useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, Phone, Building, User } from "lucide-react";
-import VoiceRecognition, { VoiceRecognitionRef } from "./VoiceRecognition";
 
 interface ContactFormFieldsProps {
   formData: {
@@ -17,31 +15,8 @@ interface ContactFormFieldsProps {
 }
 
 const ContactFormFields = ({ formData, handleChange }: ContactFormFieldsProps) => {
-  const voiceRecognitionRef = useRef<VoiceRecognitionRef>(null);
-
-  const handleVoiceTranscript = (transcript: string, field: string) => {
-    // Créer un événement synthétique pour la mise à jour
-    const syntheticEvent = {
-      target: {
-        name: field,
-        value: transcript.trim()
-      }
-    } as React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>;
-    
-    handleChange(syntheticEvent);
-  };
-
   return (
     <>
-      {/* Interface vocale IA - toujours visible */}
-      <div className="mb-8">
-        <VoiceRecognition
-          ref={voiceRecognitionRef}
-          onTranscript={handleVoiceTranscript}
-          currentField="Message"
-        />
-      </div>
-
       <div className="grid md:grid-cols-2 gap-8">
         <div className="space-y-3">
           <label className="block text-sm font-semibold text-cyan-100 mb-3 tracking-wide">
