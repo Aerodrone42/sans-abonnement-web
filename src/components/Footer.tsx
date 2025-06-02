@@ -19,7 +19,7 @@ const Footer = () => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Particules technologiques réparties sur toute la largeur
+    // Particules technologiques réparties sur toute la largeur avec plus d'intensité
     const particles: Array<{
       x: number;
       y: number;
@@ -29,63 +29,73 @@ const Footer = () => {
       life: number;
       maxLife: number;
       color: string;
+      glow: number;
     }> = [];
 
     const createParticle = () => {
       return {
-        x: Math.random() * canvas.width, // Répartition sur toute la largeur
+        x: Math.random() * canvas.width,
         y: canvas.height + 10,
-        vx: (Math.random() - 0.5) * 0.8, // Augmenté pour plus de mouvement
-        vy: -Math.random() * 2.5 - 0.8, // Augmenté pour plus de dynamisme
-        size: Math.random() * 4 + 1,
+        vx: (Math.random() - 0.5) * 1.2,
+        vy: -Math.random() * 3 - 1,
+        size: Math.random() * 6 + 2, // Taille augmentée
         life: 0,
-        maxLife: Math.random() * 120 + 60,
-        color: Math.random() > 0.3 ? '#00ffff' : '#c084fc'
+        maxLife: Math.random() * 150 + 80,
+        color: Math.random() > 0.4 ? '#00ffff' : Math.random() > 0.5 ? '#c084fc' : '#ffd700',
+        glow: Math.random() * 20 + 10
       };
     };
 
-    // Augmenté le nombre de particules pour couvrir toute la largeur
-    for (let i = 0; i < 40; i++) {
+    // Augmenté le nombre de particules pour plus d'effet
+    for (let i = 0; i < 60; i++) {
       particles.push(createParticle());
     }
 
     let time = 0;
 
     const animate = () => {
-      time += 0.02;
+      time += 0.03;
       
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Mise à jour et rendu des particules
+      // Mise à jour et rendu des particules avec plus d'éclat
       particles.forEach((particle, index) => {
         particle.x += particle.vx;
         particle.y += particle.vy;
         particle.life++;
 
-        if (particle.life > particle.maxLife || particle.y < -10 || particle.x < -10 || particle.x > canvas.width + 10) {
+        if (particle.life > particle.maxLife || particle.y < -20 || particle.x < -20 || particle.x > canvas.width + 20) {
           particles[index] = createParticle();
           return;
         }
 
-        const opacity = 1 - (particle.life / particle.maxLife);
+        const opacity = Math.max(0.1, 1 - (particle.life / particle.maxLife));
         
-        // Effet de brillance
+        // Effet de brillance plus intense
         ctx.save();
         ctx.globalAlpha = opacity;
-        ctx.shadowBlur = 12;
+        ctx.shadowBlur = particle.glow;
         ctx.shadowColor = particle.color;
         
+        // Double rendu pour plus d'intensité
         ctx.fillStyle = particle.color;
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
         ctx.fill();
         
+        // Halo supplémentaire
+        ctx.globalAlpha = opacity * 0.3;
+        ctx.shadowBlur = particle.glow * 2;
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.size * 1.5, 0, Math.PI * 2);
+        ctx.fill();
+        
         ctx.restore();
       });
 
-      // Lignes de connexion entre particules proches sur toute la largeur
-      ctx.strokeStyle = 'rgba(0, 255, 255, 0.15)';
-      ctx.lineWidth = 1;
+      // Lignes de connexion plus visibles
+      ctx.strokeStyle = 'rgba(0, 255, 255, 0.25)';
+      ctx.lineWidth = 1.5;
       
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
@@ -93,8 +103,8 @@ const Footer = () => {
           const dy = particles[i].y - particles[j].y;
           const distance = Math.sqrt(dx * dx + dy * dy);
           
-          if (distance < 120) {
-            const opacity = (120 - distance) / 120 * 0.25;
+          if (distance < 150) {
+            const opacity = (150 - distance) / 150 * 0.4;
             ctx.globalAlpha = opacity;
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
@@ -120,25 +130,26 @@ const Footer = () => {
       {/* Canvas pour les effets de particules sur toute la largeur */}
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 pointer-events-none opacity-70"
+        className="absolute inset-0 pointer-events-none opacity-80"
       />
       
       {/* Effet de grille technologique étendu */}
-      <div className="absolute inset-0 opacity-8">
+      <div className="absolute inset-0 opacity-10">
         <div className="w-full h-full" style={{
           backgroundImage: `
-            linear-gradient(rgba(0, 255, 255, 0.08) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 255, 255, 0.08) 1px, transparent 1px)
+            linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px)
           `,
-          backgroundSize: '60px 60px'
+          backgroundSize: '50px 50px'
         }} />
       </div>
 
       {/* Effets de brillance animés répartis */}
-      <div className="absolute top-0 left-1/6 w-px h-full bg-gradient-to-b from-transparent via-cyan-400 to-transparent opacity-25 animate-pulse" />
-      <div className="absolute top-0 left-2/6 w-px h-full bg-gradient-to-b from-transparent via-purple-400 to-transparent opacity-25 animate-pulse" style={{ animationDelay: '1s' }} />
-      <div className="absolute top-0 left-4/6 w-px h-full bg-gradient-to-b from-transparent via-cyan-300 to-transparent opacity-20 animate-pulse" style={{ animationDelay: '2s' }} />
-      <div className="absolute top-0 right-1/6 w-px h-full bg-gradient-to-b from-transparent via-purple-300 to-transparent opacity-25 animate-pulse" style={{ animationDelay: '0.5s' }} />
+      <div className="absolute top-0 left-1/6 w-px h-full bg-gradient-to-b from-transparent via-cyan-400 to-transparent opacity-30 animate-pulse" />
+      <div className="absolute top-0 left-2/6 w-px h-full bg-gradient-to-b from-transparent via-purple-400 to-transparent opacity-30 animate-pulse" style={{ animationDelay: '1s' }} />
+      <div className="absolute top-0 left-3/6 w-px h-full bg-gradient-to-b from-transparent via-yellow-400 to-transparent opacity-25 animate-pulse" style={{ animationDelay: '1.5s' }} />
+      <div className="absolute top-0 left-4/6 w-px h-full bg-gradient-to-b from-transparent via-cyan-300 to-transparent opacity-25 animate-pulse" style={{ animationDelay: '2s' }} />
+      <div className="absolute top-0 right-1/6 w-px h-full bg-gradient-to-b from-transparent via-purple-300 to-transparent opacity-30 animate-pulse" style={{ animationDelay: '0.5s' }} />
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
@@ -166,7 +177,7 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Services avec effet de poussière dorée */}
+          {/* Services avec effet de poussière dorée plus intense */}
           <div className="group">
             <h3 className="font-bold text-lg mb-4 text-cyan-400 group-hover:text-cyan-300 transition-colors duration-300">
               Nos services
@@ -181,35 +192,50 @@ const Footer = () => {
                 "Support technique"
               ].map((service, index) => (
                 <li key={index} className="relative overflow-hidden cursor-pointer group/item">
-                  <div className="relative z-10 flex items-center transition-all duration-500 hover:translate-x-2 hover:text-yellow-300 group-hover/item:animate-pulse">
-                    <span className="w-1 h-1 bg-cyan-400 rounded-full mr-3 group-hover/item:w-2 group-hover/item:bg-yellow-400 transition-all duration-300"></span>
+                  <div className="relative z-10 flex items-center transition-all duration-700 hover:translate-x-3 hover:text-yellow-300 group-hover/item:animate-pulse">
+                    <span className="w-1 h-1 bg-cyan-400 rounded-full mr-3 group-hover/item:w-3 group-hover/item:h-3 group-hover/item:bg-yellow-400 transition-all duration-500"></span>
                     <span className="relative">
                       {service}
-                      {/* Effet de dispersion en poussière dorée */}
-                      <div className="absolute inset-0 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300">
-                        {[...Array(12)].map((_, i) => (
+                      {/* Effet de dispersion en poussière dorée plus intense */}
+                      <div className="absolute inset-0 opacity-0 group-hover/item:opacity-100 transition-opacity duration-500">
+                        {[...Array(20)].map((_, i) => (
                           <div
                             key={i}
-                            className="absolute w-1 h-1 bg-yellow-400 rounded-full animate-electric-particle"
+                            className="absolute w-1.5 h-1.5 bg-yellow-400 rounded-full animate-electric-particle shadow-lg shadow-yellow-400/50"
+                            style={{
+                              left: `${Math.random() * 120}%`,
+                              top: `${Math.random() * 120}%`,
+                              animationDelay: `${Math.random() * 3}s`,
+                              animationDuration: `${1.5 + Math.random() * 2}s`
+                            }}
+                          />
+                        ))}
+                        {/* Particules supplémentaires pour plus d'effet */}
+                        {[...Array(15)].map((_, i) => (
+                          <div
+                            key={`extra-${i}`}
+                            className="absolute w-0.5 h-0.5 bg-white rounded-full animate-electric-particle opacity-80"
                             style={{
                               left: `${Math.random() * 100}%`,
                               top: `${Math.random() * 100}%`,
-                              animationDelay: `${Math.random() * 2}s`,
-                              animationDuration: `${2 + Math.random() * 2}s`
+                              animationDelay: `${Math.random() * 2.5}s`,
+                              animationDuration: `${2 + Math.random() * 1.5}s`
                             }}
                           />
                         ))}
                       </div>
                     </span>
                   </div>
-                  {/* Effet de reconstitution */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/10 to-transparent scale-x-0 group-hover/item:scale-x-100 origin-left transition-transform duration-700"></div>
+                  {/* Effet de reconstitution plus visible */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/20 to-transparent scale-x-0 group-hover/item:scale-x-100 origin-left transition-transform duration-1000"></div>
+                  {/* Halo lumineux */}
+                  <div className="absolute inset-0 bg-yellow-400/5 scale-0 group-hover/item:scale-110 rounded-lg transition-transform duration-700"></div>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Secteurs avec effet de poussière dorée */}
+          {/* Secteurs avec effet de poussière dorée plus intense */}
           <div className="group">
             <h3 className="font-bold text-lg mb-4 text-purple-400 group-hover:text-purple-300 transition-colors duration-300">
               Secteurs d'activité
@@ -224,29 +250,44 @@ const Footer = () => {
                 "Services à la personne"
               ].map((secteur, index) => (
                 <li key={index} className="relative overflow-hidden cursor-pointer group/item">
-                  <div className="relative z-10 flex items-center transition-all duration-500 hover:translate-x-2 hover:text-yellow-300 group-hover/item:animate-pulse">
-                    <span className="w-1 h-1 bg-purple-400 rounded-full mr-3 group-hover/item:w-2 group-hover/item:bg-yellow-400 transition-all duration-300"></span>
+                  <div className="relative z-10 flex items-center transition-all duration-700 hover:translate-x-3 hover:text-yellow-300 group-hover/item:animate-pulse">
+                    <span className="w-1 h-1 bg-purple-400 rounded-full mr-3 group-hover/item:w-3 group-hover/item:h-3 group-hover/item:bg-yellow-400 transition-all duration-500"></span>
                     <span className="relative">
                       {secteur}
-                      {/* Effet de dispersion en poussière dorée */}
-                      <div className="absolute inset-0 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300">
-                        {[...Array(12)].map((_, i) => (
+                      {/* Effet de dispersion en poussière dorée plus intense */}
+                      <div className="absolute inset-0 opacity-0 group-hover/item:opacity-100 transition-opacity duration-500">
+                        {[...Array(20)].map((_, i) => (
                           <div
                             key={i}
-                            className="absolute w-1 h-1 bg-yellow-400 rounded-full animate-electric-particle"
+                            className="absolute w-1.5 h-1.5 bg-yellow-400 rounded-full animate-electric-particle shadow-lg shadow-yellow-400/50"
+                            style={{
+                              left: `${Math.random() * 120}%`,
+                              top: `${Math.random() * 120}%`,
+                              animationDelay: `${Math.random() * 3}s`,
+                              animationDuration: `${1.5 + Math.random() * 2}s`
+                            }}
+                          />
+                        ))}
+                        {/* Particules supplémentaires pour plus d'effet */}
+                        {[...Array(15)].map((_, i) => (
+                          <div
+                            key={`extra-${i}`}
+                            className="absolute w-0.5 h-0.5 bg-white rounded-full animate-electric-particle opacity-80"
                             style={{
                               left: `${Math.random() * 100}%`,
                               top: `${Math.random() * 100}%`,
-                              animationDelay: `${Math.random() * 2}s`,
-                              animationDuration: `${2 + Math.random() * 2}s`
+                              animationDelay: `${Math.random() * 2.5}s`,
+                              animationDuration: `${2 + Math.random() * 1.5}s`
                             }}
                           />
                         ))}
                       </div>
                     </span>
                   </div>
-                  {/* Effet de reconstitution */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/10 to-transparent scale-x-0 group-hover/item:scale-x-100 origin-left transition-transform duration-700"></div>
+                  {/* Effet de reconstitution plus visible */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/20 to-transparent scale-x-0 group-hover/item:scale-x-100 origin-left transition-transform duration-1000"></div>
+                  {/* Halo lumineux */}
+                  <div className="absolute inset-0 bg-yellow-400/5 scale-0 group-hover/item:scale-110 rounded-lg transition-transform duration-700"></div>
                 </li>
               ))}
             </ul>
