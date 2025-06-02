@@ -15,24 +15,13 @@ interface ChatGPTResponse {
 export class ChatGPTService {
   private apiKey: string;
   private conversationHistory: ChatGPTMessage[] = [];
+  private baseSystemPrompt: string;
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
     
-    // Obtenir la date actuelle
-    const currentDate = new Date().toLocaleDateString('fr-FR', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
-    
-    this.conversationHistory.push({
-      role: 'system',
-      content: `Tu es Nova, consultante commerciale experte en solutions digitales.
-
-📅 CONTEXTE TEMPOREL ACTUEL :
-Nous sommes le ${currentDate}. Utilise cette information pour tes références temporelles.
+    // Stocker le prompt de base sans la date
+    this.baseSystemPrompt = `Tu es Nova, consultante commerciale experte en solutions digitales.
 
 ⚠️ RÈGLES CRITIQUES D'ATTENTE :
 • ATTENDS 15 SECONDES MINIMUM après chaque silence avant de répondre
@@ -113,12 +102,63 @@ Temps : "On peut échelonner le paiement si tu veux."
 • RESTAURATEUR → Site Vitrine + commande en ligne
 
 🎯 PRINCIPE ABSOLU :
-Une étape → Maximum 3 phrases → ATTENDS 15 secondes → Écoute complète → Étape suivante`
+Une étape → Maximum 3 phrases → ATTENDS 15 secondes → Écoute complète → Étape suivante`;
+
+    // Initialiser l'historique avec le prompt système actualisé
+    this.updateSystemPrompt();
+  }
+
+  private updateSystemPrompt() {
+    // Calculer la date et l'heure actuelles à chaque fois
+    const now = new Date();
+    const currentDate = now.toLocaleDateString('fr-FR', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
     });
+    
+    const currentTime = now.toLocaleTimeString('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    
+    // Déterminer la période de la journée
+    const hour = now.getHours();
+    let timeOfDay = '';
+    if (hour < 12) {
+      timeOfDay = 'matin';
+    } else if (hour < 18) {
+      timeOfDay = 'après-midi';
+    } else {
+      timeOfDay = 'soirée';
+    }
+    
+    const fullSystemPrompt = `📅 CONTEXTE TEMPOREL ACTUEL :
+Nous sommes le ${currentDate} et il est ${currentTime} (${timeOfDay}). 
+Utilise ces informations pour adapter tes références temporelles et ton approche commerciale.
+
+${this.baseSystemPrompt}`;
+
+    // Mettre à jour ou créer le message système
+    if (this.conversationHistory.length === 0 || this.conversationHistory[0].role === 'system') {
+      this.conversationHistory[0] = {
+        role: 'system',
+        content: fullSystemPrompt
+      };
+    } else {
+      this.conversationHistory.unshift({
+        role: 'system',
+        content: fullSystemPrompt
+      });
+    }
   }
 
   async sendMessage(userMessage: string): Promise<string> {
     try {
+      // Mettre à jour le prompt système avec la date/heure actuelle à chaque message
+      this.updateSystemPrompt();
+      
       // Ajouter le message utilisateur à l'historique
       this.conversationHistory.push({
         role: 'user',
@@ -160,6 +200,7 @@ Une étape → Maximum 3 phrases → ATTENDS 15 secondes → Écoute complète �
   }
 
   clearHistory() {
-    this.conversationHistory = this.conversationHistory.slice(0, 1); // Garde juste le message système
+    this.conversationHistory = [];
+    this.updateSystemPrompt(); // Recréer le message système avec la nouvelle date/heure
   }
 }
