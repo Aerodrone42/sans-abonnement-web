@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Mic, MicOff, Brain, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import "../../../types/speech";
 
 interface VoiceRecognitionProps {
   onTranscript: (text: string, field: string) => void;
@@ -18,8 +19,8 @@ const VoiceRecognition = ({ onTranscript, currentField }: VoiceRecognitionProps)
   useEffect(() => {
     // Vérifier si la reconnaissance vocale est supportée
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognitionRef.current = new SpeechRecognition();
+      const SpeechRecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognitionClass();
       
       recognitionRef.current.continuous = true;
       recognitionRef.current.interimResults = true;
