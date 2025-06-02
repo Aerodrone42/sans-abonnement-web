@@ -39,21 +39,21 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
     }));
 
     const handleApiKeySet = (apiKey: string) => {
-      console.log('handleApiKeySet called with key length:', apiKey.length);
-      console.log('Raw API key:', apiKey);
+      console.log('🔵 handleApiKeySet called with key length:', apiKey.length);
+      console.log('🔵 Raw API key:', apiKey);
       
       const cleanedKey = apiKey.trim().replace(/\s+/g, '');
-      console.log('Cleaned API key length:', cleanedKey.length);
-      console.log('Cleaned API key starts with sk-:', cleanedKey.startsWith('sk-'));
+      console.log('🔵 Cleaned API key length:', cleanedKey.length);
+      console.log('🔵 Cleaned API key starts with sk-:', cleanedKey.startsWith('sk-'));
       
       if (!cleanedKey.startsWith('sk-')) {
-        console.error('Invalid API key format - must start with sk-');
+        console.error('❌ Invalid API key format - must start with sk-');
         alert('Clé API invalide - elle doit commencer par "sk-"');
         return;
       }
       
       try {
-        console.log('Creating ChatGPT service...');
+        console.log('🔵 Creating ChatGPT service...');
         const service = new ChatGPTService(cleanedKey);
         setChatGPT(service);
         localStorage.setItem('openai_api_key', cleanedKey);
@@ -68,7 +68,7 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
     useEffect(() => {
       const storedKey = localStorage.getItem('openai_api_key');
       if (storedKey) {
-        console.log('Found stored API key, creating ChatGPT service');
+        console.log('🔵 Found stored API key, creating ChatGPT service');
         try {
           setChatGPT(new ChatGPTService(storedKey));
           console.log('✅ ChatGPT service restored from localStorage');
@@ -79,7 +79,7 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
       }
     }, []);
 
-    console.log('VoiceRecognition render - chatGPT connected:', !!chatGPT);
+    console.log('🔵 VoiceRecognition render - chatGPT connected:', !!chatGPT);
 
     return (
       <div className="relative">
