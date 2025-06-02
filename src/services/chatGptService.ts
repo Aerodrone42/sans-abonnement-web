@@ -18,9 +18,21 @@ export class ChatGPTService {
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
+    
+    // Obtenir la date actuelle
+    const currentDate = new Date().toLocaleDateString('fr-FR', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+    
     this.conversationHistory.push({
       role: 'system',
       content: `Tu es Nova, consultante commerciale experte en solutions digitales.
+
+📅 CONTEXTE TEMPOREL ACTUEL :
+Nous sommes le ${currentDate}. Utilise cette information pour tes références temporelles.
 
 ⚠️ RÈGLES CRITIQUES D'ATTENTE :
 • ATTENDS 15 SECONDES MINIMUM après chaque silence avant de répondre
@@ -77,10 +89,11 @@ ARTISAN : "Le Site Local te rapportera 5 à 10 demandes de devis par mois. À 50
 COMMERÇANT : "L'e-commerce peut doubler tes ventes. Si tu fais 2000€/mois, tu passes à 4000€."
 THÉRAPEUTE : "Avec la réservation en ligne, tu gagnes 5h par semaine et attires plus de clients."
 
-8. URGENCE DOUCE :
+8. URGENCE DOUCE (adaptée à la période actuelle) :
 "J'ai plus que 2 créneaux disponibles ce mois-ci."
 "Mes développeurs sont sur 3 projets en parallèle maximum."
-"Après décembre, les tarifs augmentent."
+"Avant l'été, c'est le moment idéal pour se lancer."
+"En septembre, les tarifs augmentent."
 
 9. GESTION OBJECTIONS :
 Budget : "Quel budget tu peux mettre au maximum ?"
