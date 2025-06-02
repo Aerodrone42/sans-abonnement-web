@@ -1,10 +1,24 @@
 import { ChatGPTService } from './chatGptService';
 import { learningService, ConversationData } from './learningService';
 
+interface ClientInfo {
+  nom?: string;
+  email?: string;
+  telephone?: string;
+  metier?: string;
+  zone?: string;
+  budget?: string;
+  urgence?: string;
+  decideur?: string;
+  situation?: string;
+  objectif?: string;
+  clientAccord?: boolean;
+}
+
 export class EnhancedChatGPTService extends ChatGPTService {
   private sessionId: string;
   private currentStage: number = 1;
-  private clientInfo: ConversationData['clientInfo'] = {};
+  private clientInfo: ClientInfo = {};
   private fillFormCallback: ((data: any) => void) | null = null;
   private submitFormCallback: (() => Promise<void>) | null = null;
 
@@ -49,9 +63,6 @@ export class EnhancedChatGPTService extends ChatGPTService {
       // Mettre à jour les infos client si nouvelles données
       if (Object.keys(this.clientInfo).length > 0) {
         learningService.updateClientInfo(this.clientInfo);
-        
-        // Remplir le formulaire automatiquement si on a assez d'infos
-        this.tryAutoFillForm();
       }
       
       // Sauvegarder automatiquement la conversation toutes les 3 étapes
@@ -59,12 +70,12 @@ export class EnhancedChatGPTService extends ChatGPTService {
         await learningService.saveConversation();
       }
       
-      // Détecter si la conversation est terminée avec succès
-      if (this.isSuccessfulConversion(response)) {
+      // Détecter si la conversation est terminée avec succès ET si le client est d'accord
+      if (this.isSuccessfulConversion(response) && this.clientInfo.clientAccord) {
         learningService.endConversation('success');
         
-        // Essayer d'envoyer automatiquement si le formulaire est complet
-        this.tryAutoSubmitForm();
+        // Remplir et envoyer le formulaire seulement maintenant
+        this.finalizeFormSubmission();
       }
       
       return response;
@@ -77,19 +88,40 @@ export class EnhancedChatGPTService extends ChatGPTService {
   private extractClientInfo(message: string): void {
     const lowerMessage = message.toLowerCase();
     
-    // Détecter le nom
+    // Détecter l'accord du client pour l'envoi
+    if (lowerMessage.includes('oui') || lowerMessage.includes('d\'accord') || lowerMessage.includes('ok') || lowerMessage.includes('parfait')) {
+      const hasContactKeywords = lowerMessage.includes('rappel') || lowerMessage.includes('contact') || lowerMessage.includes('devis') || lowerMessage.includes('envoyer');
+      if (hasContactKeywords) {
+        this.clientInfo.clientAccord = true;
+        console.log('✅ Accord client détecté pour l\'envoi');
+      }
+    }
+    
+    // Détecter le nom - patterns améliorés
     const namePatterns = [
-      /je\s+(?:m'appelle|suis)\s+([a-zA-Z\-\s]+)/i,
-      /mon\s+nom\s+(?:est|c'est)\s+([a-zA-Z\-\s]+)/i,
-      /c'est\s+([a-zA-Z\-\s]+)/i
+      /(?:je\s+(?:m'appelle|suis)\s+)([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/,
+      /(?:mon\s+nom\s+(?:est|c'est)\s+)([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/,
+      /(?:c'est\s+)([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/,
+      /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/
     ];
     
     for (const pattern of namePatterns) {
       const match = message.match(pattern);
       if (match && !this.clientInfo.nom) {
-        this.clientInfo.nom = match[1].trim();
-        console.log('👤 Nom détecté:', this.clientInfo.nom);
-        break;
+        const detectedName = match[1].trim();
+        // Vérifier que ce n'est pas une ville ou un métier
+        const isNotCity = !['paris', 'lyon', 'marseille', 'toulouse', 'bordeaux', 'lille', 'nantes', 'strasbourg', 'saint-étienne'].some(city => 
+          detectedName.toLowerCase().includes(city)
+        );
+        const isNotJob = !['plombier', 'électricien', 'maçon', 'peintre', 'chauffagiste', 'menuisier', 'carreleur', 'couvreur'].some(job => 
+          detectedName.toLowerCase().includes(job)
+        );
+        
+        if (isNotCity && isNotJob && detectedName.length > 2) {
+          this.clientInfo.nom = detectedName;
+          console.log('👤 Nom détecté:', this.clientInfo.nom);
+          break;
+        }
       }
     }
     
@@ -101,7 +133,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
       console.log('📧 Email détecté:', this.clientInfo.email);
     }
     
-    // Détecter le téléphone
+    // Détecter le téléphone - patterns améliorés
     const phonePatterns = [
       /(?:0[1-9])(?:[\s.-]?\d{2}){4}/,
       /(?:\+33|0033)[1-9](?:[\s.-]?\d{2}){4}/,
@@ -125,21 +157,21 @@ export class EnhancedChatGPTService extends ChatGPTService {
       console.log('🎯 Métier détecté:', foundMetier);
     }
     
-    // Détecter la zone
-    if ((lowerMessage.includes('km') || lowerMessage.includes('kilomètre')) && !this.clientInfo.zone) {
+    // Détecter la zone - améliorer la détection
+    if (!this.clientInfo.zone) {
+      // Détecter les kilomètres
       const kmMatch = message.match(/(\d+)\s*km/);
       if (kmMatch) {
         this.clientInfo.zone = `${kmMatch[1]}km`;
         console.log('🗺️ Zone détectée:', this.clientInfo.zone);
       }
-    }
-    
-    // Détecter les villes
-    const villes = ['paris', 'lyon', 'marseille', 'toulouse', 'bordeaux', 'lille', 'nantes', 'strasbourg'];
-    const foundVille = villes.find(ville => lowerMessage.includes(ville));
-    if (foundVille && !this.clientInfo.zone) {
-      this.clientInfo.zone = foundVille;
-      console.log('🏙️ Ville détectée:', foundVille);
+      
+      // Détecter les villes - pattern amélioré
+      const villeMatch = message.match(/(?:sur|à|de|dans)\s+([A-Z][a-z]+(?:-[A-Z][a-z]+)*)/);
+      if (villeMatch) {
+        this.clientInfo.zone = villeMatch[1];
+        console.log('🏙️ Ville détectée:', this.clientInfo.zone);
+      }
     }
     
     // Détecter le budget
@@ -152,8 +184,11 @@ export class EnhancedChatGPTService extends ChatGPTService {
     }
   }
 
-  private tryAutoFillForm(): void {
-    if (!this.fillFormCallback) return;
+  private finalizeFormSubmission(): void {
+    if (!this.fillFormCallback || !this.clientInfo.clientAccord) {
+      console.log('❌ Pas d\'accord client ou callback manquant');
+      return;
+    }
     
     const formData: any = {};
     
@@ -186,24 +221,29 @@ export class EnhancedChatGPTService extends ChatGPTService {
         message += ` - Budget: ${this.clientInfo.budget}`;
       }
       
-      message += `\n\nConversation avec l'IA : Le client a exprimé un intérêt pour nos services. Session: ${this.sessionId}`;
+      message += `\n\nConversation avec l'IA terminée avec succès. Le client a donné son accord pour être recontacté. Session: ${this.sessionId}`;
       
       formData.message = message;
     }
     
-    // Remplir le formulaire si on a au moins quelques infos
-    if (Object.keys(formData).length > 0) {
-      console.log('🤖 Remplissage automatique du formulaire:', formData);
+    // Remplir le formulaire seulement si on a les infos essentielles
+    if (this.clientInfo.nom && (this.clientInfo.email || this.clientInfo.telephone)) {
+      console.log('🤖 Remplissage final du formulaire avec accord client:', formData);
       this.fillFormCallback(formData);
+      
+      // Essayer d'envoyer automatiquement si toutes les infos sont là
+      setTimeout(() => {
+        this.tryAutoSubmitForm();
+      }, 2000);
     }
   }
 
   private async tryAutoSubmitForm(): Promise<void> {
-    if (!this.submitFormCallback) return;
+    if (!this.submitFormCallback || !this.clientInfo.clientAccord) return;
     
-    // Vérifier qu'on a les infos minimales (nom, email, message)
-    if (this.clientInfo.nom && this.clientInfo.email) {
-      console.log('🚀 Envoi automatique du formulaire...');
+    // Vérifier qu'on a les infos minimales ET l'accord du client
+    if (this.clientInfo.nom && this.clientInfo.email && this.clientInfo.clientAccord) {
+      console.log('🚀 Envoi automatique du formulaire avec accord client...');
       try {
         await this.submitFormCallback();
         console.log('✅ Formulaire envoyé automatiquement avec succès');
@@ -273,11 +313,12 @@ export class EnhancedChatGPTService extends ChatGPTService {
   private isSuccessfulConversion(response: string): boolean {
     const successKeywords = [
       'parfait !',
-      'clique sur le bouton',
-      'je te rappelle demain',
+      'je te rappelle',
       'on va faire quelque chose',
       'super !',
-      'génial'
+      'génial',
+      'excellent',
+      'formidable'
     ];
     
     return successKeywords.some(keyword => 

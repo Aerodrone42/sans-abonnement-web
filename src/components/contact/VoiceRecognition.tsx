@@ -34,7 +34,7 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
   ({ onTranscript, currentField, fillFormFromAI, submitFromAI, formData }, ref) => {
     const [chatGPT, setChatGPT] = useState<EnhancedChatGPTService | null>(null);
     const [conversationMode, setConversationMode] = useState(true);
-    const [canSendEmail, setCanSendEmail] = useState(false);
+    const [isFormFilled, setIsFormFilled] = useState(false);
     
     const {
       isListening,
@@ -72,19 +72,25 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
       }
     }, [fillFormFromAI, submitFromAI]);
 
-    // Vérifier si le formulaire est prêt pour l'envoi
+    // Détecter si le formulaire a été rempli par l'IA
     useEffect(() => {
       if (formData) {
-        const isComplete = Boolean(formData.name && formData.email && formData.message);
-        setCanSendEmail(isComplete);
+        const wasEmpty = !formData.name && !formData.email && !formData.phone && !formData.business;
+        const hasContent = formData.name || formData.email || formData.phone || formData.business;
+        
+        if (wasEmpty && hasContent) {
+          setIsFormFilled(true);
+          console.log('📝 Formulaire rempli par l\'IA détecté');
+        }
       }
     }, [formData]);
 
     // Fonction pour envoyer automatiquement l'email quand l'IA le demande
     const handleAutoSubmit = async () => {
-      if (canSendEmail && submitFromAI) {
+      if (isFormFilled && submitFromAI) {
         console.log('🤖 IA déclenche l\'envoi automatique de l\'email');
         await submitFromAI();
+        setIsFormFilled(false); // Reset après envoi
       }
     };
 
@@ -115,27 +121,25 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
           <div className="mb-6 p-4 bg-green-500/10 border border-green-400/30 rounded-lg">
             <p className="text-green-200 text-sm">
               ✅ Bonjour ! Je suis votre conseiller IA spécialisé en développement web. 
-              Parlez-moi de votre projet (nom, email, téléphone, métier) et je remplirai automatiquement votre demande de devis !
+              Parlez-moi de votre projet et je vous guiderai vers la meilleure solution !
             </p>
           </div>
 
-          {/* Indicateur d'état du formulaire */}
-          {formData && (
+          {/* Indicateur de formulaire rempli par l'IA */}
+          {isFormFilled && (
             <div className="mb-4 p-3 bg-blue-500/10 border border-blue-400/30 rounded-lg">
               <div className="flex items-center justify-between">
                 <span className="text-blue-200 text-sm">
-                  📝 Formulaire: {canSendEmail ? '✅ Prêt à envoyer' : '⏳ En cours de remplissage automatique...'}
+                  🎯 Formulaire automatiquement rempli ! Prêt à envoyer votre demande ?
                 </span>
-                {canSendEmail && (
-                  <Button
-                    onClick={handleAutoSubmit}
-                    size="sm"
-                    className="bg-green-500 hover:bg-green-600 text-white"
-                  >
-                    <Send className="w-4 h-4 mr-2" />
-                    Envoyer l'email
-                  </Button>
-                )}
+                <Button
+                  onClick={handleAutoSubmit}
+                  size="sm"
+                  className="bg-green-500 hover:bg-green-600 text-white"
+                >
+                  <Send className="w-4 h-4 mr-2" />
+                  Envoyer la demande
+                </Button>
               </div>
             </div>
           )}
