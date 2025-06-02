@@ -80,7 +80,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
       }
       
       // Remplissage progressif du formulaire avec toutes les données
-      await this.fillFormWithRealData();
+      await this.fillFormWithCorrectData();
       
       // Sauvegarder automatiquement la conversation toutes les 3 étapes
       if (this.currentStage % 3 === 0) {
@@ -108,11 +108,11 @@ export class EnhancedChatGPTService extends ChatGPTService {
 
     // Détecter les horaires de rappel
     if (lowerMessage.includes('matin')) {
-      this.clientInfo.horaireRappel = 'matin';
+      this.clientInfo.horaireRappel = 'matin (8h-12h)';
     } else if (lowerMessage.includes('après-midi')) {
-      this.clientInfo.horaireRappel = 'après-midi';
+      this.clientInfo.horaireRappel = 'après-midi (14h-18h)';
     } else if (lowerMessage.includes('soir') || lowerMessage.includes('fin de journée')) {
-      this.clientInfo.horaireRappel = 'soir';
+      this.clientInfo.horaireRappel = 'soir (18h-20h)';
     }
     
     // Gérer les étapes du formulaire selon la réponse utilisateur
@@ -132,18 +132,24 @@ export class EnhancedChatGPTService extends ChatGPTService {
           break;
         case 'tel':
           if (this.extractPhone(message)) {
-            this.clientInfo.formulaireEtape = 'entreprise';
-            console.log('📝 Passage à l\'étape entreprise');
+            this.clientInfo.formulaireEtape = 'metier';
+            console.log('📝 Passage à l\'étape métier');
           }
           break;
-        case 'entreprise':
-          if (this.extractBusiness(message)) {
+        case 'metier':
+          if (this.extractProfession(message)) {
             this.clientInfo.formulaireEtape = 'message';
             console.log('📝 Passage à l\'étape message');
           }
           break;
         case 'message':
           if (this.extractMessage(message)) {
+            this.clientInfo.formulaireEtape = 'horaire';
+            console.log('📝 Passage à l\'étape horaire');
+          }
+          break;
+        case 'horaire':
+          if (this.extractCallbackTime(message)) {
             this.clientInfo.formulaireEtape = 'fini';
             console.log('📝 Formulaire terminé');
           }
@@ -152,18 +158,12 @@ export class EnhancedChatGPTService extends ChatGPTService {
     }
   }
 
-  // EXTRACTION CORRIGÉE DU NOM - Plus précise
+  // EXTRACTION CORRIGÉE DU NOM
   private extractName(message: string): boolean {
-    // Nettoyer le message des mots parasites
     const cleanMessage = message.replace(/\b(je\s+(?:m'appelle|suis)|mon\s+nom\s+(?:est|c'est)|c'est|bonjour|salut|ok|oui|non|voici|voilà)\b/gi, '').trim();
     
-    // Patterns pour détecter un nom et prénom
     const namePatterns = [
-      // Prénom Nom (format classique)
       /^([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]{1,})\s+([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]{1,})$/,
-      // Nom Prénom (format inversé)
-      /^([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]{1,})\s+([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]{1,})$/,
-      // Prénom Nom avec particules (de, du, des, etc.)
       /^([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]{1,})\s+(?:de\s+|du\s+|des\s+|le\s+|la\s+)?([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]{1,})$/i
     ];
     
@@ -171,16 +171,14 @@ export class EnhancedChatGPTService extends ChatGPTService {
       const match = cleanMessage.match(pattern);
       if (match) {
         const fullName = `${match[1]} ${match[2]}`;
-        // Vérifier que ce n'est pas un métier ou une ville
         if (!this.isBusinessOrCity(fullName) && fullName.length >= 4) {
           this.clientInfo.nom = fullName;
-          console.log('👤 Nom complet détecté et validé:', this.clientInfo.nom);
+          console.log('👤 Nom complet détecté:', this.clientInfo.nom);
           return true;
         }
       }
     }
     
-    // Fallback : si un seul mot de plus de 2 caractères
     const singleWordMatch = cleanMessage.match(/^([A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜŸÑÇ][a-zàâäéèêëïîôöùûüÿñç]{2,})$/);
     if (singleWordMatch && !this.isBusinessOrCity(singleWordMatch[1])) {
       this.clientInfo.nom = singleWordMatch[1];
@@ -188,93 +186,95 @@ export class EnhancedChatGPTService extends ChatGPTService {
       return true;
     }
     
-    console.log('❌ Aucun nom valide détecté dans:', cleanMessage);
     return false;
   }
 
-  // EXTRACTION CORRIGÉE DE L'EMAIL - Sans espaces
+  // EXTRACTION CORRIGÉE DE L'EMAIL
   private extractAndValidateEmail(message: string): boolean {
-    // Supprimer TOUS les espaces du message pour l'extraction email
     const messageNoSpaces = message.replace(/\s+/g, '');
-    
-    // Pattern email amélioré
     const emailPattern = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/;
     const emailMatch = messageNoSpaces.match(emailPattern);
     
     if (emailMatch) {
       const email = emailMatch[1].toLowerCase();
-      
       if (this.isValidEmail(email)) {
         this.clientInfo.email = email;
-        console.log('📧 Email détecté et validé (sans espaces):', this.clientInfo.email);
+        console.log('📧 Email détecté:', this.clientInfo.email);
         return true;
-      } else {
-        console.log('❌ Email invalide détecté:', email);
-        return false;
       }
     }
     
-    // Fallback : recherche dans le message original avec nettoyage manuel
     const manualCleanPattern = /([a-zA-Z0-9._%+-]+)\s*@\s*([a-zA-Z0-9.-]+)\s*\.\s*([a-zA-Z]{2,})/;
     const manualMatch = message.match(manualCleanPattern);
     if (manualMatch) {
       const cleanEmail = `${manualMatch[1]}@${manualMatch[2]}.${manualMatch[3]}`.toLowerCase();
       if (this.isValidEmail(cleanEmail)) {
         this.clientInfo.email = cleanEmail;
-        console.log('📧 Email nettoyé manuellement et validé:', this.clientInfo.email);
+        console.log('📧 Email nettoyé:', this.clientInfo.email);
         return true;
       }
     }
     
-    console.log('❌ Aucun email valide trouvé dans:', message);
     return false;
   }
 
-  // EXTRACTION CORRIGÉE DU TÉLÉPHONE - Plus robuste
+  // EXTRACTION CORRIGÉE DU TÉLÉPHONE
   private extractPhone(message: string): boolean {
     const phonePatterns = [
-      // Formats français standards
       /0[1-9](?:[\s.-]?\d{2}){4}/,
-      // Avec indicatif +33
       /(?:\+33|0033)\s?[1-9](?:[\s.-]?\d{2}){4}/,
-      // Format international simplifié
       /(?:\+33\s?|0)[1-9](?:[\s.-]?\d{2}){4}/,
-      // Format avec parenthèses
       /0[1-9](?:\s?\(\d{2}\)\s?\d{2}\s?\d{2}\s?\d{2})/,
-      // Format simple 10 chiffres
       /0[1-9]\d{8}/
     ];
     
     for (const pattern of phonePatterns) {
       const match = message.match(pattern);
       if (match) {
-        // Nettoyer le numéro (garder seulement chiffres et +)
         let cleanPhone = match[0].replace(/[\s.-]/g, '');
-        
-        // Normaliser le format français
         if (cleanPhone.startsWith('+33')) {
           cleanPhone = '0' + cleanPhone.substring(3);
         } else if (cleanPhone.startsWith('0033')) {
           cleanPhone = '0' + cleanPhone.substring(4);
         }
-        
         this.clientInfo.telephone = cleanPhone;
-        console.log('📞 Téléphone détecté et nettoyé:', this.clientInfo.telephone);
+        console.log('📞 Téléphone détecté:', this.clientInfo.telephone);
         return true;
       }
     }
-    
-    console.log('❌ Aucun téléphone valide trouvé dans:', message);
     return false;
   }
 
-  private extractBusiness(message: string): boolean {
-    const businessText = message.trim();
-    if (businessText.length > 2) {
-      this.clientInfo.entreprise = businessText;
-      console.log('🏢 Entreprise détectée:', this.clientInfo.entreprise);
+  // NOUVELLE MÉTHODE : Extraction du métier/profession
+  private extractProfession(message: string): boolean {
+    const lowerMessage = message.toLowerCase();
+    
+    // Liste étendue des métiers du bâtiment
+    const metiers = [
+      'plombier', 'électricien', 'maçon', 'peintre', 'chauffagiste', 'menuisier', 
+      'carreleur', 'couvreur', 'charpentier', 'serrurier', 'vitrier', 'fumiste',
+      'terrassier', 'façadier', 'étancheur', 'solier', 'platrier', 'cloisons',
+      'isolation', 'parquet', 'carrelage', 'plomberie', 'électricité', 'chauffage',
+      'climatisation', 'ventilation', 'toiture', 'charpente', 'bardage'
+    ];
+    
+    // Chercher le métier dans le message
+    const foundMetier = metiers.find(metier => lowerMessage.includes(metier));
+    if (foundMetier) {
+      this.clientInfo.metier = foundMetier;
+      this.clientInfo.entreprise = foundMetier; // Remplir aussi entreprise
+      console.log('🔨 Métier détecté:', foundMetier);
       return true;
     }
+    
+    // Si pas de métier spécifique trouvé, utiliser le texte comme entreprise
+    const cleanText = message.trim();
+    if (cleanText.length > 2 && !lowerMessage.includes('oui') && !lowerMessage.includes('non') && !lowerMessage.includes('numéro')) {
+      this.clientInfo.entreprise = cleanText;
+      console.log('🏢 Entreprise détectée:', cleanText);
+      return true;
+    }
+    
     return false;
   }
 
@@ -285,6 +285,27 @@ export class EnhancedChatGPTService extends ChatGPTService {
       console.log('💬 Message détecté:', this.clientInfo.message);
       return true;
     }
+    return false;
+  }
+
+  // NOUVELLE MÉTHODE : Extraction de l'heure de rappel
+  private extractCallbackTime(message: string): boolean {
+    const lowerMessage = message.toLowerCase();
+    
+    if (lowerMessage.includes('matin')) {
+      this.clientInfo.horaireRappel = 'matin (8h-12h)';
+      console.log('⏰ Horaire rappel:', this.clientInfo.horaireRappel);
+      return true;
+    } else if (lowerMessage.includes('après-midi')) {
+      this.clientInfo.horaireRappel = 'après-midi (14h-18h)';
+      console.log('⏰ Horaire rappel:', this.clientInfo.horaireRappel);
+      return true;
+    } else if (lowerMessage.includes('soir')) {
+      this.clientInfo.horaireRappel = 'soir (18h-20h)';
+      console.log('⏰ Horaire rappel:', this.clientInfo.horaireRappel);
+      return true;
+    }
+    
     return false;
   }
 
@@ -312,17 +333,13 @@ export class EnhancedChatGPTService extends ChatGPTService {
            businesses.some(business => lowerText.includes(business));
   }
 
-  // REMPLISSAGE CORRIGÉ - Chaque champ individuellement
-  private async fillFormWithRealData(): Promise<void> {
-    if (!this.fillFormCallback) {
-      console.log('❌ Callback de formulaire manquant');
-      return;
-    }
+  // REMPLISSAGE CORRIGÉ - Données propres
+  private async fillFormWithCorrectData(): Promise<void> {
+    if (!this.fillFormCallback) return;
     
     const formData: any = {};
     let hasNewData = false;
     
-    // Remplir chaque champ individuellement avec validation
     if (this.clientInfo.nom && this.clientInfo.nom.trim()) {
       formData.name = this.clientInfo.nom.trim();
       hasNewData = true;
@@ -341,17 +358,18 @@ export class EnhancedChatGPTService extends ChatGPTService {
       console.log('📞 Remplissage téléphone:', formData.phone);
     }
     
-    if (this.clientInfo.entreprise || this.clientInfo.metier) {
-      const business = (this.clientInfo.entreprise || this.clientInfo.metier || '').trim();
-      if (business) {
+    // CORRECTION : Utiliser le bon métier/entreprise
+    if (this.clientInfo.metier || this.clientInfo.entreprise) {
+      const business = (this.clientInfo.metier || this.clientInfo.entreprise || '').trim();
+      if (business && !business.toLowerCase().includes('numéro') && !business.toLowerCase().includes('oui') && !business.toLowerCase().includes('non')) {
         formData.business = business;
         hasNewData = true;
-        console.log('🏢 Remplissage entreprise/métier:', formData.business);
+        console.log('🏢 Remplissage entreprise/métier CORRIGÉ:', formData.business);
       }
     }
     
-    // Message personnalisé professionnel SANS session ID
-    if (this.clientInfo.metier || this.clientInfo.zone || this.clientInfo.budget || this.clientInfo.message) {
+    // Message propre SANS phrases parasites
+    if (this.clientInfo.message || this.clientInfo.metier || this.clientInfo.zone || this.clientInfo.budget) {
       let message = '';
       
       if (this.clientInfo.metier) {
@@ -370,7 +388,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
         message += `\n\nPréférence d'horaire de contact: ${this.clientInfo.horaireRappel}`;
       }
       
-      if (this.clientInfo.message) {
+      if (this.clientInfo.message && !this.clientInfo.message.toLowerCase().includes('décideur')) {
         message += `\n\nDemande spécifique: ${this.clientInfo.message}`;
       }
       
@@ -378,17 +396,16 @@ export class EnhancedChatGPTService extends ChatGPTService {
       
       formData.message = message;
       hasNewData = true;
-      console.log('💬 Message personnalisé créé:', message);
+      console.log('💬 Message propre créé:', message);
     }
     
     if (hasNewData) {
-      console.log('📝 Remplissage du formulaire avec toutes les données individuelles:', formData);
+      console.log('📝 Remplissage du formulaire CORRIGÉ:', formData);
       this.fillFormCallback(formData);
-    } else {
-      console.log('ℹ️ Aucune nouvelle donnée à remplir dans le formulaire');
     }
   }
 
+  
   private extractClientInfo(message: string): void {
     const lowerMessage = message.toLowerCase();
     
