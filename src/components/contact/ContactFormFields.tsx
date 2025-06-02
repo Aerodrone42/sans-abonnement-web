@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, Phone, Building, User, Mic } from "lucide-react";
@@ -18,6 +17,7 @@ interface ContactFormFieldsProps {
 
 const ContactFormFields = ({ formData, handleChange }: ContactFormFieldsProps) => {
   const [showVoiceInterface, setShowVoiceInterface] = useState(false);
+  const voiceRecognitionRef = useRef<any>(null);
 
   const handleVoiceTranscript = (transcript: string, field: string) => {
     // Créer un événement synthétique pour la mise à jour
@@ -35,19 +35,26 @@ const ContactFormFields = ({ formData, handleChange }: ContactFormFieldsProps) =
     setShowVoiceInterface(true);
   };
 
+  const closeVoiceInterface = () => {
+    setShowVoiceInterface(false);
+    // Force cleanup of any active microphone/recognition when closing
+    console.log('Closing voice interface and cleaning up...');
+  };
+
   return (
     <>
       {/* Interface vocale IA - uniquement pour le message */}
       {showVoiceInterface && (
         <div className="mb-8">
           <VoiceRecognition
+            ref={voiceRecognitionRef}
             onTranscript={handleVoiceTranscript}
             currentField="Message"
           />
           <div className="flex justify-center mt-4">
             <button
               type="button"
-              onClick={() => setShowVoiceInterface(false)}
+              onClick={closeVoiceInterface}
               className="text-sm text-gray-400 hover:text-cyan-400 transition-colors"
             >
               Fermer l'assistant vocal

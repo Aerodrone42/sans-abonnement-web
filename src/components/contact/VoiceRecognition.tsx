@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Mic, MicOff, Brain, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ const VoiceRecognition = ({ onTranscript, currentField }: VoiceRecognitionProps)
   const [audioData, setAudioData] = useState<number[]>([]);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const animationRef = useRef<number>();
+  const mediaStreamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
     // Vérifier si la reconnaissance vocale est supportée
@@ -40,49 +42,90 @@ const VoiceRecognition = ({ onTranscript, currentField }: VoiceRecognitionProps)
 
       recognitionRef.current.onerror = (event) => {
         console.error('Erreur de reconnaissance vocale:', event.error);
+        cleanupMicrophone();
+      };
+
+      recognitionRef.current.onend = () => {
         setIsListening(false);
+        cleanupMicrophone();
       };
     }
 
+    // Cleanup when component unmounts
     return () => {
+      cleanupMicrophone();
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
     };
   }, [onTranscript]);
 
-  const startListening = async () => {
+  const cleanupMicrophone = () => {
+    setIsListening(false);
+    
+    // Stop media stream if it exists
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach(track => {
+        track.stop();
+      });
+      mediaStreamRef.current = null;
+    }
+
+    // Stop animation
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = undefined;
+    }
+
+    // Stop speech recognition
     if (recognitionRef.current) {
       try {
-        // Demander l'accès au microphone
-        await navigator.mediaDevices.getUserMedia({ audio: true });
-        recognitionRef.current.start();
-        setIsListening(true);
-        startAudioVisualization();
+        recognitionRef.current.stop();
       } catch (error) {
-        console.error('Erreur d\'accès au microphone:', error);
+        console.log('Recognition already stopped');
       }
+    }
+  };
+
+  const startListening = async () => {
+    if (!recognitionRef.current) return;
+
+    try {
+      // First check if we're already listening
+      if (isListening) {
+        console.log('Already listening, stopping first...');
+        cleanupMicrophone();
+        return;
+      }
+
+      // Get microphone access
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStreamRef.current = stream;
+
+      // Start recognition
+      recognitionRef.current.start();
+      setIsListening(true);
+      startAudioVisualization();
+      
+      console.log('Voice recognition started');
+    } catch (error) {
+      console.error('Erreur d\'accès au microphone:', error);
+      cleanupMicrophone();
     }
   };
 
   const stopListening = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      setIsListening(false);
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    }
+    console.log('Stopping voice recognition...');
+    cleanupMicrophone();
   };
 
   const startAudioVisualization = () => {
-    // Simulation de données audio pour l'effet visuel
     const generateAudioData = () => {
+      if (!isListening) return;
+      
       const data = Array.from({ length: 32 }, () => Math.random() * 100);
       setAudioData(data);
-      if (isListening) {
-        animationRef.current = requestAnimationFrame(generateAudioData);
-      }
+      animationRef.current = requestAnimationFrame(generateAudioData);
     };
     generateAudioData();
   };
