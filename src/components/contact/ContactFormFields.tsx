@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, Phone, Building, User, Mic } from "lucide-react";
-import VoiceRecognition from "./VoiceRecognition";
+import VoiceRecognition, { VoiceRecognitionRef } from "./VoiceRecognition";
 
 interface ContactFormFieldsProps {
   formData: {
@@ -17,7 +17,7 @@ interface ContactFormFieldsProps {
 
 const ContactFormFields = ({ formData, handleChange }: ContactFormFieldsProps) => {
   const [showVoiceInterface, setShowVoiceInterface] = useState(false);
-  const voiceRecognitionRef = useRef<any>(null);
+  const voiceRecognitionRef = useRef<VoiceRecognitionRef>(null);
 
   const handleVoiceTranscript = (transcript: string, field: string) => {
     // Créer un événement synthétique pour la mise à jour
@@ -38,6 +38,9 @@ const ContactFormFields = ({ formData, handleChange }: ContactFormFieldsProps) =
   const closeVoiceInterface = () => {
     setShowVoiceInterface(false);
     // Force cleanup of any active microphone/recognition when closing
+    if (voiceRecognitionRef.current) {
+      voiceRecognitionRef.current.cleanup();
+    }
     console.log('Closing voice interface and cleaning up...');
   };
 
