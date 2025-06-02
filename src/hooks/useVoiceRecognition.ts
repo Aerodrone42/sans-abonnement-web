@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { EnhancedChatGPTService } from '@/services/enhancedChatGptService';
 import { SpeechSynthesisService } from '@/services/speechSynthesisService';
@@ -40,7 +41,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
   const interimResultRef = useRef("");
   const isStoppedRef = useRef(false);
   const microphoneMutedRef = useRef(false);
-  // Nouvelle ref pour tracker l'état réel de la reconnaissance
   const recognitionActiveRef = useRef(false);
 
   const cleanup = () => {
@@ -119,7 +119,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     }, 1000);
   };
 
-  // Fonction sécurisée pour démarrer la reconnaissance
   const startRecognitionSafely = () => {
     if (!recognitionRef.current) {
       console.log('❌ Recognition non disponible');
@@ -287,17 +286,8 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       };
 
       recognition.onresult = (event) => {
-        if (isStoppedRef.current || microphoneMutedRef.current) {
-          console.log('❌ onresult ignoré - conversation arrêtée ou micro coupé');
-          return;
-        }
-
-        if (speakingRef.current || processingRef.current) {
-          console.log('❌ onresult ignoré - IA parle ou traite');
-          return;
-        }
-
-        console.log('🎯 RÉSULTAT VOCAL ACCEPTÉ');
+        // ✅ NOUVEAU: Affichage IMMÉDIAT - pas de filtres pour l'affichage
+        console.log('🎯 RÉSULTAT VOCAL REÇU - affichage immédiat');
         let finalTranscript = '';
         let interimTranscript = '';
         
@@ -310,29 +300,43 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
           }
         }
         
+        // ✅ AFFICHAGE IMMÉDIAT - peu importe l'état de l'IA
         if (interimTranscript) {
           interimResultRef.current = interimTranscript;
-          setTranscript(lastTranscriptRef.current + interimTranscript);
+          const displayText = lastTranscriptRef.current + interimTranscript;
+          setTranscript(displayText);
+          console.log('📝 AFFICHAGE INTERIM:', displayText);
         }
         
         if (finalTranscript.trim()) {
           console.log('🎯 TRANSCRIPT FINAL UTILISATEUR:', finalTranscript);
           lastTranscriptRef.current += finalTranscript;
           setTranscript(lastTranscriptRef.current);
+          console.log('📝 AFFICHAGE FINAL:', lastTranscriptRef.current);
           
-          if (silenceTimeoutRef.current) {
-            clearTimeout(silenceTimeoutRef.current);
-          }
+          // ✅ FILTRES SEULEMENT POUR LE TRAITEMENT IA (pas pour l'affichage)
+          const canProcessAI = !isStoppedRef.current && 
+                              !microphoneMutedRef.current && 
+                              !speakingRef.current && 
+                              !processingRef.current;
           
-          silenceTimeoutRef.current = setTimeout(() => {
-            if (lastTranscriptRef.current.trim() && !isStoppedRef.current && !microphoneMutedRef.current) {
-              console.log('⏰ Traitement après silence:', lastTranscriptRef.current);
-              processAIResponse(lastTranscriptRef.current.trim());
-              lastTranscriptRef.current = "";
-              interimResultRef.current = "";
-              setTranscript("");
+          if (canProcessAI) {
+            if (silenceTimeoutRef.current) {
+              clearTimeout(silenceTimeoutRef.current);
             }
-          }, 2500);
+            
+            silenceTimeoutRef.current = setTimeout(() => {
+              if (lastTranscriptRef.current.trim() && !isStoppedRef.current && !microphoneMutedRef.current) {
+                console.log('⏰ Traitement IA après silence:', lastTranscriptRef.current);
+                processAIResponse(lastTranscriptRef.current.trim());
+                lastTranscriptRef.current = "";
+                interimResultRef.current = "";
+                setTranscript("");
+              }
+            }, 2500);
+          } else {
+            console.log('⚠️ Traitement IA différé - IA occuppée, mais texte affiché');
+          }
         }
       };
 
@@ -347,7 +351,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
           return;
         }
         
-        // Redémarrage automatique seulement si nécessaire et autorisé
         if (isConversationActive && !processingRef.current && !speakingRef.current && !isStoppedRef.current && !microphoneMutedRef.current) {
           console.log('🔄 Redémarrage après erreur dans 2s');
           restartTimeoutRef.current = setTimeout(() => {
@@ -363,7 +366,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
         recognitionActiveRef.current = false;
         setIsListening(false);
         
-        // Auto-restart seulement si vraiment nécessaire
         if (isConversationActive && !processingRef.current && !speakingRef.current && !isStoppedRef.current && !microphoneMutedRef.current && !recognitionActiveRef.current) {
           console.log('🔄 Auto-restart recognition dans 1s');
           restartTimeoutRef.current = setTimeout(() => {
