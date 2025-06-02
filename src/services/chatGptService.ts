@@ -19,7 +19,7 @@ export class ChatGPTService {
   constructor(apiKey: string) {
     this.apiKey = apiKey;
     
-    // Prompt système optimisé avec relances intelligentes
+    // Nouveau prompt système optimisé avec relances intelligentes
     this.baseSystemPrompt = `Tu es Nova, consultante commerciale experte en solutions digitales.
 
 📅 CONTEXTE TEMPOREL :
