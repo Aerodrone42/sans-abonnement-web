@@ -15,8 +15,14 @@ const ApiKeyInput = ({ onApiKeySet, isConnected }: ApiKeyInputProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form submitted, API key length:', apiKey.length);
+    console.log('API key starts with sk-:', apiKey.startsWith('sk-'));
+    
     if (apiKey.trim()) {
+      console.log('Calling onApiKeySet with API key');
       onApiKeySet(apiKey.trim());
+    } else {
+      console.log('API key is empty or invalid');
     }
   };
 
@@ -51,13 +57,19 @@ const ApiKeyInput = ({ onApiKeySet, isConnected }: ApiKeyInputProps) => {
           <Input
             type={showKey ? "text" : "password"}
             value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
+            onChange={(e) => {
+              console.log('API key input changed, length:', e.target.value.length);
+              setApiKey(e.target.value);
+            }}
             placeholder="sk-..."
             className="pr-10 bg-gray-800/50 border-cyan-400/30 text-white"
           />
           <button
             type="button"
-            onClick={() => setShowKey(!showKey)}
+            onClick={() => {
+              console.log('Toggle visibility clicked');
+              setShowKey(!showKey);
+            }}
             className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-cyan-400"
           >
             {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -66,6 +78,10 @@ const ApiKeyInput = ({ onApiKeySet, isConnected }: ApiKeyInputProps) => {
         <Button 
           type="submit" 
           disabled={!apiKey.trim()}
+          onClick={(e) => {
+            console.log('Connect button clicked');
+            // Le handleSubmit sera appelé automatiquement par le formulaire
+          }}
           className="bg-cyan-500 hover:bg-cyan-600"
         >
           Connecter

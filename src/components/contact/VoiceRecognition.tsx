@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 import { Mic, MicOff, Brain, Zap, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -64,15 +65,24 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
     }));
 
     const handleApiKeySet = (apiKey: string) => {
-      const service = new ChatGPTService(apiKey);
-      setChatGPT(service);
-      localStorage.setItem('openai_api_key', apiKey);
+      console.log('handleApiKeySet called with key length:', apiKey.length);
+      console.log('API key starts with sk-:', apiKey.startsWith('sk-'));
+      
+      try {
+        const service = new ChatGPTService(apiKey);
+        setChatGPT(service);
+        localStorage.setItem('openai_api_key', apiKey);
+        console.log('ChatGPT service created and API key stored');
+      } catch (error) {
+        console.error('Error creating ChatGPT service:', error);
+      }
     };
 
     useEffect(() => {
       // Récupérer la clé API stockée
       const storedKey = localStorage.getItem('openai_api_key');
       if (storedKey) {
+        console.log('Found stored API key, creating ChatGPT service');
         setChatGPT(new ChatGPTService(storedKey));
       }
 
@@ -175,6 +185,8 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
       };
       generateAudioData();
     };
+
+    console.log('VoiceRecognition render - chatGPT connected:', !!chatGPT);
 
     return (
       <div className="relative">
