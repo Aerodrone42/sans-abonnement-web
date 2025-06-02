@@ -1,66 +1,80 @@
 
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ContactHeader from "./contact/ContactHeader";
+import ApiKeyInput from "./contact/ApiKeyInput";
 import ContactForm from "./contact/ContactForm";
+import VoiceRecognition from "./contact/VoiceRecognition";
+import NeuralBackground from "./contact/NeuralBackground";
+import { EnhancedChatGPTService } from "@/services/enhancedChatGptService";
 
 const Contact = () => {
+  const [apiKey, setApiKey] = useState("");
+  const [chatGPT, setChatGPT] = useState<EnhancedChatGPTService | null>(null);
+  const [conversationMode, setConversationMode] = useState(false);
+
+  const handleApiKeySubmit = (key: string) => {
+    setApiKey(key);
+    const newChatGPT = new EnhancedChatGPTService(key);
+    setChatGPT(newChatGPT);
+    console.log("🧠 Enhanced ChatGPT service with learning capabilities initialized");
+  };
+
+  const handleConversationToggle = (enabled: boolean) => {
+    setConversationMode(enabled);
+    if (!enabled && chatGPT) {
+      // Terminer la conversation quand on désactive le mode
+      chatGPT.endConversation('abandoned');
+    }
+  };
+
   return (
-    <section id="contact" className="py-24 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 relative overflow-hidden">
-      {/* Animated background particles */}
-      <div className="absolute inset-0">
-        {[...Array(50)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-blue-400 rounded-full opacity-60"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `float ${3 + Math.random() * 4}s ease-in-out infinite`,
-              animationDelay: `${Math.random() * 2}s`
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Matrix-style grid overlay */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="grid grid-cols-12 gap-4 h-full">
-          {[...Array(144)].map((_, i) => (
-            <div
-              key={i}
-              className="border border-cyan-400 opacity-20"
-              style={{
-                animation: `glow-pulse ${2 + Math.random() * 3}s ease-in-out infinite`,
-                animationDelay: `${Math.random() * 2}s`
-              }}
-            />
-          ))}
-        </div>
-      </div>
-
+    <div id="contact" className="py-20 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+      <NeuralBackground />
+      
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-4xl mx-auto">
           <ContactHeader />
-          <ContactForm />
           
-          <div className="text-center mt-12 space-y-4">
-            <p className="text-gray-300">
-              <span className="font-medium text-cyan-400 animate-pulse">Confidentiel</span> • Sans engagement
-            </p>
-            <div className="flex items-center justify-center gap-8 text-sm text-gray-400">
-              <span className="flex items-center gap-2 hover:text-cyan-400 transition-colors">
-                🔒 <span className="tech-scan">Données sécurisées</span>
-              </span>
-              <span className="flex items-center gap-2 hover:text-cyan-400 transition-colors">
-                ⚡ <span className="tech-scan">Réponse rapide</span>
-              </span>
-              <span className="flex items-center gap-2 hover:text-cyan-400 transition-colors">
-                🎯 <span className="tech-scan">Support personnalisé</span>
-              </span>
-            </div>
+          <div className="grid md:grid-cols-2 gap-8 mt-12">
+            <ContactForm />
+            
+            <Card className="bg-gray-900/50 border-cyan-500/30 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-cyan-300 text-center">
+                  🤖 Assistant IA Nova (avec apprentissage automatique)
+                </CardTitle>
+                <p className="text-gray-300 text-sm text-center">
+                  Notre IA apprend de chaque conversation pour s'améliorer automatiquement
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <ApiKeyInput 
+                  onApiKeySubmit={handleApiKeySubmit}
+                  apiKey={apiKey}
+                />
+                
+                {chatGPT && (
+                  <VoiceRecognition 
+                    chatGPT={chatGPT}
+                    conversationMode={conversationMode}
+                    onConversationToggle={handleConversationToggle}
+                  />
+                )}
+                
+                {conversationMode && (
+                  <div className="bg-cyan-900/20 border border-cyan-400/30 rounded-lg p-3">
+                    <p className="text-cyan-200 text-xs">
+                      🧠 Mode apprentissage actif : Nova analyse et mémorise cette conversation pour s'améliorer
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 

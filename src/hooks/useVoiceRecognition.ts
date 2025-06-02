@@ -1,12 +1,11 @@
-
 import { useState, useRef, useEffect } from 'react';
-import { ChatGPTService } from '@/services/chatGptService';
+import { EnhancedChatGPTService } from '@/services/enhancedChatGptService';
 import { SpeechSynthesisService } from '@/services/speechSynthesisService';
 
 interface UseVoiceRecognitionProps {
   onTranscript: (text: string, field: string) => void;
   conversationMode: boolean;
-  chatGPT: ChatGPTService | null;
+  chatGPT: EnhancedChatGPTService | null;
 }
 
 export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }: UseVoiceRecognitionProps) => {
@@ -27,13 +26,11 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     console.log('Cleaning up microphone and voice recognition...');
     setIsListening(false);
     
-    // Nettoyer le timeout de réponse
     if (responseTimeoutRef.current) {
       clearTimeout(responseTimeoutRef.current);
       responseTimeoutRef.current = null;
     }
     
-    // Nettoyer l'interval de vérification du speech
     if (speechCheckIntervalRef.current) {
       clearInterval(speechCheckIntervalRef.current);
       speechCheckIntervalRef.current = null;
@@ -59,23 +56,16 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
   const stopSpeaking = () => {
     console.log('🛑 ARRÊT FORCÉ DE L\'IA - stopSpeaking appelé');
     
-    // Marquer comme arrêté
     isStoppedRef.current = true;
-    
-    // Arrêt immédiat et agressif de la synthèse vocale
     speechSynthesis.stop();
-    
-    // Mise à jour immédiate de tous les états
     setIsSpeaking(false);
     setIsProcessing(false);
     
-    // Nettoyer l'interval de vérification
     if (speechCheckIntervalRef.current) {
       clearInterval(speechCheckIntervalRef.current);
       speechCheckIntervalRef.current = null;
     }
     
-    // Nettoyer également le timeout de réponse pour éviter qu'une nouvelle réponse démarre
     if (responseTimeoutRef.current) {
       clearTimeout(responseTimeoutRef.current);
       responseTimeoutRef.current = null;
@@ -85,12 +75,9 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
   };
 
   const startSpeechMonitoring = () => {
-    // Surveiller l'état de la synthèse vocale pour détecter les interruptions
     speechCheckIntervalRef.current = setInterval(() => {
       const synthState = speechSynthesis.getSynthesisState();
       const isCurrentlySpeaking = speechSynthesis.isSpeaking();
-      
-      console.log('Speech monitoring - State:', synthState, 'Speaking:', isCurrentlySpeaking, 'Component isSpeaking:', isSpeaking);
       
       if (isSpeaking && (!isCurrentlySpeaking || synthState === 'idle' || synthState === 'force-stopped')) {
         console.log('Speech ended or force stopped, cleaning up...');
@@ -106,9 +93,8 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
 
   const processAIResponse = async (finalTranscript: string) => {
     if (conversationMode && chatGPT) {
-      console.log('🤖 Début traitement réponse IA - isStoppedRef:', isStoppedRef.current);
+      console.log('🤖 Début traitement réponse IA avec apprentissage automatique - isStoppedRef:', isStoppedRef.current);
       
-      // Vérifier si l'utilisateur a demandé l'arrêt
       if (isStoppedRef.current) {
         console.log('❌ Arrêt détecté, pas de traitement IA');
         return;
@@ -116,12 +102,11 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
 
       setIsProcessing(true);
       try {
-        console.log('Sending message to AI:', finalTranscript);
+        console.log('Sending message to Enhanced AI with learning:', finalTranscript);
         const response = await chatGPT.sendMessage(finalTranscript);
         
-        console.log('🎯 Réponse IA reçue:', response.substring(0, 50) + '...');
+        console.log('🎯 Réponse IA reçue avec données d\'apprentissage:', response.substring(0, 50) + '...');
         
-        // Vérifier encore une fois si l'utilisateur n'a pas demandé l'arrêt entre temps
         if (isStoppedRef.current) {
           console.log('❌ Arrêt détecté après réponse IA, pas de synthèse vocale');
           setIsProcessing(false);
@@ -132,7 +117,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
         setIsSpeaking(true);
         setIsProcessing(false);
         
-        // Démarrer la surveillance de la synthèse
         startSpeechMonitoring();
         
         speechSynthesis.speak(response, () => {
@@ -140,14 +124,13 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
           setIsSpeaking(false);
           setIsProcessing(false);
           
-          // Nettoyer l'interval de vérification
           if (speechCheckIntervalRef.current) {
             clearInterval(speechCheckIntervalRef.current);
             speechCheckIntervalRef.current = null;
           }
         });
       } catch (error) {
-        console.error('Erreur conversation:', error);
+        console.error('Erreur conversation avec apprentissage:', error);
         setIsProcessing(false);
         setIsSpeaking(false);
       }
@@ -166,10 +149,8 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
         return;
       }
 
-      // Réinitialiser le flag d'arrêt
       isStoppedRef.current = false;
 
-      // Arrêter l'IA si elle parle
       if (isSpeaking) {
         stopSpeaking();
       }
@@ -180,7 +161,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       recognitionRef.current.start();
       setIsListening(true);
       
-      console.log('Voice recognition started');
+      console.log('Voice recognition started with learning capabilities');
     } catch (error) {
       console.error('Erreur d\'accès au microphone:', error);
       cleanupMicrophone();
@@ -212,14 +193,12 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
         if (finalTranscript) {
           setTranscript(finalTranscript);
           
-          // Nettoyer le timeout précédent s'il existe
           if (responseTimeoutRef.current) {
             clearTimeout(responseTimeoutRef.current);
           }
           
-          // Augmenter le délai à 3 secondes pour éviter les coupures prématurées
           responseTimeoutRef.current = setTimeout(() => {
-            console.log('Processing final transcript after delay:', finalTranscript);
+            console.log('Processing final transcript with learning after delay:', finalTranscript);
             processAIResponse(finalTranscript);
           }, 3000);
         }

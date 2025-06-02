@@ -9,7 +9,161 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      client_testimonials: {
+        Row: {
+          business_name: string | null
+          business_type: string
+          client_name: string | null
+          created_at: string | null
+          effectiveness_score: number | null
+          id: string
+          is_verified: boolean | null
+          results_achieved: string | null
+          service_sold: string | null
+          testimonial_text: string
+          usage_count: number | null
+          zone: string | null
+        }
+        Insert: {
+          business_name?: string | null
+          business_type: string
+          client_name?: string | null
+          created_at?: string | null
+          effectiveness_score?: number | null
+          id?: string
+          is_verified?: boolean | null
+          results_achieved?: string | null
+          service_sold?: string | null
+          testimonial_text: string
+          usage_count?: number | null
+          zone?: string | null
+        }
+        Update: {
+          business_name?: string | null
+          business_type?: string
+          client_name?: string | null
+          created_at?: string | null
+          effectiveness_score?: number | null
+          id?: string
+          is_verified?: boolean | null
+          results_achieved?: string | null
+          service_sold?: string | null
+          testimonial_text?: string
+          usage_count?: number | null
+          zone?: string | null
+        }
+        Relationships: []
+      }
+      conversation_analytics: {
+        Row: {
+          ai_response: string | null
+          conversation_id: string | null
+          created_at: string | null
+          id: string
+          response_time_seconds: number | null
+          stage: number
+          user_message: string | null
+          user_reaction: string | null
+        }
+        Insert: {
+          ai_response?: string | null
+          conversation_id?: string | null
+          created_at?: string | null
+          id?: string
+          response_time_seconds?: number | null
+          stage: number
+          user_message?: string | null
+          user_reaction?: string | null
+        }
+        Update: {
+          ai_response?: string | null
+          conversation_id?: string | null
+          created_at?: string | null
+          id?: string
+          response_time_seconds?: number | null
+          stage?: number
+          user_message?: string | null
+          user_reaction?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_analytics_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          client_info: Json | null
+          conversation_data: Json
+          conversion_stage: number | null
+          created_at: string | null
+          id: string
+          outcome: string | null
+          session_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          client_info?: Json | null
+          conversation_data: Json
+          conversion_stage?: number | null
+          created_at?: string | null
+          id?: string
+          outcome?: string | null
+          session_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          client_info?: Json | null
+          conversation_data?: Json
+          conversion_stage?: number | null
+          created_at?: string | null
+          id?: string
+          outcome?: string | null
+          session_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      success_patterns: {
+        Row: {
+          business_type: string
+          conversion_rate: number | null
+          created_at: string | null
+          id: string
+          last_successful_use: string | null
+          objections_handled: Json | null
+          successful_approach: Json
+          usage_count: number | null
+          zone_type: string
+        }
+        Insert: {
+          business_type: string
+          conversion_rate?: number | null
+          created_at?: string | null
+          id?: string
+          last_successful_use?: string | null
+          objections_handled?: Json | null
+          successful_approach: Json
+          usage_count?: number | null
+          zone_type: string
+        }
+        Update: {
+          business_type?: string
+          conversion_rate?: number | null
+          created_at?: string | null
+          id?: string
+          last_successful_use?: string | null
+          objections_handled?: Json | null
+          successful_approach?: Json
+          usage_count?: number | null
+          zone_type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
