@@ -1,4 +1,3 @@
-
 import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { Brain, Zap, MessageCircle, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -43,6 +42,7 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
       isProcessing,
       lastResponse,
       isSpeaking,
+      isConversationActive,
       startListening,
       stopListening,
       stopSpeaking,
@@ -109,7 +109,7 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
       }
     };
 
-    console.log('🔵 VoiceRecognition render - Enhanced chatGPT connected:', !!chatGPT);
+    console.log('🔵 VoiceRecognition render - Enhanced chatGPT connected:', !!chatGPT, 'Conversation active:', isConversationActive);
 
     return (
       <div className="relative">
@@ -128,7 +128,7 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
             <div className="flex-1 h-px bg-gradient-to-r from-cyan-400/50 to-transparent"></div>
             <div className="flex items-center gap-2 text-sm text-gray-400">
               <Zap className="w-4 h-4 text-yellow-400 animate-pulse" />
-              <span>Assistant Commercial IA</span>
+              <span>Assistant Commercial IA {isConversationActive ? '🟢' : '🔴'}</span>
             </div>
           </div>
 
@@ -155,7 +155,13 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
                   🎯 Formulaire automatiquement rempli ! Prêt à envoyer votre demande ?
                 </span>
                 <Button
-                  onClick={handleAutoSubmit}
+                  onClick={async () => {
+                    if (isFormFilled && submitFromAI) {
+                      console.log('🤖 IA déclenche l\'envoi automatique de l\'email');
+                      await submitFromAI();
+                      setIsFormFilled(false);
+                    }
+                  }}
                   size="sm"
                   className="bg-green-500 hover:bg-green-600 text-white"
                 >
