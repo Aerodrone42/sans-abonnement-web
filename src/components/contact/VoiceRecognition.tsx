@@ -4,7 +4,6 @@ import { Brain, Zap, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChatGPTService } from "@/services/chatGptService";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
-import ApiKeyInput from "./ApiKeyInput";
 import AudioVisualization from "./AudioVisualization";
 import NeuralBackground from "./NeuralBackground";
 import VoiceControl from "./VoiceControl";
@@ -19,10 +18,13 @@ export interface VoiceRecognitionRef {
   cleanup: () => void;
 }
 
+// Votre clé API OpenAI - remplacez par votre vraie clé
+const OPENAI_API_KEY = "sk-votre-cle-api-ici";
+
 const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
   ({ onTranscript, currentField }, ref) => {
     const [chatGPT, setChatGPT] = useState<ChatGPTService | null>(null);
-    const [conversationMode, setConversationMode] = useState(false);
+    const [conversationMode, setConversationMode] = useState(true); // Mode conversation par défaut
     
     const {
       isListening,
@@ -38,43 +40,15 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
       cleanup: cleanupMicrophone
     }));
 
-    const handleApiKeySet = (apiKey: string) => {
-      console.log('🔵 handleApiKeySet called with key length:', apiKey.length);
-      console.log('🔵 Raw API key:', apiKey);
-      
-      const cleanedKey = apiKey.trim().replace(/\s+/g, '');
-      console.log('🔵 Cleaned API key length:', cleanedKey.length);
-      console.log('🔵 Cleaned API key starts with sk-:', cleanedKey.startsWith('sk-'));
-      
-      if (!cleanedKey.startsWith('sk-')) {
-        console.error('❌ Invalid API key format - must start with sk-');
-        alert('Clé API invalide - elle doit commencer par "sk-"');
-        return;
-      }
-      
-      try {
-        console.log('🔵 Creating ChatGPT service...');
-        const service = new ChatGPTService(cleanedKey);
-        setChatGPT(service);
-        localStorage.setItem('openai_api_key', cleanedKey);
-        console.log('✅ ChatGPT service created and API key stored successfully');
-        alert('✅ ChatGPT connecté avec succès !');
-      } catch (error) {
-        console.error('❌ Error creating ChatGPT service:', error);
-        alert('❌ Erreur lors de la connexion à ChatGPT: ' + error.message);
-      }
-    };
-
     useEffect(() => {
-      const storedKey = localStorage.getItem('openai_api_key');
-      if (storedKey) {
-        console.log('🔵 Found stored API key, creating ChatGPT service');
+      // Initialiser ChatGPT avec votre clé API au chargement
+      if (OPENAI_API_KEY && OPENAI_API_KEY !== "sk-votre-cle-api-ici") {
+        console.log('🔵 Initializing ChatGPT with company API key');
         try {
-          setChatGPT(new ChatGPTService(storedKey));
-          console.log('✅ ChatGPT service restored from localStorage');
+          setChatGPT(new ChatGPTService(OPENAI_API_KEY));
+          console.log('✅ ChatGPT service initialized successfully');
         } catch (error) {
-          console.error('❌ Error restoring ChatGPT service:', error);
-          localStorage.removeItem('openai_api_key');
+          console.error('❌ Error initializing ChatGPT service:', error);
         }
       }
     }, []);
@@ -92,48 +66,28 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
             <div className="flex items-center gap-2">
               <Brain className="w-6 h-6 text-cyan-400 animate-pulse" />
               <span className="text-xl font-bold text-transparent bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text">
-                Assistant IA Vocal ChatGPT
+                Conseiller IA - Trouvez votre formule idéale
               </span>
             </div>
             <div className="flex-1 h-px bg-gradient-to-r from-cyan-400/50 to-transparent"></div>
             <div className="flex items-center gap-2 text-sm text-gray-400">
               <Zap className="w-4 h-4 text-yellow-400 animate-pulse" />
-              <span>{conversationMode ? 'Mode Conversation' : 'Mode Dictée'}</span>
+              <span>Assistant Commercial IA</span>
             </div>
           </div>
 
-          {/* Configuration API */}
-          {!chatGPT && (
-            <div className="mb-6 p-4 bg-gray-800/30 rounded-lg border border-cyan-400/20">
-              <ApiKeyInput onApiKeySet={handleApiKeySet} isConnected={false} />
+          {/* Message d'accueil */}
+          {!chatGPT ? (
+            <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-400/30 rounded-lg">
+              <p className="text-yellow-200 text-sm">
+                ⚠️ Configuration requise : Veuillez ajouter votre clé API OpenAI dans le code pour activer l'assistant IA.
+              </p>
             </div>
-          )}
-
-          {chatGPT && (
-            <div className="mb-6 flex items-center justify-between">
-              <ApiKeyInput onApiKeySet={handleApiKeySet} isConnected={true} />
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant={conversationMode ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setConversationMode(true)}
-                  className="text-xs"
-                >
-                  <MessageCircle className="w-3 h-3 mr-1" />
-                  Conversation
-                </Button>
-                <Button
-                  type="button"
-                  variant={!conversationMode ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setConversationMode(false)}
-                  className="text-xs"
-                >
-                  <Brain className="w-3 h-3 mr-1" />
-                  Dictée
-                </Button>
-              </div>
+          ) : (
+            <div className="mb-6 p-4 bg-green-500/10 border border-green-400/30 rounded-lg">
+              <p className="text-green-200 text-sm">
+                ✅ Assistant IA prêt ! Parlez-moi de votre projet pour que je vous propose la formule la plus adaptée.
+              </p>
             </div>
           )}
 
