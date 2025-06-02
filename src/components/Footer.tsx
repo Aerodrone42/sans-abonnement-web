@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from "react";
 
 const Footer = () => {
@@ -34,20 +33,20 @@ const Footer = () => {
 
     const createParticle = () => {
       return {
-        x: Math.random() * canvas.width, // Répartition sur toute la largeur
-        y: Math.random() * canvas.height, // Répartition sur toute la hauteur
-        vx: (Math.random() - 0.5) * 1.5,
-        vy: (Math.random() - 0.5) * 1.5,
-        size: Math.random() * 8 + 3, // Taille augmentée
+        x: Math.random() * canvas.width, // Répartition garantie sur toute la largeur
+        y: Math.random() * canvas.height, // Répartition garantie sur toute la hauteur
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.5) * 2,
+        size: Math.random() * 10 + 4,
         life: 0,
-        maxLife: Math.random() * 200 + 100,
+        maxLife: Math.random() * 300 + 150,
         color: Math.random() > 0.3 ? '#00ffff' : Math.random() > 0.5 ? '#c084fc' : '#ffd700',
-        glow: Math.random() * 25 + 15
+        glow: Math.random() * 30 + 20
       };
     };
 
-    // Augmenté le nombre de particules pour couvrir toute la surface
-    for (let i = 0; i < 120; i++) {
+    // Augmentation du nombre de particules pour une meilleure couverture
+    for (let i = 0; i < 200; i++) {
       particles.push(createParticle());
     }
 
@@ -58,63 +57,72 @@ const Footer = () => {
       
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Mise à jour et rendu des particules avec plus d'éclat
+      // Mise à jour et rendu des particules
       particles.forEach((particle, index) => {
-        // Mouvement oscillatoire pour un effet plus fluide
-        particle.x += particle.vx + Math.sin(time + index * 0.1) * 0.5;
-        particle.y += particle.vy + Math.cos(time + index * 0.15) * 0.3;
+        // Mouvement avec oscillation pour un effet plus fluide
+        particle.x += particle.vx + Math.sin(time + index * 0.1) * 0.8;
+        particle.y += particle.vy + Math.cos(time + index * 0.15) * 0.6;
         particle.life++;
 
-        // Rebond sur les bords pour garder les particules dans le canvas
-        if (particle.x < 0 || particle.x > canvas.width) {
+        // Rebond sur les bords pour maintenir les particules dans le canvas
+        if (particle.x < 0) {
+          particle.x = 0;
           particle.vx *= -0.8;
-          particle.x = Math.max(0, Math.min(canvas.width, particle.x));
         }
-        if (particle.y < 0 || particle.y > canvas.height) {
+        if (particle.x > canvas.width) {
+          particle.x = canvas.width;
+          particle.vx *= -0.8;
+        }
+        if (particle.y < 0) {
+          particle.y = 0;
           particle.vy *= -0.8;
-          particle.y = Math.max(0, Math.min(canvas.height, particle.y));
+        }
+        if (particle.y > canvas.height) {
+          particle.y = canvas.height;
+          particle.vy *= -0.8;
         }
 
+        // Recréer la particule quand elle expire, en s'assurant qu'elle apparaît partout
         if (particle.life > particle.maxLife) {
           particles[index] = createParticle();
           return;
         }
 
-        const opacity = Math.max(0.15, 1 - (particle.life / particle.maxLife));
+        const opacity = Math.max(0.2, 1 - (particle.life / particle.maxLife));
         
-        // Effet de brillance plus intense
+        // Rendu de la particule avec effet de brillance
         ctx.save();
         ctx.globalAlpha = opacity;
         ctx.shadowBlur = particle.glow;
         ctx.shadowColor = particle.color;
         
-        // Rendu principal de la particule
+        // Particule principale
         ctx.fillStyle = particle.color;
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
         ctx.fill();
         
-        // Halo supplémentaire pour plus d'effet
-        ctx.globalAlpha = opacity * 0.4;
-        ctx.shadowBlur = particle.glow * 2.5;
+        // Halo étendu
+        ctx.globalAlpha = opacity * 0.5;
+        ctx.shadowBlur = particle.glow * 3;
         ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size * 2, 0, Math.PI * 2);
+        ctx.arc(particle.x, particle.y, particle.size * 2.5, 0, Math.PI * 2);
         ctx.fill();
         
-        // Éclat central
-        ctx.globalAlpha = opacity * 0.8;
-        ctx.shadowBlur = particle.glow * 0.5;
+        // Éclat central blanc
+        ctx.globalAlpha = opacity * 0.9;
+        ctx.shadowBlur = particle.glow * 0.8;
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size * 0.3, 0, Math.PI * 2);
+        ctx.arc(particle.x, particle.y, particle.size * 0.4, 0, Math.PI * 2);
         ctx.fill();
         
         ctx.restore();
       });
 
-      // Lignes de connexion plus visibles et étendues
-      ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
-      ctx.lineWidth = 2;
+      // Lignes de connexion étendues
+      ctx.strokeStyle = 'rgba(0, 255, 255, 0.4)';
+      ctx.lineWidth = 2.5;
       
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
@@ -122,8 +130,8 @@ const Footer = () => {
           const dy = particles[i].y - particles[j].y;
           const distance = Math.sqrt(dx * dx + dy * dy);
           
-          if (distance < 180) {
-            const opacity = (180 - distance) / 180 * 0.5;
+          if (distance < 200) {
+            const opacity = (200 - distance) / 200 * 0.6;
             ctx.globalAlpha = opacity;
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
@@ -149,57 +157,63 @@ const Footer = () => {
       {/* Canvas pour les effets de particules sur toute la largeur et hauteur */}
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 pointer-events-none opacity-90"
+        className="absolute inset-0 pointer-events-none opacity-95"
+        style={{ width: '100%', height: '100%' }}
       />
       
       {/* Effet de grille technologique étendu sur tout le footer */}
-      <div className="absolute inset-0 opacity-15">
+      <div className="absolute inset-0 opacity-20">
         <div className="w-full h-full" style={{
           backgroundImage: `
-            linear-gradient(rgba(0, 255, 255, 0.15) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 255, 255, 0.15) 1px, transparent 1px)
+            linear-gradient(rgba(0, 255, 255, 0.2) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 255, 255, 0.2) 1px, transparent 1px)
           `,
-          backgroundSize: '40px 40px'
+          backgroundSize: '50px 50px'
         }} />
       </div>
 
       {/* Effets de brillance animés répartis sur toute la largeur */}
-      <div className="absolute top-0 left-0 w-px h-full bg-gradient-to-b from-transparent via-cyan-400 to-transparent opacity-40 animate-pulse" />
-      <div className="absolute top-0 left-1/6 w-px h-full bg-gradient-to-b from-transparent via-purple-400 to-transparent opacity-35 animate-pulse" style={{ animationDelay: '0.8s' }} />
-      <div className="absolute top-0 left-2/6 w-px h-full bg-gradient-to-b from-transparent via-yellow-400 to-transparent opacity-30 animate-pulse" style={{ animationDelay: '1.2s' }} />
-      <div className="absolute top-0 left-3/6 w-px h-full bg-gradient-to-b from-transparent via-cyan-300 to-transparent opacity-35 animate-pulse" style={{ animationDelay: '1.6s' }} />
-      <div className="absolute top-0 left-4/6 w-px h-full bg-gradient-to-b from-transparent via-purple-300 to-transparent opacity-30 animate-pulse" style={{ animationDelay: '2s' }} />
-      <div className="absolute top-0 left-5/6 w-px h-full bg-gradient-to-b from-transparent via-yellow-300 to-transparent opacity-35 animate-pulse" style={{ animationDelay: '0.4s' }} />
-      <div className="absolute top-0 right-0 w-px h-full bg-gradient-to-b from-transparent via-cyan-400 to-transparent opacity-40 animate-pulse" style={{ animationDelay: '1.8s' }} />
+      <div className="absolute top-0 left-0 w-px h-full bg-gradient-to-b from-transparent via-cyan-400 to-transparent opacity-50 animate-pulse" />
+      <div className="absolute top-0 left-1/6 w-px h-full bg-gradient-to-b from-transparent via-purple-400 to-transparent opacity-40 animate-pulse" style={{ animationDelay: '0.8s' }} />
+      <div className="absolute top-0 left-2/6 w-px h-full bg-gradient-to-b from-transparent via-yellow-400 to-transparent opacity-35 animate-pulse" style={{ animationDelay: '1.2s' }} />
+      <div className="absolute top-0 left-3/6 w-px h-full bg-gradient-to-b from-transparent via-cyan-300 to-transparent opacity-40 animate-pulse" style={{ animationDelay: '1.6s' }} />
+      <div className="absolute top-0 left-4/6 w-px h-full bg-gradient-to-b from-transparent via-purple-300 to-transparent opacity-35 animate-pulse" style={{ animationDelay: '2s' }} />
+      <div className="absolute top-0 left-5/6 w-px h-full bg-gradient-to-b from-transparent via-yellow-300 to-transparent opacity-40 animate-pulse" style={{ animationDelay: '0.4s' }} />
+      <div className="absolute top-0 right-0 w-px h-full bg-gradient-to-b from-transparent via-cyan-400 to-transparent opacity-50 animate-pulse" style={{ animationDelay: '1.8s' }} />
 
       {/* Effets horizontaux pour plus de profondeur */}
-      <div className="absolute left-0 top-1/4 w-full h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-20 animate-pulse" style={{ animationDelay: '2.5s' }} />
-      <div className="absolute left-0 top-2/4 w-full h-px bg-gradient-to-r from-transparent via-purple-400 to-transparent opacity-15 animate-pulse" style={{ animationDelay: '3s' }} />
-      <div className="absolute left-0 top-3/4 w-full h-px bg-gradient-to-r from-transparent via-yellow-400 to-transparent opacity-20 animate-pulse" style={{ animationDelay: '3.5s' }} />
+      <div className="absolute left-0 top-1/4 w-full h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-25 animate-pulse" style={{ animationDelay: '2.5s' }} />
+      <div className="absolute left-0 top-2/4 w-full h-px bg-gradient-to-r from-transparent via-purple-400 to-transparent opacity-20 animate-pulse" style={{ animationDelay: '3s' }} />
+      <div className="absolute left-0 top-3/4 w-full h-px bg-gradient-to-r from-transparent via-yellow-400 to-transparent opacity-25 animate-pulse" style={{ animationDelay: '3.5s' }} />
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          {/* Logo et description */}
-          <div className="lg:col-span-2">
-            <div className="flex items-center space-x-2 mb-4 group">
-              <div className="w-8 h-8 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-lg flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-cyan-400/25">
-                <span className="text-white font-bold text-sm animate-pulse">SI</span>
+          {/* Logo et description avec effet holographique étendu */}
+          <div className="lg:col-span-2 relative">
+            {/* Effet holographique de fond étendu */}
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 via-purple-400/15 to-cyan-400/10 animate-pulse rounded-lg -m-4 p-4"></div>
+            
+            <div className="relative z-10">
+              <div className="flex items-center space-x-2 mb-4 group">
+                <div className="w-8 h-8 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-lg flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-cyan-400/25">
+                  <span className="text-white font-bold text-sm animate-pulse">SI</span>
+                </div>
+                <span className="font-bold text-xl bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+                  Site Internet Sans Abonnement
+                </span>
               </div>
-              <span className="font-bold text-xl bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                Site Internet Sans Abonnement
-              </span>
-            </div>
-            <p className="text-gray-300 mb-6 max-w-md leading-relaxed">
-              Spécialiste de la création de sites internet sans abonnement pour artisans, 
-              commerçants et indépendants. Votre site professionnel, sans engagement.
-            </p>
-            <div className="flex space-x-4">
-              <span className="bg-gradient-to-r from-cyan-500 to-cyan-400 px-4 py-2 rounded-full text-sm font-medium shadow-lg shadow-cyan-400/25 hover:shadow-cyan-400/40 transition-shadow duration-300">
-                Sans abonnement
-              </span>
-              <span className="bg-gradient-to-r from-purple-500 to-purple-400 px-4 py-2 rounded-full text-sm font-medium shadow-lg shadow-purple-400/25 hover:shadow-purple-400/40 transition-shadow duration-300">
-                Livré en 4 jours
-              </span>
+              <p className="text-gray-300 mb-6 max-w-md leading-relaxed">
+                Spécialiste de la création de sites internet sans abonnement pour artisans, 
+                commerçants et indépendants. Votre site professionnel, sans engagement.
+              </p>
+              <div className="flex space-x-4">
+                <span className="bg-gradient-to-r from-cyan-500 to-cyan-400 px-4 py-2 rounded-full text-sm font-medium shadow-lg shadow-cyan-400/25 hover:shadow-cyan-400/40 transition-shadow duration-300">
+                  Sans abonnement
+                </span>
+                <span className="bg-gradient-to-r from-purple-500 to-purple-400 px-4 py-2 rounded-full text-sm font-medium shadow-lg shadow-purple-400/25 hover:shadow-purple-400/40 transition-shadow duration-300">
+                  Livré en 4 jours
+                </span>
+              </div>
             </div>
           </div>
 
