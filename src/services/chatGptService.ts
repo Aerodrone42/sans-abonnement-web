@@ -1,3 +1,4 @@
+
 interface ChatGPTMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -225,6 +226,11 @@ TU T'ARRÊTES.
 • Si tu es tenté de donner un prix, ARRÊTE-TOI et pose la question de l'étape suivante
 • RESPECTE L'ORDRE : Problème → Urgence → Solution → Budget → Prix`;
 
+    // Initialiser l'historique avec le prompt système actualisé
+    this.updateSystemPrompt();
+  }
+
+  private updateSystemPrompt() {
     // Calculer la date et l'heure actuelles à chaque fois
     const now = new Date();
     const currentDate = now.toLocaleDateString('fr-FR', { 
