@@ -1,4 +1,5 @@
 
+
 import { useState, useRef, useEffect } from 'react';
 import { EnhancedChatGPTService } from '@/services/enhancedChatGptService';
 import { SpeechSynthesisService } from '@/services/speechSynthesisService';
@@ -148,8 +149,8 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
   const processAIResponse = async (finalTranscript: string) => {
     console.log('🤖 Début traitement IA:', finalTranscript);
     
-    if (isStoppedRef.current || microphoneMutedRef.current) {
-      console.log('❌ Traitement annulé - conversation arrêtée ou micro coupé');
+    if (isStoppedRef.current) {
+      console.log('❌ Traitement annulé - conversation arrêtée');
       return;
     }
     
@@ -286,7 +287,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       };
 
       recognition.onresult = (event) => {
-        // ✅ NOUVEAU: Affichage IMMÉDIAT - pas de filtres pour l'affichage
+        // ✅ AFFICHAGE IMMÉDIAT - toujours afficher le texte
         console.log('🎯 RÉSULTAT VOCAL REÇU - affichage immédiat');
         let finalTranscript = '';
         let interimTranscript = '';
@@ -314,13 +315,14 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
           setTranscript(lastTranscriptRef.current);
           console.log('📝 AFFICHAGE FINAL:', lastTranscriptRef.current);
           
-          // ✅ FILTRES SEULEMENT POUR LE TRAITEMENT IA (pas pour l'affichage)
-          const canProcessAI = !isStoppedRef.current && 
-                              !microphoneMutedRef.current && 
-                              !speakingRef.current && 
-                              !processingRef.current;
+          // ✅ TRAITEMENT IA - conditions plus permissives
+          const shouldProcessAI = !isStoppedRef.current && 
+                                 !microphoneMutedRef.current &&
+                                 lastTranscriptRef.current.trim().length > 0;
           
-          if (canProcessAI) {
+          if (shouldProcessAI) {
+            console.log('✅ Conditions OK pour traitement IA');
+            
             if (silenceTimeoutRef.current) {
               clearTimeout(silenceTimeoutRef.current);
             }
@@ -335,7 +337,10 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
               }
             }, 2500);
           } else {
-            console.log('⚠️ Traitement IA différé - IA occuppée, mais texte affiché');
+            console.log('⚠️ Traitement IA impossible - conditions non remplies');
+            console.log('- isStoppedRef:', isStoppedRef.current);
+            console.log('- microphoneMutedRef:', microphoneMutedRef.current);
+            console.log('- transcript length:', lastTranscriptRef.current.trim().length);
           }
         }
       };
@@ -397,3 +402,4 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     cleanupMicrophone: cleanup
   };
 };
+
