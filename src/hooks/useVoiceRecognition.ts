@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { EnhancedChatGPTService } from '@/services/enhancedChatGptService';
 import { SpeechSynthesisService } from '@/services/speechSynthesisService';
@@ -87,6 +88,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     processingRef.current = false;
   };
 
+  // CORRECTION: Couper le micro quand l'IA parle
   const muteMicrophoneForSpeech = () => {
     console.log('🎤❌ MICRO COUPÉ - IA va parler');
     microphoneMutedRef.current = true;
@@ -95,7 +97,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     if (recognitionRef.current && isListening) {
       try {
         recognitionRef.current.stop();
-        setIsListening(false);
+        setIsListening(false); // CORRECTION: Le micro n'est plus rouge
         console.log('🔇 Reconnaissance vocale arrêtée pendant synthèse');
       } catch (error) {
         console.log('Erreur arrêt recognition pour synthèse');
@@ -103,6 +105,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     }
   };
 
+  // CORRECTION: Réactiver le micro après que l'IA ait fini de parler
   const unmuteMicrophoneAfterSpeech = () => {
     console.log('🎤✅ MICRO RÉACTIVÉ - IA a fini de parler');
     microphoneMutedRef.current = false;
@@ -130,7 +133,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       shouldContinueRef.current = true;
       recognitionActiveRef.current = true;
       recognitionRef.current.start();
-      setIsListening(true);
+      setIsListening(true); // CORRECTION: Le micro devient rouge quand on écoute
       console.log('✅ Recognition démarrée avec succès');
       return true;
     } catch (error) {
@@ -158,6 +161,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     setIsProcessing(true);
     processingRef.current = true;
     
+    // CORRECTION: Couper le micro immédiatement quand on traite
     muteMicrophoneForSpeech();
 
     if (!chatGPT) {
@@ -188,7 +192,9 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       
       console.log('✅ Réponse ChatGPT reçue:', response);
       
-      setLastResponse(response);
+      // CORRECTION: Ne PAS afficher la réponse de l'IA dans le transcript
+      // setLastResponse(response); // Supprimé pour éviter l'auto-recopie
+      
       setIsSpeaking(true);
       speakingRef.current = true;
       
@@ -220,6 +226,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       return;
     }
 
+    // CORRECTION: Arrêter la synthèse si elle parle encore
     if (isSpeaking) {
       speechSynthesis.stop();
       setIsSpeaking(false);
@@ -282,7 +289,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       recognition.onstart = () => {
         console.log('🎤 Reconnaissance vocale démarrée - PRÊT À ÉCOUTER');
         recognitionActiveRef.current = true;
-        setIsListening(true);
+        setIsListening(true); // CORRECTION: Le micro devient rouge
       };
 
       recognition.onresult = (event) => {
@@ -318,8 +325,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
             silenceTimeoutRef.current = null;
           }
           
-          // ✅ CORRECTION CRITIQUE - Timeout beaucoup plus long (8 secondes)
-          console.log('⏰ NOUVEAU TIMEOUT de 8s pour traitement IA');
+          console.log('⏰ NOUVEAU TIMEOUT de 3s pour traitement IA');
           silenceTimeoutRef.current = setTimeout(() => {
             console.log('⏰ TIMEOUT DÉCLENCHÉ - Traitement IA maintenant');
             
@@ -337,14 +343,14 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
             } else {
               console.log('❌ CONDITIONS NON REMPLIES pour traitement IA');
             }
-          }, 8000); // ✅ 8 secondes pour laisser le temps à l'utilisateur de finir
+          }, 3000); // CORRECTION: 3 secondes au lieu de 8
         }
       };
 
       recognition.onerror = (event) => {
         console.error('❌ Erreur recognition:', event.error);
         recognitionActiveRef.current = false;
-        setIsListening(false);
+        setIsListening(false); // CORRECTION: Le micro n'est plus rouge en cas d'erreur
         
         if (event.error === 'not-allowed') {
           console.error('❌ Permission microphone refusée');
@@ -366,7 +372,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       recognition.onend = () => {
         console.log('🏁 Recognition terminée');
         recognitionActiveRef.current = false;
-        setIsListening(false);
+        setIsListening(false); // CORRECTION: Le micro n'est plus rouge quand ça s'arrête
         
         if (conversationActiveRef.current && !processingRef.current && !speakingRef.current && !isStoppedRef.current && !microphoneMutedRef.current) {
           console.log('🔄 Auto-restart recognition dans 500ms');
