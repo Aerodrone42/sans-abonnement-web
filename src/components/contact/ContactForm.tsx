@@ -6,16 +6,34 @@ import ContactSubmitButton from "./ContactSubmitButton";
 import NeuralEffects from "./NeuralEffects";
 import { Brain, Cpu, Zap } from "lucide-react";
 
-const ContactForm = () => {
-  const [formData, setFormData] = useState({
+interface ContactFormProps {
+  formData?: {
+    name: string;
+    email: string;
+    phone: string;
+    business: string;
+    message: string;
+  };
+  setFormData?: (data: any) => void;
+  fillFormFromAI?: (data: any) => void;
+  submitFromAI?: () => Promise<void>;
+}
+
+const ContactForm = ({ formData: externalFormData, setFormData: setExternalFormData, fillFormFromAI: externalFillForm, submitFromAI: externalSubmit }: ContactFormProps) => {
+  const [internalFormData, setInternalFormData] = useState({
     name: "",
     email: "",
     phone: "",
     business: "",
     message: ""
   });
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+
+  // Utiliser les données externes si disponibles, sinon les données internes
+  const formData = externalFormData || internalFormData;
+  const setFormData = setExternalFormData || setInternalFormData;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,29 +87,30 @@ const ContactForm = () => {
   };
 
   // Fonction pour que l'IA puisse pré-remplir le formulaire
-  const fillFormFromAI = (aiData: Partial<typeof formData>) => {
+  const fillFormFromAI = externalFillForm || ((aiData: Partial<typeof formData>) => {
+    console.log('📝 Remplissage du formulaire par l\'IA:', aiData);
     setFormData(prevData => ({
       ...prevData,
       ...aiData
     }));
-  };
+  });
 
   // Fonction pour que l'IA puisse envoyer automatiquement
-  const submitFromAI = async () => {
+  const submitFromAI = externalSubmit || (async () => {
     if (formData.name && formData.email && formData.message) {
+      console.log('🤖 Envoi automatique par l\'IA');
       const form = document.getElementById('contact-form') as HTMLFormElement;
       if (form) {
         form.requestSubmit();
       }
     }
-  };
+  });
 
   return (
     <div className="relative">
       {/* Container holographique avec effets neuronaux */}
       <div className="bg-gradient-to-br from-gray-900/95 via-blue-900/50 to-purple-900/95 backdrop-blur-2xl border border-cyan-400/30 rounded-3xl shadow-2xl p-12 relative overflow-hidden">
         
-        {/* Effets neuronaux de fond */}
         <NeuralEffects />
         
         {/* Grille holographique animée */}
