@@ -21,23 +21,42 @@ const ContactForm = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulation d'envoi avec effet visuel
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    console.log("Données du formulaire:", formData);
-    
-    toast({
-      title: "🤖 Message analysé et envoyé par l'IA",
-      description: "Notre intelligence artificielle traitera votre demande sous 24h.",
-    });
-
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      business: "",
-      message: ""
-    });
+    try {
+      // Préparation des données pour FormSubmit
+      const formElement = e.target as HTMLFormElement;
+      const formDataToSend = new FormData(formElement);
+      
+      // Envoi via FormSubmit
+      const response = await fetch('https://formsubmit.co/aerodrone.multiservices@gmail.com', {
+        method: 'POST',
+        body: formDataToSend
+      });
+      
+      if (response.ok) {
+        toast({
+          title: "✅ Message envoyé avec succès !",
+          description: "Votre demande a été transmise à notre équipe. Vous recevrez une réponse sous 24h.",
+        });
+        
+        // Réinitialisation du formulaire
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          business: "",
+          message: ""
+        });
+      } else {
+        throw new Error('Erreur lors de l\'envoi');
+      }
+    } catch (error) {
+      console.error('Erreur envoi:', error);
+      toast({
+        title: "❌ Erreur d'envoi",
+        description: "Une erreur s'est produite. Veuillez réessayer.",
+        variant: "destructive"
+      });
+    }
     
     setIsSubmitting(false);
   };
@@ -47,6 +66,24 @@ const ContactForm = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
+  };
+
+  // Fonction pour que l'IA puisse pré-remplir le formulaire
+  const fillFormFromAI = (aiData: Partial<typeof formData>) => {
+    setFormData(prevData => ({
+      ...prevData,
+      ...aiData
+    }));
+  };
+
+  // Fonction pour que l'IA puisse envoyer automatiquement
+  const submitFromAI = async () => {
+    if (formData.name && formData.email && formData.message) {
+      const form = document.getElementById('contact-form') as HTMLFormElement;
+      if (form) {
+        form.requestSubmit();
+      }
+    }
   };
 
   return (
@@ -104,13 +141,29 @@ const ContactForm = () => {
             </div>
             <div className="flex items-center gap-2 text-xs text-gray-400">
               <Zap className="w-3 h-3 text-yellow-400 animate-pulse" />
-              <span>Traitement en temps réel</span>
+              <span>Envoi automatique par email</span>
             </div>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
-          <ContactFormFields formData={formData} handleChange={handleChange} />
+        <form 
+          id="contact-form"
+          onSubmit={handleSubmit} 
+          className="space-y-8 relative z-10"
+          action="https://formsubmit.co/aerodrone.multiservices@gmail.com"
+          method="POST"
+        >
+          {/* Champs cachés pour FormSubmit */}
+          <input type="hidden" name="_subject" value="🤖 Nouvelle demande générée par l'IA - Aerodrone Multiservices" />
+          <input type="hidden" name="_captcha" value="false" />
+          <input type="hidden" name="_template" value="table" />
+          
+          <ContactFormFields 
+            formData={formData} 
+            handleChange={handleChange}
+            fillFormFromAI={fillFormFromAI}
+            submitFromAI={submitFromAI}
+          />
           <ContactSubmitButton isSubmitting={isSubmitting} />
         </form>
 

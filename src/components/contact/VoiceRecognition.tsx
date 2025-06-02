@@ -1,6 +1,6 @@
 
 import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
-import { Brain, Zap, MessageCircle } from "lucide-react";
+import { Brain, Zap, MessageCircle, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EnhancedChatGPTService } from "@/services/enhancedChatGptService";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
@@ -12,6 +12,15 @@ import ConversationDisplay from "./ConversationDisplay";
 interface VoiceRecognitionProps {
   onTranscript: (text: string, field: string) => void;
   currentField: string;
+  fillFormFromAI?: (aiData: Partial<any>) => void;
+  submitFromAI?: () => Promise<void>;
+  formData?: {
+    name: string;
+    email: string;
+    phone: string;
+    business: string;
+    message: string;
+  };
 }
 
 export interface VoiceRecognitionRef {
@@ -22,9 +31,10 @@ export interface VoiceRecognitionRef {
 const OPENAI_API_KEY = "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";
 
 const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
-  ({ onTranscript, currentField }, ref) => {
+  ({ onTranscript, currentField, fillFormFromAI, submitFromAI, formData }, ref) => {
     const [chatGPT, setChatGPT] = useState<EnhancedChatGPTService | null>(null);
     const [conversationMode, setConversationMode] = useState(true);
+    const [canSendEmail, setCanSendEmail] = useState(false);
     
     const {
       isListening,
@@ -46,12 +56,35 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
       // Initialiser ChatGPT automatiquement avec votre clé API
       console.log('🔵 Initializing Enhanced ChatGPT with company API key');
       try {
-        setChatGPT(new EnhancedChatGPTService(OPENAI_API_KEY));
+        const chatGPTInstance = new EnhancedChatGPTService(OPENAI_API_KEY);
+        setChatGPT(chatGPTInstance);
+        
+        // Configurer l'IA pour remplir automatiquement le formulaire
+        if (fillFormFromAI) {
+          chatGPTInstance.onFormDataUpdate = fillFormFromAI;
+        }
+        
         console.log('✅ Enhanced ChatGPT service with learning capabilities initialized successfully');
       } catch (error) {
         console.error('❌ Error initializing Enhanced ChatGPT service:', error);
       }
-    }, []);
+    }, [fillFormFromAI]);
+
+    // Vérifier si le formulaire est prêt pour l'envoi
+    useEffect(() => {
+      if (formData) {
+        const isComplete = formData.name && formData.email && formData.message;
+        setCanSendEmail(isComplete);
+      }
+    }, [formData]);
+
+    // Fonction pour envoyer automatiquement l'email quand l'IA le demande
+    const handleAutoSubmit = async () => {
+      if (canSendEmail && submitFromAI) {
+        console.log('🤖 IA déclenche l\'envoi automatique de l\'email');
+        await submitFromAI();
+      }
+    };
 
     console.log('🔵 VoiceRecognition render - Enhanced chatGPT connected:', !!chatGPT);
 
@@ -80,9 +113,30 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
           <div className="mb-6 p-4 bg-green-500/10 border border-green-400/30 rounded-lg">
             <p className="text-green-200 text-sm">
               ✅ Bonjour ! Je suis votre conseiller IA spécialisé en développement web. 
-              Parlez-moi de votre projet pour que je vous propose la formule la plus adaptée parmi nos solutions Starter, Business ou IA Premium.
+              Parlez-moi de votre projet pour que je vous propose la formule la plus adaptée et remplisse automatiquement votre demande.
             </p>
           </div>
+
+          {/* Indicateur d'état du formulaire */}
+          {formData && (
+            <div className="mb-4 p-3 bg-blue-500/10 border border-blue-400/30 rounded-lg">
+              <div className="flex items-center justify-between">
+                <span className="text-blue-200 text-sm">
+                  📝 Formulaire: {canSendEmail ? '✅ Prêt à envoyer' : '⏳ En cours de remplissage...'}
+                </span>
+                {canSendEmail && (
+                  <Button
+                    onClick={handleAutoSubmit}
+                    size="sm"
+                    className="bg-green-500 hover:bg-green-600 text-white"
+                  >
+                    <Send className="w-4 h-4 mr-2" />
+                    Envoyer l'email
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
 
           <AudioVisualization isListening={isListening} isProcessing={isProcessing} />
 

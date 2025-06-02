@@ -1,3 +1,4 @@
+
 import { useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,9 +14,11 @@ interface ContactFormFieldsProps {
     message: string;
   };
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  fillFormFromAI?: (aiData: Partial<ContactFormFieldsProps['formData']>) => void;
+  submitFromAI?: () => Promise<void>;
 }
 
-const ContactFormFields = ({ formData, handleChange }: ContactFormFieldsProps) => {
+const ContactFormFields = ({ formData, handleChange, fillFormFromAI, submitFromAI }: ContactFormFieldsProps) => {
   const voiceRecognitionRef = useRef<VoiceRecognitionRef>(null);
 
   const handleVoiceTranscript = (transcript: string, field: string) => {
@@ -38,6 +41,9 @@ const ContactFormFields = ({ formData, handleChange }: ContactFormFieldsProps) =
           ref={voiceRecognitionRef}
           onTranscript={handleVoiceTranscript}
           currentField="message"
+          fillFormFromAI={fillFormFromAI}
+          submitFromAI={submitFromAI}
+          formData={formData}
         />
       </div>
 
