@@ -1,7 +1,9 @@
 
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, Phone, Building, User } from "lucide-react";
+import { Mail, Phone, Building, User, Mic } from "lucide-react";
+import VoiceRecognition from "./VoiceRecognition";
 
 interface ContactFormFieldsProps {
   formData: {
@@ -15,13 +17,70 @@ interface ContactFormFieldsProps {
 }
 
 const ContactFormFields = ({ formData, handleChange }: ContactFormFieldsProps) => {
+  const [showVoiceInterface, setShowVoiceInterface] = useState(false);
+  const [currentVoiceField, setCurrentVoiceField] = useState<string>("name");
+
+  const handleVoiceTranscript = (transcript: string, field: string) => {
+    // Créer un événement synthétique pour la mise à jour
+    const syntheticEvent = {
+      target: {
+        name: field,
+        value: transcript.trim()
+      }
+    } as React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>;
+    
+    handleChange(syntheticEvent);
+  };
+
+  const activateVoiceForField = (fieldName: string) => {
+    setCurrentVoiceField(fieldName);
+    setShowVoiceInterface(true);
+  };
+
+  const fieldLabels: Record<string, string> = {
+    name: "Nom et prénom",
+    email: "Email",
+    phone: "Téléphone", 
+    business: "Entreprise",
+    message: "Message"
+  };
+
   return (
     <>
+      {/* Interface vocale IA */}
+      {showVoiceInterface && (
+        <div className="mb-8">
+          <VoiceRecognition
+            onTranscript={handleVoiceTranscript}
+            currentField={fieldLabels[currentVoiceField]}
+          />
+          <div className="flex justify-center mt-4">
+            <button
+              type="button"
+              onClick={() => setShowVoiceInterface(false)}
+              className="text-sm text-gray-400 hover:text-cyan-400 transition-colors"
+            >
+              Fermer l'assistant vocal
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="grid md:grid-cols-2 gap-8">
         <div className="space-y-3">
-          <label className="block text-sm font-semibold text-cyan-100 mb-3 tracking-wide">
-            Nom et prénom *
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="block text-sm font-semibold text-cyan-100 mb-3 tracking-wide">
+              Nom et prénom *
+            </label>
+            <button
+              type="button"
+              onClick={() => activateVoiceForField("name")}
+              className="flex items-center gap-2 text-xs text-cyan-400 hover:text-blue-400 transition-colors"
+            >
+              <Mic className="w-3 h-3" />
+              Vocal
+            </button>
+          </div>
           <div className="relative group">
             <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cyan-400 group-focus-within:text-blue-400 transition-colors" />
             <Input
@@ -37,9 +96,19 @@ const ContactFormFields = ({ formData, handleChange }: ContactFormFieldsProps) =
         </div>
 
         <div className="space-y-3">
-          <label className="block text-sm font-semibold text-cyan-100 mb-3 tracking-wide">
-            Email professionnel *
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="block text-sm font-semibold text-cyan-100 mb-3 tracking-wide">
+              Email professionnel *
+            </label>
+            <button
+              type="button"
+              onClick={() => activateVoiceForField("email")}
+              className="flex items-center gap-2 text-xs text-cyan-400 hover:text-blue-400 transition-colors"
+            >
+              <Mic className="w-3 h-3" />
+              Vocal
+            </button>
+          </div>
           <div className="relative group">
             <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cyan-400 group-focus-within:text-blue-400 transition-colors" />
             <Input
@@ -58,9 +127,19 @@ const ContactFormFields = ({ formData, handleChange }: ContactFormFieldsProps) =
 
       <div className="grid md:grid-cols-2 gap-8">
         <div className="space-y-3">
-          <label className="block text-sm font-semibold text-cyan-100 mb-3 tracking-wide">
-            Téléphone
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="block text-sm font-semibold text-cyan-100 mb-3 tracking-wide">
+              Téléphone
+            </label>
+            <button
+              type="button"
+              onClick={() => activateVoiceForField("phone")}
+              className="flex items-center gap-2 text-xs text-cyan-400 hover:text-blue-400 transition-colors"
+            >
+              <Mic className="w-3 h-3" />
+              Vocal
+            </button>
+          </div>
           <div className="relative group">
             <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cyan-400 group-focus-within:text-blue-400 transition-colors" />
             <Input
@@ -76,9 +155,19 @@ const ContactFormFields = ({ formData, handleChange }: ContactFormFieldsProps) =
         </div>
 
         <div className="space-y-3">
-          <label className="block text-sm font-semibold text-cyan-100 mb-3 tracking-wide">
-            Entreprise / Secteur
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="block text-sm font-semibold text-cyan-100 mb-3 tracking-wide">
+              Entreprise / Secteur
+            </label>
+            <button
+              type="button"
+              onClick={() => activateVoiceForField("business")}
+              className="flex items-center gap-2 text-xs text-cyan-400 hover:text-blue-400 transition-colors"
+            >
+              <Mic className="w-3 h-3" />
+              Vocal
+            </button>
+          </div>
           <div className="relative group">
             <Building className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cyan-400 group-focus-within:text-blue-400 transition-colors" />
             <Input
@@ -94,9 +183,19 @@ const ContactFormFields = ({ formData, handleChange }: ContactFormFieldsProps) =
       </div>
 
       <div className="space-y-3">
-        <label className="block text-sm font-semibold text-cyan-100 mb-3 tracking-wide">
-          Message *
-        </label>
+        <div className="flex items-center justify-between">
+          <label className="block text-sm font-semibold text-cyan-100 mb-3 tracking-wide">
+            Message *
+          </label>
+          <button
+            type="button"
+            onClick={() => activateVoiceForField("message")}
+            className="flex items-center gap-2 text-xs text-cyan-400 hover:text-blue-400 transition-colors"
+          >
+            <Mic className="w-3 h-3" />
+            Vocal
+          </button>
+        </div>
         <div className="relative group">
           <Textarea
             name="message"
