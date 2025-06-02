@@ -29,7 +29,7 @@ export class SpeechSynthesisService {
   }
 
   speak(text: string, onEnd?: () => void): void {
-    console.log('Starting speech synthesis for:', text.substring(0, 50) + '...');
+    console.log('🔊 Starting speech synthesis for:', text.substring(0, 50) + '...');
     
     // Réinitialiser le flag d'arrêt forcé
     this.isForceStoppedRef.current = false;
@@ -37,67 +37,67 @@ export class SpeechSynthesisService {
     // Arrêter toute synthèse en cours proprement
     this.stop();
 
-    // Attendre un peu pour s'assurer que la synthèse précédente est bien arrêtée
-    setTimeout(() => {
-      // Vérifier si un arrêt forcé a été demandé pendant l'attente
-      if (this.isForceStoppedRef.current) {
-        console.log('Speech cancelled before starting');
-        return;
+    // Créer l'utterance immédiatement
+    const utterance = new SpeechSynthesisUtterance(text);
+    this.currentUtterance = utterance;
+    
+    if (this.voice) {
+      utterance.voice = this.voice;
+      console.log('🎤 Using voice:', this.voice.name);
+    }
+    
+    // Paramètres optimisés pour éviter les coupures
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    utterance.volume = 1.0;
+    
+    // Gestion des événements pour debugging
+    utterance.onstart = () => {
+      console.log('🎯 Speech started successfully');
+    };
+    
+    utterance.onend = () => {
+      console.log('✅ Speech ended normally');
+      this.currentUtterance = null;
+      // Ne pas appeler onEnd si l'arrêt a été forcé
+      if (onEnd && !this.isForceStoppedRef.current) {
+        onEnd();
       }
+    };
+    
+    utterance.onerror = (event) => {
+      console.error('❌ Speech synthesis error:', event.error);
+      this.currentUtterance = null;
+      if (onEnd && !this.isForceStoppedRef.current) {
+        onEnd();
+      }
+    };
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      this.currentUtterance = utterance;
-      
-      if (this.voice) {
-        utterance.voice = this.voice;
-        console.log('Using voice:', this.voice.name);
+    // Démarrer la synthèse immédiatement
+    try {
+      if (!this.isForceStoppedRef.current) {
+        console.log('🚀 Launching speech synthesis...');
+        this.synth.speak(utterance);
+        
+        // Vérifier que la synthèse a bien démarré
+        setTimeout(() => {
+          if (!this.synth.speaking && !this.isForceStoppedRef.current) {
+            console.warn('⚠️ Speech did not start, retrying...');
+            this.synth.speak(utterance);
+          }
+        }, 100);
       }
-      
-      // Paramètres optimisés pour éviter les coupures
-      utterance.rate = 0.85;
-      utterance.pitch = 1;
-      utterance.volume = 0.9;
-      
-      // Gestion des événements pour debugging
-      utterance.onstart = () => {
-        console.log('Speech started');
-      };
-      
-      utterance.onend = () => {
-        console.log('Speech ended normally');
-        this.currentUtterance = null;
-        // Ne pas appeler onEnd si l'arrêt a été forcé
-        if (onEnd && !this.isForceStoppedRef.current) {
-          onEnd();
-        }
-      };
-      
-      utterance.onerror = (event) => {
-        console.error('Speech synthesis error:', event.error);
-        this.currentUtterance = null;
-        if (onEnd && !this.isForceStoppedRef.current) {
-          onEnd();
-        }
-      };
-
-      // Démarrer la synthèse seulement si pas d'arrêt forcé
-      try {
-        if (!this.isForceStoppedRef.current) {
-          this.synth.speak(utterance);
-          console.log('Speech synthesis initiated');
-        }
-      } catch (error) {
-        console.error('Error starting speech synthesis:', error);
-        this.currentUtterance = null;
-        if (onEnd) {
-          onEnd();
-        }
+    } catch (error) {
+      console.error('❌ Error starting speech synthesis:', error);
+      this.currentUtterance = null;
+      if (onEnd) {
+        onEnd();
       }
-    }, 100);
+    }
   }
 
   stop(): void {
-    console.log('Stopping speech synthesis - FORCE STOP');
+    console.log('🛑 Stopping speech synthesis - FORCE STOP');
     
     // Marquer l'arrêt comme forcé
     this.isForceStoppedRef.current = true;
@@ -116,14 +116,14 @@ export class SpeechSynthesisService {
     // Triple vérification avec délais échelonnés
     setTimeout(() => {
       if (this.synth.speaking) {
-        console.log('Force stopping remaining speech (2nd attempt)');
+        console.log('🔄 Force stopping remaining speech (2nd attempt)');
         this.synth.cancel();
       }
     }, 10);
     
     setTimeout(() => {
       if (this.synth.speaking) {
-        console.log('Force stopping remaining speech (3rd attempt)');
+        console.log('🔄 Force stopping remaining speech (3rd attempt)');
         this.synth.cancel();
       }
     }, 50);
