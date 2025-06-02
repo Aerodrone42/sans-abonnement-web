@@ -82,6 +82,9 @@ export class EnhancedChatGPTService extends ChatGPTService {
       // Remplissage progressif du formulaire avec toutes les données
       await this.fillFormWithCorrectData();
       
+      // Vérifier si le formulaire est complet et demander confirmation d'envoi
+      await this.checkAndRequestSendConfirmation();
+      
       // Sauvegarder automatiquement la conversation toutes les 3 étapes
       if (this.currentStage % 3 === 0) {
         await learningService.saveConversation();
@@ -94,8 +97,42 @@ export class EnhancedChatGPTService extends ChatGPTService {
     }
   }
 
+  // NOUVELLE MÉTHODE : Vérification et demande de confirmation d'envoi
+  private async checkAndRequestSendConfirmation(): Promise<void> {
+    // Vérifier si le formulaire est suffisamment rempli
+    const hasEssentialData = this.clientInfo.nom && this.clientInfo.email && 
+                           (this.clientInfo.metier || this.clientInfo.entreprise);
+    
+    if (hasEssentialData && this.clientInfo.formulaireEtape === 'fini') {
+      console.log('📋 Formulaire complet détecté - demande de confirmation d\'envoi');
+      
+      // Créer une réponse qui demande confirmation
+      const confirmationMessage = "Parfait ! J'ai toutes les informations nécessaires. Puis-je envoyer votre demande de devis maintenant ? Il suffit de me dire 'oui' ou 'envoyez' pour que je transmette votre demande.";
+      
+      // Marquer qu'on attend une confirmation
+      this.clientInfo.formulaireEtape = 'attente_confirmation';
+      console.log('✋ En attente de confirmation client pour envoi');
+    }
+  }
+
   private handleFormQuestionnaireFlow(message: string): void {
     const lowerMessage = message.toLowerCase();
+    
+    // Gérer la confirmation d'envoi
+    if (this.clientInfo.formulaireEtape === 'attente_confirmation') {
+      if (lowerMessage.includes('oui') || lowerMessage.includes('envoyez') || 
+          lowerMessage.includes('envoyer') || lowerMessage.includes('d\'accord') ||
+          lowerMessage.includes('ok') || lowerMessage.includes('allez-y')) {
+        console.log('✅ Confirmation d\'envoi reçue du client');
+        this.triggerFormSubmission();
+        return;
+      } else if (lowerMessage.includes('non') || lowerMessage.includes('pas encore') ||
+                 lowerMessage.includes('attendre')) {
+        console.log('❌ Client refuse l\'envoi pour le moment');
+        this.clientInfo.formulaireEtape = 'en_attente';
+        return;
+      }
+    }
     
     // Détecter le choix de contact
     if (lowerMessage.includes('formulaire') || lowerMessage.includes('demande') || lowerMessage.includes('contact')) {
@@ -154,6 +191,20 @@ export class EnhancedChatGPTService extends ChatGPTService {
             console.log('📝 Formulaire terminé');
           }
           break;
+      }
+    }
+  }
+
+  // NOUVELLE MÉTHODE : Déclencher l'envoi du formulaire après confirmation
+  private async triggerFormSubmission(): Promise<void> {
+    console.log('🚀 Déclenchement de l\'envoi automatique du formulaire');
+    if (this.submitFormCallback) {
+      try {
+        await this.submitFormCallback();
+        this.clientInfo.formulaireEtape = 'envoyé';
+        console.log('✅ Formulaire envoyé avec succès');
+      } catch (error) {
+        console.error('❌ Erreur lors de l\'envoi automatique:', error);
       }
     }
   }
