@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { EnhancedChatGPTService } from '@/services/enhancedChatGptService';
 import { SpeechSynthesisService } from '@/services/speechSynthesisService';
@@ -87,8 +88,10 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     console.log('🔄 IS PROCESSING = TRUE');
 
     // CORRECTION CRITIQUE : Vérifier le mode conversation ET la disponibilité de chatGPT
+    console.log('🔍 VERIFICATION IA - conversationMode:', conversationMode, 'chatGPT présent:', !!chatGPT);
+    
     if (conversationMode && chatGPT) {
-      console.log('🤖 MODE CONVERSATION IA ACTIVÉ');
+      console.log('🤖 MODE CONVERSATION IA ACTIVÉ - ENVOI À L\'IA');
       try {
         console.log('🚀 ENVOI À CHATGPT:', finalTranscript);
         const response = await chatGPT.sendMessage(finalTranscript);
