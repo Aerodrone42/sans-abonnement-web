@@ -1,4 +1,3 @@
-
 import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { Brain, Zap, MessageCircle, Send, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,7 +28,7 @@ export interface VoiceRecognitionRef {
 }
 
 // Configuration API - IMPORTANTE: Utilisez des variables d'environnement en production !
-const OPENAI_API_KEY = process.env.REACT_APP_OPENAI_API_KEY || "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";
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || "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";
 
 const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
   ({ onTranscript, currentField, fillFormFromAI, submitFromAI, formData }, ref) => {
@@ -282,7 +281,7 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
           <ConversationDisplay transcript={transcript} lastResponse={lastResponse} />
 
           {/* Debug info en développement */}
-          {process.env.NODE_ENV === 'development' && (
+          {import.meta.env.DEV && (
             <div className="mt-4 p-2 bg-gray-800/50 rounded text-xs text-gray-400">
               <div>🔍 Debug: Init={isInitialized ? '✅' : '❌'} | ChatGPT={chatGPT ? '✅' : '❌'} | Error={initError ? '❌' : '✅'}</div>
               <div>API Key: {OPENAI_API_KEY ? `${OPENAI_API_KEY.substring(0, 20)}...` : 'MANQUANTE'}</div>
