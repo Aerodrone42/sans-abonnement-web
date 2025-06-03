@@ -39,7 +39,7 @@ export class ClientInfoExtractor {
       }
     }
 
-    // CORRECTION CRITIQUE: Extraction des informations personnelles SEULEMENT si le client a choisi "formulaire"
+    // CORRECTION CRITIQUE: Extraction et REMPLISSAGE IMMÉDIAT des informations personnelles
     if (updatedInfo.choixContact === 'formulaire' && updatedInfo.conversationStage === 'collecte_infos_formulaire') {
       // Nom/prénom
       if (updatedInfo.formulaireEtape === 'nom' && !updatedInfo.nom) {
@@ -47,10 +47,11 @@ export class ClientInfoExtractor {
         if (cleanMessage.length > 1) {
           updatedInfo.nom = cleanMessage;
           updatedInfo.formulaireEtape = 'email';
-          console.log('📝 Nom extrait et REMPLISSAGE IMMÉDIAT:', updatedInfo.nom);
+          console.log('📝 Nom extrait:', updatedInfo.nom);
+          // REMPLISSAGE IMMÉDIAT ET FORCÉ
           if (fillFormCallback) {
+            console.log('🎯 DÉCLENCHEMENT REMPLISSAGE FORMULAIRE - NOM');
             fillFormCallback({ name: updatedInfo.nom });
-            console.log('🎯 FORMULAIRE REMPLI avec le nom:', updatedInfo.nom);
           }
         }
       }
@@ -60,10 +61,11 @@ export class ClientInfoExtractor {
         if (emailMatch) {
           updatedInfo.email = emailMatch[1];
           updatedInfo.formulaireEtape = 'tel';
-          console.log('📝 Email extrait et REMPLISSAGE IMMÉDIAT:', updatedInfo.email);
+          console.log('📝 Email extrait:', updatedInfo.email);
+          // REMPLISSAGE IMMÉDIAT ET FORCÉ
           if (fillFormCallback) {
+            console.log('🎯 DÉCLENCHEMENT REMPLISSAGE FORMULAIRE - EMAIL');
             fillFormCallback({ email: updatedInfo.email });
-            console.log('🎯 FORMULAIRE REMPLI avec l\'email:', updatedInfo.email);
           }
         }
       }
@@ -73,10 +75,11 @@ export class ClientInfoExtractor {
         if (phoneMatch) {
           updatedInfo.telephone = phoneMatch[0].replace(/[\s.-]/g, '');
           updatedInfo.formulaireEtape = 'entreprise';
-          console.log('📝 Téléphone extrait et REMPLISSAGE IMMÉDIAT:', updatedInfo.telephone);
+          console.log('📝 Téléphone extrait:', updatedInfo.telephone);
+          // REMPLISSAGE IMMÉDIAT ET FORCÉ
           if (fillFormCallback) {
+            console.log('🎯 DÉCLENCHEMENT REMPLISSAGE FORMULAIRE - TÉLÉPHONE');
             fillFormCallback({ phone: updatedInfo.telephone });
-            console.log('🎯 FORMULAIRE REMPLI avec le téléphone:', updatedInfo.telephone);
           }
         }
       }
@@ -86,14 +89,15 @@ export class ClientInfoExtractor {
         if (cleanMessage.length > 1) {
           updatedInfo.entreprise = cleanMessage;
           updatedInfo.formulaireEtape = 'message';
-          console.log('📝 Entreprise extraite et REMPLISSAGE IMMÉDIAT:', updatedInfo.entreprise);
+          console.log('📝 Entreprise extraite:', updatedInfo.entreprise);
+          // REMPLISSAGE IMMÉDIAT ET FORCÉ
           if (fillFormCallback) {
+            console.log('🎯 DÉCLENCHEMENT REMPLISSAGE FORMULAIRE - ENTREPRISE');
             fillFormCallback({ business: updatedInfo.entreprise });
-            console.log('🎯 FORMULAIRE REMPLI avec l\'entreprise:', updatedInfo.entreprise);
           }
         }
       }
-      // Message final
+      // Message final et ENVOI AUTOMATIQUE
       else if (updatedInfo.formulaireEtape === 'message' && updatedInfo.nom && updatedInfo.email) {
         let finalMessage = `Secteur d'activité: ${updatedInfo.metier || 'Non spécifié'}\n`;
         finalMessage += `Zone d'intervention: ${updatedInfo.zone || 'Non spécifiée'}\n`;
@@ -103,15 +107,69 @@ export class ClientInfoExtractor {
         
         updatedInfo.message = finalMessage;
         updatedInfo.formulaireEtape = 'fini';
-        console.log('📝 Message final construit et REMPLISSAGE IMMÉDIAT');
+        console.log('📝 Message final construit');
+        // REMPLISSAGE FINAL ET COMPLET
         if (fillFormCallback) {
-          fillFormCallback({ message: finalMessage });
-          console.log('🎯 FORMULAIRE REMPLI avec le message final');
+          console.log('🎯 DÉCLENCHEMENT REMPLISSAGE FORMULAIRE COMPLET - MESSAGE FINAL');
+          fillFormCallback({ 
+            message: finalMessage,
+            // S'assurer que tous les champs sont remplis
+            name: updatedInfo.nom,
+            email: updatedInfo.email,
+            phone: updatedInfo.telephone || '',
+            business: updatedInfo.entreprise || ''
+          });
         }
       }
     }
+
+    // NOUVEAU: Détection automatique des informations dans n'importe quel message
+    // même si on n'est pas dans le mode formulaire structuré
+    if (!updatedInfo.choixContact || updatedInfo.choixContact !== 'formulaire') {
+      let shouldFillForm = false;
+      let formData: any = {};
+
+      // Extraction automatique du nom si présent
+      const namePatterns = [
+        /je m'appelle ([a-zA-ZÀ-ÿ\s]+)/gi,
+        /mon nom est ([a-zA-ZÀ-ÿ\s]+)/gi,
+        /c'est ([a-zA-ZÀ-ÿ\s]+)/gi
+      ];
+      
+      for (const pattern of namePatterns) {
+        const nameMatch = message.match(pattern);
+        if (nameMatch && nameMatch[1] && nameMatch[1].trim().length > 1) {
+          formData.name = nameMatch[1].trim();
+          shouldFillForm = true;
+          console.log('📝 Nom détecté automatiquement:', formData.name);
+          break;
+        }
+      }
+
+      // Extraction automatique de l'email
+      const emailMatch = message.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+      if (emailMatch) {
+        formData.email = emailMatch[1];
+        shouldFillForm = true;
+        console.log('📝 Email détecté automatiquement:', formData.email);
+      }
+
+      // Extraction automatique du téléphone
+      const phoneMatch = message.match(/(\+33|0)[1-9][\d\s.-]{8,}/);
+      if (phoneMatch) {
+        formData.phone = phoneMatch[0].replace(/[\s.-]/g, '');
+        shouldFillForm = true;
+        console.log('📝 Téléphone détecté automatiquement:', formData.phone);
+      }
+
+      // Si des informations ont été détectées, remplir le formulaire
+      if (shouldFillForm && fillFormCallback) {
+        console.log('🎯 REMPLISSAGE AUTOMATIQUE DU FORMULAIRE DÉTECTÉ');
+        fillFormCallback(formData);
+      }
+    }
     
-    console.log('📋 Infos client extraites STABLE:', updatedInfo);
+    console.log('📋 Infos client extraites:', updatedInfo);
     return updatedInfo;
   }
 }

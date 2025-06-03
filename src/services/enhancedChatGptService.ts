@@ -52,11 +52,14 @@ export class EnhancedChatGPTService extends ChatGPTService {
 
       console.log('📝 Message utilisateur reçu STABLE:', userMessage);
       
-      // Extraire les informations du client progressivement
+      // CORRECTION CRITIQUE: S'assurer que le callback est toujours passé
+      console.log('🔧 Callback disponible:', !!this.fillFormCallback);
+      
+      // Extraire les informations du client progressivement avec le callback
       this.clientInfo = ClientInfoExtractor.extractClientInfo(
         userMessage, 
         this.clientInfo, 
-        this.fillFormCallback
+        this.fillFormCallback // IMPORTANT: toujours passer le callback
       );
       
       // Déterminer l'étape actuelle de la conversation
