@@ -1,4 +1,3 @@
-
 import { ClientInfo } from '../types/clientInfo';
 
 export class ClientInfoExtractor {
@@ -14,18 +13,17 @@ export class ClientInfoExtractor {
     const lowerMessage = message.toLowerCase();
     const updatedInfo = { ...clientInfo };
     
-    // FORCER L'EXTRACTION à chaque message
+    // FORCER LE REMPLISSAGE À CHAQUE EXTRACTION
     let formDataToFill: any = {};
-    let shouldFillForm = false;
+    let hasNewInfo = false;
 
     // EXTRACTION DU NOM - FORCÉE et AGRESSIVE
     if (!updatedInfo.nom) {
       console.log('🔍 Tentative extraction NOM');
       
-      // Pattern super agressif pour le nom
       let extractedName = '';
       
-      // Si le message contient des mots clés de présentation
+      // Pattern agressif pour le nom
       if (lowerMessage.includes('je m\'appelle') || lowerMessage.includes('mon nom est') || lowerMessage.includes('c\'est') || lowerMessage.includes('je suis')) {
         const nameMatch = message.match(/(?:je m'appelle|mon nom est|c'est|je suis)\s+([a-zA-ZÀ-ÿ\s-]{2,30})/i);
         if (nameMatch) {
@@ -33,10 +31,9 @@ export class ClientInfoExtractor {
         }
       }
       
-      // Si pas trouvé, chercher juste des mots qui ressemblent à un nom
+      // Si pas trouvé, chercher des mots qui ressemblent à un nom
       if (!extractedName && message.trim().length > 0) {
         const words = message.trim().split(/\s+/);
-        // Prendre les 1-2 premiers mots s'ils ressemblent à un nom
         if (words.length >= 1 && words[0].match(/^[a-zA-ZÀ-ÿ-]{2,}$/)) {
           extractedName = words.slice(0, 2).join(' ');
         }
@@ -45,8 +42,8 @@ export class ClientInfoExtractor {
       if (extractedName && extractedName.length > 1) {
         updatedInfo.nom = extractedName;
         formDataToFill.name = extractedName;
-        shouldFillForm = true;
-        console.log('✅ NOM EXTRAIT FORCÉ:', extractedName);
+        hasNewInfo = true;
+        console.log('✅ NOM EXTRAIT:', extractedName);
       }
     }
 
@@ -59,41 +56,27 @@ export class ClientInfoExtractor {
       if (emailMatch) {
         updatedInfo.email = emailMatch[1].toLowerCase();
         formDataToFill.email = emailMatch[1].toLowerCase();
-        shouldFillForm = true;
-        console.log('✅ EMAIL EXTRAIT STANDARD:', emailMatch[1]);
+        hasNewInfo = true;
+        console.log('✅ EMAIL EXTRAIT:', emailMatch[1]);
       } else {
         // Reconstruction d'email dicté
-        const words = message.toLowerCase().split(/\s+/);
-        let emailParts = [];
+        const emailReconstructed = message
+          .toLowerCase()
+          .replace(/arobase/g, '@')
+          .replace(/point/g, '.')
+          .replace(/\s+/g, '')
+          .match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
         
-        for (const word of words) {
-          if (word.includes('@') || word.includes('arobase') || 
-              word.includes('gmail') || word.includes('hotmail') || 
-              word.includes('yahoo') || word.includes('outlook') ||
-              word.includes('.com') || word.includes('.fr') ||
-              word.includes('point')) {
-            
-            // Reconstruire l'email
-            const reconstructed = message
-              .toLowerCase()
-              .replace(/arobase/g, '@')
-              .replace(/point/g, '.')
-              .replace(/\s+/g, '')
-              .match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
-            
-            if (reconstructed) {
-              updatedInfo.email = reconstructed[1];
-              formDataToFill.email = reconstructed[1];
-              shouldFillForm = true;
-              console.log('✅ EMAIL RECONSTRUIT:', reconstructed[1]);
-              break;
-            }
-          }
+        if (emailReconstructed) {
+          updatedInfo.email = emailReconstructed[1];
+          formDataToFill.email = emailReconstructed[1];
+          hasNewInfo = true;
+          console.log('✅ EMAIL RECONSTRUIT:', emailReconstructed[1]);
         }
       }
     }
 
-    // EXTRACTION TÉLÉPHONE - FORCÉE
+    // EXTRACTION TÉLÉPHONE
     if (!updatedInfo.telephone) {
       console.log('🔍 Tentative extraction TÉLÉPHONE');
       
@@ -105,7 +88,7 @@ export class ClientInfoExtractor {
         if (cleanPhone.length >= 10) {
           updatedInfo.telephone = cleanPhone;
           formDataToFill.phone = cleanPhone;
-          shouldFillForm = true;
+          hasNewInfo = true;
           console.log('✅ TÉLÉPHONE EXTRAIT:', cleanPhone);
         }
       }
@@ -117,25 +100,27 @@ export class ClientInfoExtractor {
       if (businessMatch) {
         updatedInfo.entreprise = businessMatch[1].trim();
         formDataToFill.business = businessMatch[1].trim();
-        shouldFillForm = true;
+        hasNewInfo = true;
         console.log('✅ ENTREPRISE EXTRAITE:', businessMatch[1].trim());
       }
     }
 
-    // REMPLISSAGE FORCÉ DU FORMULAIRE
+    // REMPLISSAGE FORCÉ DU FORMULAIRE SI NOUVELLES INFOS
+    console.log('🎯 Nouvelles données détectées:', hasNewInfo);
     console.log('🎯 Données à remplir:', formDataToFill);
-    console.log('🎯 Should fill form:', shouldFillForm);
     
-    if (shouldFillForm && fillFormCallback) {
-      console.log('🚀 REMPLISSAGE FORCÉ DU FORMULAIRE !');
+    if (hasNewInfo && fillFormCallback) {
+      console.log('🚀 REMPLISSAGE FORCÉ DU FORMULAIRE IMMÉDIAT !');
       try {
         fillFormCallback(formDataToFill);
-        console.log('✅ Callback exécuté avec succès');
+        console.log('✅ Callback exécuté avec succès - Formulaire mis à jour');
       } catch (error) {
         console.error('❌ Erreur callback:', error);
       }
-    } else if (!fillFormCallback) {
-      console.error('❌ PAS DE CALLBACK DISPONIBLE !');
+    } else if (hasNewInfo && !fillFormCallback) {
+      console.error('❌ NOUVELLES INFOS DÉTECTÉES MAIS PAS DE CALLBACK !');
+    } else {
+      console.log('ℹ️ Aucune nouvelle information détectée');
     }
 
     // Extraire le métier SEULEMENT si on est dans la phase d'accueil
@@ -153,7 +138,6 @@ export class ClientInfoExtractor {
       }
     }
     
-    // Extraction du choix de contact SEULEMENT après la proposition
     if (updatedInfo.conversationStage === 'proposition_contact') {
       if (lowerMessage.includes('formulaire') || lowerMessage.includes('email') || lowerMessage.includes('écrit') || lowerMessage.includes('devis')) {
         updatedInfo.choixContact = 'formulaire';
