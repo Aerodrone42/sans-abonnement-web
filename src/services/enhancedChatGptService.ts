@@ -1,5 +1,3 @@
-
-
 import { ChatGPTService } from './chatGptService';
 import { learningService, ConversationData } from './learningService';
 
@@ -108,7 +106,8 @@ export class EnhancedChatGPTService extends ChatGPTService {
       if (lowerMessage.includes('formulaire') || lowerMessage.includes('email') || lowerMessage.includes('écrit') || lowerMessage.includes('devis')) {
         this.clientInfo.choixContact = 'formulaire';
         this.clientInfo.conversationStage = 'collecte_infos_formulaire';
-        console.log('📋 Client a choisi le FORMULAIRE - début collecte infos');
+        this.clientInfo.formulaireEtape = 'nom';
+        console.log('📋 Client a choisi le FORMULAIRE - début collecte nom');
       } else if (lowerMessage.includes('appel') || lowerMessage.includes('téléphone') || lowerMessage.includes('rappel')) {
         this.clientInfo.choixContact = 'appel';
         this.clientInfo.conversationStage = 'collecte_infos_rappel';
@@ -116,24 +115,37 @@ export class EnhancedChatGPTService extends ChatGPTService {
       }
     }
 
-    // Extraction nom/prénom SEULEMENT pendant la collecte d'infos ET dans l'étape nom
-    if (this.clientInfo.conversationStage === 'collecte_infos_formulaire' && this.clientInfo.formulaireEtape === 'nom' && !this.clientInfo.nom) {
-      this.clientInfo.nom = message.trim();
-    }
-    
-    // Extraction email SEULEMENT pendant la collecte d'infos ET dans l'étape email
-    if (this.clientInfo.conversationStage === 'collecte_infos_formulaire' && this.clientInfo.formulaireEtape === 'email' && !this.clientInfo.email) {
-      const emailMatch = message.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
-      if (emailMatch) {
-        this.clientInfo.email = emailMatch[1];
+    // Extraction des informations personnelles SEULEMENT si le client a choisi "formulaire"
+    if (this.clientInfo.choixContact === 'formulaire' && this.clientInfo.conversationStage === 'collecte_infos_formulaire') {
+      // Nom/prénom
+      if (this.clientInfo.formulaireEtape === 'nom' && !this.clientInfo.nom) {
+        this.clientInfo.nom = message.trim();
+        this.clientInfo.formulaireEtape = 'email';
+        console.log('📝 Nom extrait:', this.clientInfo.nom);
       }
-    }
-    
-    // Extraction téléphone SEULEMENT pendant la collecte d'infos ET dans l'étape téléphone
-    if (this.clientInfo.conversationStage === 'collecte_infos_formulaire' && this.clientInfo.formulaireEtape === 'tel' && !this.clientInfo.telephone) {
-      const phoneMatch = message.match(/(\+33|0)[1-9](\d{8}|\s\d{2}\s\d{2}\s\d{2}\s\d{2})/);
-      if (phoneMatch) {
-        this.clientInfo.telephone = phoneMatch[0];
+      // Email
+      else if (this.clientInfo.formulaireEtape === 'email' && !this.clientInfo.email) {
+        const emailMatch = message.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+        if (emailMatch) {
+          this.clientInfo.email = emailMatch[1];
+          this.clientInfo.formulaireEtape = 'tel';
+          console.log('📝 Email extrait:', this.clientInfo.email);
+        }
+      }
+      // Téléphone
+      else if (this.clientInfo.formulaireEtape === 'tel' && !this.clientInfo.telephone) {
+        const phoneMatch = message.match(/(\+33|0)[1-9](\d{8}|\s\d{2}\s\d{2}\s\d{2}\s\d{2})/);
+        if (phoneMatch) {
+          this.clientInfo.telephone = phoneMatch[0];
+          this.clientInfo.formulaireEtape = 'entreprise';
+          console.log('📝 Téléphone extrait:', this.clientInfo.telephone);
+        }
+      }
+      // Entreprise
+      else if (this.clientInfo.formulaireEtape === 'entreprise' && !this.clientInfo.entreprise) {
+        this.clientInfo.entreprise = message.trim();
+        this.clientInfo.formulaireEtape = 'message';
+        console.log('📝 Entreprise extraite:', this.clientInfo.entreprise);
       }
     }
     
@@ -155,12 +167,15 @@ export class EnhancedChatGPTService extends ChatGPTService {
       // Déterminer l'étape actuelle de la conversation
       this.updateConversationStage(userMessage);
       
-      // CORRECTION CRITIQUE: Utiliser le sendMessage de base SANS modification
-      const response = await super.sendMessage(userMessage);
+      // Construire le prompt système avec les bonnes instructions
+      const systemPrompt = this.buildSystemPrompt();
+      
+      // Envoyer le message avec le prompt système approprié
+      const response = await super.sendMessage(userMessage, systemPrompt);
       console.log('🎯 Réponse IA reçue STABLE:', response);
       
-      // CORRECTION CRITIQUE: Remplir le formulaire SEULEMENT si le client a choisi "formulaire" ET qu'on est dans la bonne étape
-      if (this.clientInfo.choixContact === 'formulaire' && this.clientInfo.formulaireEtape) {
+      // Remplir le formulaire SEULEMENT si le client a choisi "formulaire"
+      if (this.clientInfo.choixContact === 'formulaire') {
         this.fillFormProgressively();
       }
       
@@ -169,6 +184,33 @@ export class EnhancedChatGPTService extends ChatGPTService {
       console.error('Erreur Enhanced ChatGPT STABLE:', error);
       return 'Désolé, je rencontre un problème technique. Pouvez-vous répéter votre question ?';
     }
+  }
+
+  private buildSystemPrompt(): string {
+    const basePrompt = `Tu es Nova, conseillère IA d'Aerodrone Multiservices, spécialiste en création de sites web et référencement local.
+
+RÈGLES IMPORTANTES:
+- Quand tu proposes un contact, tu dis "voulez-vous qu'ON VOUS RAPPELLE ou préférez-vous remplir un formulaire ?"
+- JAMAIS "m'appeler" ou "appeler l'IA" - c'est VOUS qui rappelez le CLIENT
+- Tu collectes: secteur → situation actuelle → zone géographique → proposition → choix contact
+- Si formulaire choisi: nom → email → téléphone → entreprise → confirmation envoi
+
+Informations actuelles du client:
+- Métier: ${this.clientInfo.metier || 'Non spécifié'}
+- Situation: ${this.clientInfo.situation || 'Non spécifiée'}
+- Zone: ${this.clientInfo.zone || 'Non spécifiée'}
+- Étape: ${this.clientInfo.conversationStage || 'accueil'}
+- Choix contact: ${this.clientInfo.choixContact || 'Non choisi'}
+- Étape formulaire: ${this.clientInfo.formulaireEtape || 'Aucune'}
+
+Services Aerodrone:
+- Site vitrine: 590€ (20 villes référencées)
+- Site business: 990€ (50 villes référencées)  
+- Site e-commerce: 1490€ (référencement national)
+
+Reste naturelle, professionnelle et guide la conversation étape par étape.`;
+
+    return basePrompt;
   }
 
   private updateConversationStage(message: string): void {
@@ -269,4 +311,3 @@ export class EnhancedChatGPTService extends ChatGPTService {
     console.log('🔄 Nouvelle session STABLE démarrée:', this.sessionId);
   }
 }
-
