@@ -1,3 +1,4 @@
+
 import { ClientInfo } from '../types/clientInfo';
 
 export class ClientInfoExtractor {
