@@ -1,3 +1,4 @@
+
 import { ChatGPTService } from './chatGptService';
 import { learningService, ConversationData } from './learningService';
 
@@ -159,7 +160,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
       // Déterminer l'étape actuelle de la conversation
       this.updateConversationStage(userMessage);
       
-      // CORRECTION CRITIQUE: Utiliser le prompt de base sans surcharge
+      // CORRECTION CRITIQUE: Utiliser le sendMessage de base SANS modification
       const response = await super.sendMessage(userMessage);
       console.log('🎯 Réponse IA reçue STABLE:', response);
       
@@ -199,8 +200,6 @@ export class EnhancedChatGPTService extends ChatGPTService {
     }
     // Les transitions vers collecte_infos sont gérées dans extractClientInfo
   }
-
-  
 
   // CORRECTION CRITIQUE: Remplir le formulaire SEULEMENT si le client a choisi "formulaire"
   private fillFormProgressively(): void {
