@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { EnhancedChatGPTService } from '@/services/enhancedChatGptService';
 import { SpeechSynthesisService } from '@/services/speechSynthesisService';
@@ -178,6 +177,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     }
 
     try {
+      console.log('🚀 ENVOI À ChatGPT:', finalTranscript);
       const response = await chatGPT.sendMessage(finalTranscript);
       console.log('✅ Réponse ChatGPT:', response);
       setLastResponse(response);
@@ -309,20 +309,26 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
             silenceTimeoutRef.current = null;
           }
           
-          // Nouveau timeout pour traitement IA
-          silenceTimeoutRef.current = setTimeout(() => {
-            if (shouldContinueRef.current && 
-                isActiveSessionRef.current && 
-                lastTranscriptRef.current.trim() &&
-                chatGPT) {
-              
-              console.log('🚀 LANCEMENT TRAITEMENT IA');
-              processAIResponse(lastTranscriptRef.current.trim());
+          // CORRECTION: Déclencher immédiatement le traitement IA
+          if (shouldContinueRef.current && 
+              isActiveSessionRef.current && 
+              lastTranscriptRef.current.trim() &&
+              chatGPT &&
+              conversationMode) {
+            
+            console.log('🚀 TRAITEMENT IA IMMÉDIAT');
+            processAIResponse(lastTranscriptRef.current.trim());
+            lastTranscriptRef.current = "";
+            interimResultRef.current = "";
+            setTranscript("");
+          } else if (!conversationMode) {
+            // En mode dictée, juste remplir le formulaire
+            setTimeout(() => {
+              onTranscript(lastTranscriptRef.current.trim(), "message");
               lastTranscriptRef.current = "";
-              interimResultRef.current = "";
               setTranscript("");
-            }
-          }, 3000);
+            }, 1000);
+          }
         }
       };
 
