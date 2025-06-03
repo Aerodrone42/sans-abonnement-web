@@ -18,37 +18,61 @@ export class ClientInfoExtractor {
     let formDataToFill: any = {};
     let hasNewInfo = false;
 
-    // EXTRACTION DU NOM
+    // EXTRACTION DU NOM - VERSION AMÉLIORÉE
     if (!updatedInfo.nom) {
       console.log('🔍 Tentative extraction NOM');
       
       let extractedName = '';
       
-      // Pattern pour le nom
-      if (lowerMessage.includes('je m\'appelle') || lowerMessage.includes('mon nom est') || lowerMessage.includes('c\'est') || lowerMessage.includes('je suis')) {
-        const nameMatch = message.match(/(?:je m'appelle|mon nom est|c'est|je suis)\s+([a-zA-ZÀ-ÿ\s-]{2,30})/i);
-        if (nameMatch) {
-          extractedName = nameMatch[1].trim();
+      // Patterns étendus pour le nom
+      const namePatterns = [
+        /(?:je m'appelle|mon nom est|c'est|je suis|nom[:\s]+|prénom[:\s]+)\s*([a-zA-ZÀ-ÿ\s-]{2,40})/i,
+        /^([A-ZÀ-Ÿ][a-zA-ZÀ-ÿ-]{1,20}(?:\s+[A-ZÀ-Ÿ][a-zA-ZÀ-ÿ-]{1,20}){0,3})/,
+        /bonjour\s+(?:je suis\s+)?([a-zA-ZÀ-ÿ\s-]{2,30})/i,
+        /salut\s+(?:c'est\s+)?([a-zA-ZÀ-ÿ\s-]{2,30})/i
+      ];
+      
+      for (const pattern of namePatterns) {
+        const match = message.match(pattern);
+        if (match) {
+          extractedName = match[1].trim();
+          // Nettoyer le nom extrait
+          extractedName = extractedName.replace(/[.,!?]/g, '').trim();
+          if (extractedName.length > 1 && !extractedName.match(/\b(bonjour|salut|merci|oui|non|ok)\b/i)) {
+            break;
+          } else {
+            extractedName = '';
+          }
         }
       }
       
-      // Si pas trouvé, chercher des mots qui ressemblent à un nom
+      // Si toujours pas trouvé, essayer de détecter un nom en début de message
       if (!extractedName && message.trim().length > 0) {
         const words = message.trim().split(/\s+/);
-        if (words.length >= 1 && words[0].match(/^[a-zA-ZÀ-ÿ-]{2,}$/)) {
-          extractedName = words.slice(0, 2).join(' ');
+        const firstWord = words[0];
+        
+        // Vérifier si le premier mot ressemble à un prénom
+        if (firstWord.match(/^[A-ZÀ-Ÿ][a-zA-ZÀ-ÿ-]{1,20}$/) && 
+            !firstWord.match(/\b(Bonjour|Salut|Merci|Oui|Non|Ok|Je|Il|Elle|Mon|Ma|Le|La|Un|Une)\b/i)) {
+          
+          // Prendre le premier et éventuellement le deuxième mot
+          if (words.length > 1 && words[1].match(/^[A-ZÀ-Ÿ][a-zA-ZÀ-ÿ-]{1,20}$/)) {
+            extractedName = `${firstWord} ${words[1]}`;
+          } else {
+            extractedName = firstWord;
+          }
         }
       }
       
       if (extractedName && extractedName.length > 1) {
         updatedInfo.nom = extractedName;
-        formDataToFill.name = extractedName;
+        formDataToFill.nom = extractedName; // Utiliser 'nom' au lieu de 'name'
         hasNewInfo = true;
         console.log('✅ NOM EXTRAIT:', extractedName);
       }
     }
 
-    // EXTRACTION EMAIL
+    // EXTRACTION EMAIL - VERSION AMÉLIORÉE
     if (!updatedInfo.email) {
       console.log('🔍 Tentative extraction EMAIL');
       
@@ -60,61 +84,160 @@ export class ClientInfoExtractor {
         hasNewInfo = true;
         console.log('✅ EMAIL EXTRAIT:', emailMatch[1]);
       } else {
-        // Reconstruction d'email dicté
-        const emailReconstructed = message
-          .toLowerCase()
-          .replace(/arobase/g, '@')
-          .replace(/point/g, '.')
-          .replace(/\s+/g, '')
-          .match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+        // Patterns pour email dicté ou mal formaté
+        const emailPatterns = [
+          /([a-zA-Z0-9._%+-]+)\s*(?:arobase|@|at)\s*([a-zA-Z0-9.-]+)\s*(?:point|\.)\s*([a-zA-Z]{2,})/i,
+          /email[:\s]*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i,
+          /mail[:\s]*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i
+        ];
         
-        if (emailReconstructed) {
-          updatedInfo.email = emailReconstructed[1];
-          formDataToFill.email = emailReconstructed[1];
-          hasNewInfo = true;
-          console.log('✅ EMAIL RECONSTRUIT:', emailReconstructed[1]);
+        for (const pattern of emailPatterns) {
+          const match = message.match(pattern);
+          if (match) {
+            let email;
+            if (match.length > 3) {
+              // Email reconstruit depuis arobase/point
+              email = `${match[1]}@${match[2]}.${match[3]}`.replace(/\s+/g, '');
+            } else {
+              email = match[1];
+            }
+            updatedInfo.email = email.toLowerCase();
+            formDataToFill.email = email.toLowerCase();
+            hasNewInfo = true;
+            console.log('✅ EMAIL RECONSTRUIT:', email);
+            break;
+          }
         }
       }
     }
 
-    // EXTRACTION TÉLÉPHONE
+    // EXTRACTION TÉLÉPHONE - VERSION AMÉLIORÉE
     if (!updatedInfo.telephone) {
       console.log('🔍 Tentative extraction TÉLÉPHONE');
       
-      const phonePattern = /(\+33|0)\s*[1-9](?:[\s.-]?\d){8}|([0-9]{2}[\s.-]?[0-9]{2}[\s.-]?[0-9]{2}[\s.-]?[0-9]{2}[\s.-]?[0-9]{2})/g;
-      const phoneMatch = message.match(phonePattern);
+      const phonePatterns = [
+        // Téléphone français standard
+        /(\+33|0)\s*[1-9](?:[\s.-]?\d){8}/g,
+        // Format avec espaces/tirets
+        /([0-9]{2}[\s.-]?[0-9]{2}[\s.-]?[0-9]{2}[\s.-]?[0-9]{2}[\s.-]?[0-9]{2})/g,
+        // Téléphone avec mots-clés
+        /(?:téléphone|tel|phone|portable)[:\s]*([0-9\s.-]{10,})/i,
+        // Numéro dicté
+        /([0-9]+[\s.-]*[0-9]+[\s.-]*[0-9]+[\s.-]*[0-9]+[\s.-]*[0-9]+)/g
+      ];
       
-      if (phoneMatch) {
-        const cleanPhone = phoneMatch[0].replace(/[\s.-]/g, '');
-        if (cleanPhone.length >= 10) {
-          updatedInfo.telephone = cleanPhone;
-          formDataToFill.phone = cleanPhone;
-          hasNewInfo = true;
-          console.log('✅ TÉLÉPHONE EXTRAIT:', cleanPhone);
+      for (const pattern of phonePatterns) {
+        const phoneMatch = message.match(pattern);
+        if (phoneMatch) {
+          const cleanPhone = phoneMatch[phoneMatch.length > 1 ? phoneMatch.length - 1 : 0]
+            .replace(/[\s.-]/g, '');
+          
+          if (cleanPhone.length >= 10 && cleanPhone.match(/^[0-9+]+$/)) {
+            updatedInfo.telephone = cleanPhone;
+            formDataToFill.telephone = cleanPhone;
+            hasNewInfo = true;
+            console.log('✅ TÉLÉPHONE EXTRAIT:', cleanPhone);
+            break;
+          }
         }
       }
     }
 
-    // EXTRACTION ENTREPRISE
+    // EXTRACTION ENTREPRISE - VERSION CONSIDÉRABLEMENT AMÉLIORÉE
     if (!updatedInfo.entreprise) {
-      const businessMatch = message.match(/(?:ma société|mon entreprise|la société|l'entreprise|je travaille chez|chez)\s+([a-zA-ZÀ-ÿ\s&.-]{2,50})/i);
-      if (businessMatch) {
-        updatedInfo.entreprise = businessMatch[1].trim();
-        formDataToFill.business = businessMatch[1].trim();
+      console.log('🔍 Tentative extraction ENTREPRISE');
+      
+      let extractedBusiness = '';
+      
+      const businessPatterns = [
+        // Patterns explicites
+        /(?:ma société|mon entreprise|la société|l'entreprise|je travaille chez|chez|société[:\s]+|entreprise[:\s]+)\s+([a-zA-ZÀ-ÿ\s&.'-]{2,50})/i,
+        // Patterns avec secteur
+        /(?:dans le|secteur|domaine)[:\s]+([a-zA-ZÀ-ÿ\s&.'-]{3,40})/i,
+        // Patterns business
+        /(?:business|company|firm)[:\s]+([a-zA-ZÀ-ÿ\s&.'-]{2,50})/i,
+        // Pattern pour SARL, SAS, etc.
+        /([a-zA-ZÀ-ÿ\s&.'-]{2,30})\s+(?:SARL|SAS|SA|EURL|SNC|SASU)/i,
+      ];
+      
+      for (const pattern of businessPatterns) {
+        const match = message.match(pattern);
+        if (match) {
+          extractedBusiness = match[1].trim();
+          // Nettoyer le nom d'entreprise
+          extractedBusiness = extractedBusiness.replace(/[.,!?]$/, '').trim();
+          if (extractedBusiness.length > 2) {
+            break;
+          } else {
+            extractedBusiness = '';
+          }
+        }
+      }
+      
+      // Détection de secteurs d'activité courants
+      if (!extractedBusiness) {
+        const secteurs = {
+          'artisan': ['artisan', 'plombier', 'électricien', 'maçon', 'menuisier', 'peintre', 'chauffagiste', 'couvreur'],
+          'restauration': ['restaurant', 'café', 'bar', 'boulangerie', 'pâtisserie', 'traiteur'],
+          'beauté': ['coiffeur', 'esthétique', 'massage', 'spa', 'onglerie'],
+          'commerce': ['commerce', 'magasin', 'boutique', 'vente', 'retail'],
+          'services': ['conseil', 'consulting', 'formation', 'coaching'],
+          'santé': ['médecin', 'dentiste', 'pharmacie', 'kiné', 'ostéopathe'],
+          'tech': ['informatique', 'développement', 'web', 'digital', 'tech']
+        };
+        
+        for (const [secteur, mots] of Object.entries(secteurs)) {
+          if (mots.some(mot => lowerMessage.includes(mot))) {
+            extractedBusiness = secteur.charAt(0).toUpperCase() + secteur.slice(1);
+            break;
+          }
+        }
+      }
+      
+      if (extractedBusiness && extractedBusiness.length > 2) {
+        updatedInfo.entreprise = extractedBusiness;
+        formDataToFill.entreprise = extractedBusiness;
         hasNewInfo = true;
-        console.log('✅ ENTREPRISE EXTRAITE:', businessMatch[1].trim());
+        console.log('✅ ENTREPRISE EXTRAITE:', extractedBusiness);
       }
     }
 
-    // REMPLISSAGE AUTOMATIQUE DU FORMULAIRE
+    // REMPLISSAGE AUTOMATIQUE DU FORMULAIRE - VERSION AMÉLIORÉE
     console.log('🎯 Nouvelles données détectées:', hasNewInfo);
     console.log('🎯 Données à remplir:', formDataToFill);
     
     if (hasNewInfo && fillFormCallback) {
       console.log('🚀 REMPLISSAGE AUTOMATIQUE DU FORMULAIRE !');
       try {
-        fillFormCallback(formDataToFill);
-        console.log('✅ Formulaire rempli automatiquement');
+        // Mapper les champs selon les noms attendus par le formulaire
+        const mappedData = {
+          // Essayer différents noms de champs possibles
+          ...(formDataToFill.nom && { 
+            name: formDataToFill.nom,
+            nom: formDataToFill.nom,
+            fullName: formDataToFill.nom,
+            'nom-prenom': formDataToFill.nom
+          }),
+          ...(formDataToFill.email && { 
+            email: formDataToFill.email,
+            'email-professionnel': formDataToFill.email,
+            mail: formDataToFill.email
+          }),
+          ...(formDataToFill.telephone && { 
+            phone: formDataToFill.telephone,
+            telephone: formDataToFill.telephone,
+            tel: formDataToFill.telephone
+          }),
+          ...(formDataToFill.entreprise && { 
+            company: formDataToFill.entreprise,
+            entreprise: formDataToFill.entreprise,
+            business: formDataToFill.entreprise,
+            'entreprise-secteur': formDataToFill.entreprise
+          })
+        };
+        
+        fillFormCallback(mappedData);
+        console.log('✅ Formulaire rempli automatiquement avec:', mappedData);
       } catch (error) {
         console.error('❌ Erreur remplissage formulaire:', error);
       }
