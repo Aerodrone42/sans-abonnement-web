@@ -92,13 +92,22 @@ export class EnhancedChatGPTService extends ChatGPTService {
       }
     }
 
-    // Extraction des informations personnelles SEULEMENT si le client a choisi "formulaire"
+    // CORRECTION CRITIQUE: Extraction des informations personnelles SEULEMENT si le client a choisi "formulaire"
     if (this.clientInfo.choixContact === 'formulaire' && this.clientInfo.conversationStage === 'collecte_infos_formulaire') {
       // Nom/prénom
       if (this.clientInfo.formulaireEtape === 'nom' && !this.clientInfo.nom) {
-        this.clientInfo.nom = message.trim();
-        this.clientInfo.formulaireEtape = 'email';
-        console.log('📝 Nom extrait:', this.clientInfo.nom);
+        // Nettoyer le message pour extraire seulement le nom
+        const cleanMessage = message.trim().replace(/^(je m'appelle|mon nom est|c'est|oui|non|alors|donc|euh|ben)/gi, '').trim();
+        if (cleanMessage.length > 1) {
+          this.clientInfo.nom = cleanMessage;
+          this.clientInfo.formulaireEtape = 'email';
+          console.log('📝 Nom extrait et REMPLISSAGE IMMÉDIAT:', this.clientInfo.nom);
+          // REMPLIR IMMÉDIATEMENT le formulaire
+          if (this.fillFormCallback) {
+            this.fillFormCallback({ name: this.clientInfo.nom });
+            console.log('🎯 FORMULAIRE REMPLI avec le nom:', this.clientInfo.nom);
+          }
+        }
       }
       // Email
       else if (this.clientInfo.formulaireEtape === 'email' && !this.clientInfo.email) {
@@ -106,23 +115,60 @@ export class EnhancedChatGPTService extends ChatGPTService {
         if (emailMatch) {
           this.clientInfo.email = emailMatch[1];
           this.clientInfo.formulaireEtape = 'tel';
-          console.log('📝 Email extrait:', this.clientInfo.email);
+          console.log('📝 Email extrait et REMPLISSAGE IMMÉDIAT:', this.clientInfo.email);
+          // REMPLIR IMMÉDIATEMENT le formulaire
+          if (this.fillFormCallback) {
+            this.fillFormCallback({ email: this.clientInfo.email });
+            console.log('🎯 FORMULAIRE REMPLI avec l\'email:', this.clientInfo.email);
+          }
         }
       }
       // Téléphone
       else if (this.clientInfo.formulaireEtape === 'tel' && !this.clientInfo.telephone) {
-        const phoneMatch = message.match(/(\+33|0)[1-9](\d{8}|\s\d{2}\s\d{2}\s\d{2}\s\d{2})/);
+        // Pattern plus flexible pour les numéros français
+        const phoneMatch = message.match(/(\+33|0)[1-9][\d\s.-]{8,}/);
         if (phoneMatch) {
-          this.clientInfo.telephone = phoneMatch[0];
+          this.clientInfo.telephone = phoneMatch[0].replace(/[\s.-]/g, '');
           this.clientInfo.formulaireEtape = 'entreprise';
-          console.log('📝 Téléphone extrait:', this.clientInfo.telephone);
+          console.log('📝 Téléphone extrait et REMPLISSAGE IMMÉDIAT:', this.clientInfo.telephone);
+          // REMPLIR IMMÉDIATEMENT le formulaire
+          if (this.fillFormCallback) {
+            this.fillFormCallback({ phone: this.clientInfo.telephone });
+            console.log('🎯 FORMULAIRE REMPLI avec le téléphone:', this.clientInfo.telephone);
+          }
         }
       }
       // Entreprise
       else if (this.clientInfo.formulaireEtape === 'entreprise' && !this.clientInfo.entreprise) {
-        this.clientInfo.entreprise = message.trim();
-        this.clientInfo.formulaireEtape = 'message';
-        console.log('📝 Entreprise extraite:', this.clientInfo.entreprise);
+        const cleanMessage = message.trim().replace(/^(ma société|mon entreprise|la société|l'entreprise|c'est|oui|non|alors|donc|euh|ben)/gi, '').trim();
+        if (cleanMessage.length > 1) {
+          this.clientInfo.entreprise = cleanMessage;
+          this.clientInfo.formulaireEtape = 'message';
+          console.log('📝 Entreprise extraite et REMPLISSAGE IMMÉDIAT:', this.clientInfo.entreprise);
+          // REMPLIR IMMÉDIATEMENT le formulaire
+          if (this.fillFormCallback) {
+            this.fillFormCallback({ business: this.clientInfo.entreprise });
+            console.log('🎯 FORMULAIRE REMPLI avec l\'entreprise:', this.clientInfo.entreprise);
+          }
+        }
+      }
+      // Message final
+      else if (this.clientInfo.formulaireEtape === 'message' && this.clientInfo.nom && this.clientInfo.email) {
+        // Construire le message final avec toutes les infos collectées
+        let finalMessage = `Secteur d'activité: ${this.clientInfo.metier || 'Non spécifié'}\n`;
+        finalMessage += `Zone d'intervention: ${this.clientInfo.zone || 'Non spécifiée'}\n`;
+        finalMessage += `Situation actuelle: ${this.clientInfo.situation || 'Non spécifiée'}\n`;
+        finalMessage += `Message du client: ${message.trim()}\n`;
+        finalMessage += '\n[Demande qualifiée par l\'assistant IA Nova - Aerodrone Multiservices]';
+        
+        this.clientInfo.message = finalMessage;
+        this.clientInfo.formulaireEtape = 'fini';
+        console.log('📝 Message final construit et REMPLISSAGE IMMÉDIAT');
+        // REMPLIR IMMÉDIATEMENT le formulaire avec le message final
+        if (this.fillFormCallback) {
+          this.fillFormCallback({ message: finalMessage });
+          console.log('🎯 FORMULAIRE REMPLI avec le message final');
+        }
       }
     }
     
@@ -144,14 +190,9 @@ export class EnhancedChatGPTService extends ChatGPTService {
       // Déterminer l'étape actuelle de la conversation
       this.updateConversationStage(userMessage);
       
-      // CORRECTION: Appeler la méthode parent avec un seul argument
+      // Appeler la méthode parent
       const response = await super.sendMessage(userMessage);
       console.log('🎯 Réponse IA reçue STABLE:', response);
-      
-      // Remplir le formulaire SEULEMENT si le client a choisi "formulaire"
-      if (this.clientInfo.choixContact === 'formulaire') {
-        this.fillFormProgressively();
-      }
       
       return response;
     } catch (error) {
@@ -224,60 +265,9 @@ Reste naturelle, professionnelle et guide la conversation étape par étape.`;
     }
   }
 
-  // CORRECTION: Remplir le formulaire étape par étape avec les VRAIES informations
   private fillFormProgressively(): void {
-    if (!this.fillFormCallback || this.clientInfo.choixContact !== 'formulaire') {
-      console.log('❌ Pas de remplissage - client n\'a pas choisi formulaire ou callback manquant');
-      return;
-    }
-    
-    const formData: any = {};
-    let hasNewData = false;
-    
-    // Remplir le nom si on l'a
-    if (this.clientInfo.nom && this.clientInfo.formulaireEtape === 'email') {
-      formData.name = this.clientInfo.nom;
-      hasNewData = true;
-      console.log('📝 Remplissage du NOM:', formData.name);
-    }
-    
-    // Remplir l'email si on l'a
-    if (this.clientInfo.email && this.clientInfo.formulaireEtape === 'tel') {
-      formData.email = this.clientInfo.email;
-      hasNewData = true;
-      console.log('📝 Remplissage de l\'EMAIL:', formData.email);
-    }
-    
-    // Remplir le téléphone si on l'a
-    if (this.clientInfo.telephone && this.clientInfo.formulaireEtape === 'entreprise') {
-      formData.phone = this.clientInfo.telephone;
-      hasNewData = true;
-      console.log('📝 Remplissage du TÉLÉPHONE:', formData.phone);
-    }
-    
-    // Remplir l'entreprise si on l'a
-    if (this.clientInfo.entreprise && this.clientInfo.formulaireEtape === 'message') {
-      formData.business = this.clientInfo.entreprise;
-      hasNewData = true;
-      console.log('📝 Remplissage de l\'ENTREPRISE:', formData.business);
-    }
-    
-    // Remplir le message final avec un résumé
-    if (this.clientInfo.formulaireEtape === 'message' && this.clientInfo.metier) {
-      let message = `Secteur d'activité: ${this.clientInfo.metier || 'Non spécifié'}\n`;
-      message += `Zone d'intervention: ${this.clientInfo.zone || 'Non spécifiée'}\n`;
-      message += `Situation actuelle: ${this.clientInfo.situation || 'Non spécifiée'}\n`;
-      message += '\n[Demande qualifiée par l\'assistant IA Nova - Aerodrone Multiservices]';
-      formData.message = message;
-      hasNewData = true;
-      console.log('📝 Remplissage du MESSAGE:', formData.message);
-    }
-    
-    // Remplir le formulaire SEULEMENT si on a de nouvelles données
-    if (hasNewData) {
-      console.log('📝 REMPLISSAGE FORMULAIRE PROGRESSIF:', formData);
-      this.fillFormCallback(formData);
-    }
+    // Cette méthode est maintenant remplacée par le remplissage immédiat dans extractClientInfo
+    console.log('📝 fillFormProgressively appelé mais remplissage immédiat déjà fait');
   }
 
   async getPerformanceStats() {
