@@ -7,9 +7,137 @@ export class ClientInfoExtractor {
     clientInfo: ClientInfo, 
     fillFormCallback: ((data: any) => void) | null
   ): ClientInfo {
+    console.log('🔍 DÉBUT EXTRACTION - Message:', message);
+    console.log('🔍 Callback disponible:', !!fillFormCallback);
+    console.log('🔍 ClientInfo actuel:', clientInfo);
+    
     const lowerMessage = message.toLowerCase();
     const updatedInfo = { ...clientInfo };
     
+    // FORCER L'EXTRACTION à chaque message
+    let formDataToFill: any = {};
+    let shouldFillForm = false;
+
+    // EXTRACTION DU NOM - FORCÉE et AGRESSIVE
+    if (!updatedInfo.nom) {
+      console.log('🔍 Tentative extraction NOM');
+      
+      // Pattern super agressif pour le nom
+      let extractedName = '';
+      
+      // Si le message contient des mots clés de présentation
+      if (lowerMessage.includes('je m\'appelle') || lowerMessage.includes('mon nom est') || lowerMessage.includes('c\'est') || lowerMessage.includes('je suis')) {
+        const nameMatch = message.match(/(?:je m'appelle|mon nom est|c'est|je suis)\s+([a-zA-ZÀ-ÿ\s-]{2,30})/i);
+        if (nameMatch) {
+          extractedName = nameMatch[1].trim();
+        }
+      }
+      
+      // Si pas trouvé, chercher juste des mots qui ressemblent à un nom
+      if (!extractedName && message.trim().length > 0) {
+        const words = message.trim().split(/\s+/);
+        // Prendre les 1-2 premiers mots s'ils ressemblent à un nom
+        if (words.length >= 1 && words[0].match(/^[a-zA-ZÀ-ÿ-]{2,}$/)) {
+          extractedName = words.slice(0, 2).join(' ');
+        }
+      }
+      
+      if (extractedName && extractedName.length > 1) {
+        updatedInfo.nom = extractedName;
+        formDataToFill.name = extractedName;
+        shouldFillForm = true;
+        console.log('✅ NOM EXTRAIT FORCÉ:', extractedName);
+      }
+    }
+
+    // EXTRACTION EMAIL - TRÈS AGRESSIVE
+    if (!updatedInfo.email) {
+      console.log('🔍 Tentative extraction EMAIL');
+      
+      // Email standard
+      const emailMatch = message.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i);
+      if (emailMatch) {
+        updatedInfo.email = emailMatch[1].toLowerCase();
+        formDataToFill.email = emailMatch[1].toLowerCase();
+        shouldFillForm = true;
+        console.log('✅ EMAIL EXTRAIT STANDARD:', emailMatch[1]);
+      } else {
+        // Reconstruction d'email dicté
+        const words = message.toLowerCase().split(/\s+/);
+        let emailParts = [];
+        
+        for (const word of words) {
+          if (word.includes('@') || word.includes('arobase') || 
+              word.includes('gmail') || word.includes('hotmail') || 
+              word.includes('yahoo') || word.includes('outlook') ||
+              word.includes('.com') || word.includes('.fr') ||
+              word.includes('point')) {
+            
+            // Reconstruire l'email
+            const reconstructed = message
+              .toLowerCase()
+              .replace(/arobase/g, '@')
+              .replace(/point/g, '.')
+              .replace(/\s+/g, '')
+              .match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+            
+            if (reconstructed) {
+              updatedInfo.email = reconstructed[1];
+              formDataToFill.email = reconstructed[1];
+              shouldFillForm = true;
+              console.log('✅ EMAIL RECONSTRUIT:', reconstructed[1]);
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    // EXTRACTION TÉLÉPHONE - FORCÉE
+    if (!updatedInfo.telephone) {
+      console.log('🔍 Tentative extraction TÉLÉPHONE');
+      
+      const phonePattern = /(\+33|0)\s*[1-9](?:[\s.-]?\d){8}|([0-9]{2}[\s.-]?[0-9]{2}[\s.-]?[0-9]{2}[\s.-]?[0-9]{2}[\s.-]?[0-9]{2})/g;
+      const phoneMatch = message.match(phonePattern);
+      
+      if (phoneMatch) {
+        const cleanPhone = phoneMatch[0].replace(/[\s.-]/g, '');
+        if (cleanPhone.length >= 10) {
+          updatedInfo.telephone = cleanPhone;
+          formDataToFill.phone = cleanPhone;
+          shouldFillForm = true;
+          console.log('✅ TÉLÉPHONE EXTRAIT:', cleanPhone);
+        }
+      }
+    }
+
+    // EXTRACTION ENTREPRISE
+    if (!updatedInfo.entreprise) {
+      const businessMatch = message.match(/(?:ma société|mon entreprise|la société|l'entreprise|je travaille chez|chez)\s+([a-zA-ZÀ-ÿ\s&.-]{2,50})/i);
+      if (businessMatch) {
+        updatedInfo.entreprise = businessMatch[1].trim();
+        formDataToFill.business = businessMatch[1].trim();
+        shouldFillForm = true;
+        console.log('✅ ENTREPRISE EXTRAITE:', businessMatch[1].trim());
+      }
+    }
+
+    // REMPLISSAGE FORCÉ DU FORMULAIRE
+    console.log('🎯 Données à remplir:', formDataToFill);
+    console.log('🎯 Should fill form:', shouldFillForm);
+    
+    if (shouldFillForm && fillFormCallback) {
+      console.log('🚀 REMPLISSAGE FORCÉ DU FORMULAIRE !');
+      try {
+        fillFormCallback(formDataToFill);
+        console.log('✅ Callback exécuté avec succès');
+      } catch (error) {
+        console.error('❌ Erreur callback:', error);
+      }
+    } else if (!fillFormCallback) {
+      console.error('❌ PAS DE CALLBACK DISPONIBLE !');
+    }
+
     // Extraire le métier SEULEMENT si on est dans la phase d'accueil
     if (updatedInfo.conversationStage === 'accueil' && !updatedInfo.metier) {
       if (lowerMessage.includes('artisan') || lowerMessage.includes('plombier') || lowerMessage.includes('électricien') || lowerMessage.includes('maçon') || lowerMessage.includes('menuisier') || lowerMessage.includes('peintre') || lowerMessage.includes('chauffagiste') || lowerMessage.includes('couvreur')) {
@@ -39,177 +167,7 @@ export class ClientInfoExtractor {
       }
     }
 
-    // AMÉLIORATION: Extraction plus robuste et IMMÉDIATE des informations personnelles
-    let formDataToFill: any = {};
-    let shouldFillForm = false;
-
-    // EXTRACTION DU NOM - patterns améliorés
-    if (!updatedInfo.nom) {
-      const namePatterns = [
-        /(?:je m'appelle|mon nom est|c'est|je suis)\s+([a-zA-ZÀ-ÿ\s-]{2,30})/gi,
-        /^([a-zA-ZÀ-ÿ\s-]{2,30})(?:\s|$)/i // Nom en début de phrase
-      ];
-      
-      for (const pattern of namePatterns) {
-        const nameMatch = message.match(pattern);
-        if (nameMatch && nameMatch[1]) {
-          const extractedName = nameMatch[1].trim()
-            .replace(/^(et|donc|alors|euh|ben|oui|non|voilà)\s+/gi, '')
-            .replace(/\s+(email|mail|téléphone|tél|entreprise|société).*$/gi, '');
-          
-          if (extractedName.length > 1 && extractedName.length < 50) {
-            updatedInfo.nom = extractedName;
-            formDataToFill.name = extractedName;
-            shouldFillForm = true;
-            console.log('📝 Nom extrait AMÉLIORÉ:', extractedName);
-            break;
-          }
-        }
-      }
-    }
-
-    // EXTRACTION EMAIL - patterns améliorés avec reconstruction
-    if (!updatedInfo.email) {
-      // Pattern standard pour email complet
-      let emailMatch = message.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i);
-      
-      if (emailMatch) {
-        updatedInfo.email = emailMatch[1].toLowerCase();
-        formDataToFill.email = emailMatch[1].toLowerCase();
-        shouldFillForm = true;
-        console.log('📝 Email extrait STANDARD:', emailMatch[1]);
-      } else {
-        // Reconstruction d'email à partir de mots séparés
-        const emailParts = [];
-        const words = message.toLowerCase().split(/\s+/);
-        
-        for (let i = 0; i < words.length; i++) {
-          const word = words[i];
-          
-          // Chercher des parties d'email
-          if (word.includes('@') || word.includes('gmail') || word.includes('hotmail') || 
-              word.includes('yahoo') || word.includes('outlook') || word.endsWith('.com') ||
-              word.endsWith('.fr') || word.includes('arobase')) {
-            
-            // Reconstruire l'email à partir des mots autour
-            let emailCandidate = '';
-            let startIndex = Math.max(0, i - 3);
-            let endIndex = Math.min(words.length, i + 3);
-            
-            for (let j = startIndex; j < endIndex; j++) {
-              let part = words[j]
-                .replace(/arobase/gi, '@')
-                .replace(/point/gi, '.')
-                .replace(/\s+/g, '')
-                .replace(/[^\w@.-]/g, '');
-              
-              if (part) {
-                emailCandidate += part;
-              }
-            }
-            
-            // Vérifier si on a un email valide
-            const reconstructedMatch = emailCandidate.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
-            if (reconstructedMatch) {
-              updatedInfo.email = reconstructedMatch[1].toLowerCase();
-              formDataToFill.email = reconstructedMatch[1].toLowerCase();
-              shouldFillForm = true;
-              console.log('📝 Email RECONSTRUIT:', reconstructedMatch[1]);
-              break;
-            }
-          }
-        }
-      }
-    }
-
-    // EXTRACTION TÉLÉPHONE - patterns améliorés
-    if (!updatedInfo.telephone) {
-      const phonePatterns = [
-        /(\+33|0)\s*[1-9](?:[\s.-]?\d){8}/g,
-        /([0-9]{2}[\s.-]?[0-9]{2}[\s.-]?[0-9]{2}[\s.-]?[0-9]{2}[\s.-]?[0-9]{2})/g
-      ];
-      
-      for (const pattern of phonePatterns) {
-        const phoneMatch = message.match(pattern);
-        if (phoneMatch) {
-          const cleanPhone = phoneMatch[0].replace(/[\s.-]/g, '');
-          if (cleanPhone.length >= 10) {
-            updatedInfo.telephone = cleanPhone;
-            formDataToFill.phone = cleanPhone;
-            shouldFillForm = true;
-            console.log('📝 Téléphone extrait AMÉLIORÉ:', cleanPhone);
-            break;
-          }
-        }
-      }
-    }
-
-    // EXTRACTION ENTREPRISE - patterns améliorés
-    if (!updatedInfo.entreprise) {
-      const businessPatterns = [
-        /(?:ma société|mon entreprise|la société|l'entreprise|je travaille chez|chez)\s+([a-zA-ZÀ-ÿ\s&.-]{2,50})/gi,
-        /(?:^|[.,]\s*)([a-zA-ZÀ-ÿ\s&.-]{2,50})(?:\s+(?:sarl|sas|eurl|sa|sasu|auto|entrepreneur))/gi
-      ];
-      
-      for (const pattern of businessPatterns) {
-        const businessMatch = message.match(pattern);
-        if (businessMatch && businessMatch[1]) {
-          const extractedBusiness = businessMatch[1].trim()
-            .replace(/^(et|donc|alors|euh|ben|oui|non|voilà)\s+/gi, '');
-          
-          if (extractedBusiness.length > 1 && extractedBusiness.length < 60) {
-            updatedInfo.entreprise = extractedBusiness;
-            formDataToFill.business = extractedBusiness;
-            shouldFillForm = true;
-            console.log('📝 Entreprise extraite AMÉLIORÉE:', extractedBusiness);
-            break;
-          }
-        }
-      }
-    }
-
-    // REMPLISSAGE IMMÉDIAT ET FORCÉ du formulaire si des infos ont été détectées
-    if (shouldFillForm && fillFormCallback) {
-      console.log('🎯 REMPLISSAGE AUTOMATIQUE DÉCLENCHÉ:', formDataToFill);
-      fillFormCallback(formDataToFill);
-    }
-
-    // GESTION DU MODE FORMULAIRE STRUCTURÉ
-    if (updatedInfo.choixContact === 'formulaire' && updatedInfo.conversationStage === 'collecte_infos_formulaire') {
-      // Progression dans les étapes seulement si l'info correspondante a été extraite
-      if (updatedInfo.formulaireEtape === 'nom' && updatedInfo.nom) {
-        updatedInfo.formulaireEtape = 'email';
-      } else if (updatedInfo.formulaireEtape === 'email' && updatedInfo.email) {
-        updatedInfo.formulaireEtape = 'tel';
-      } else if (updatedInfo.formulaireEtape === 'tel' && updatedInfo.telephone) {
-        updatedInfo.formulaireEtape = 'entreprise';
-      } else if (updatedInfo.formulaireEtape === 'entreprise' && updatedInfo.entreprise) {
-        updatedInfo.formulaireEtape = 'message';
-      } else if (updatedInfo.formulaireEtape === 'message' && updatedInfo.nom && updatedInfo.email) {
-        // Construction du message final
-        let finalMessage = `Secteur d'activité: ${updatedInfo.metier || 'Non spécifié'}\n`;
-        finalMessage += `Zone d'intervention: ${updatedInfo.zone || 'Non spécifiée'}\n`;
-        finalMessage += `Situation actuelle: ${updatedInfo.situation || 'Non spécifiée'}\n`;
-        finalMessage += `Message du client: ${message.trim()}\n`;
-        finalMessage += '\n[Demande qualifiée par l\'assistant IA Nova - Aerodrone Multiservices]';
-        
-        updatedInfo.message = finalMessage;
-        updatedInfo.formulaireEtape = 'fini';
-        
-        if (fillFormCallback) {
-          console.log('🎯 REMPLISSAGE FINAL COMPLET');
-          fillFormCallback({ 
-            message: finalMessage,
-            name: updatedInfo.nom,
-            email: updatedInfo.email,
-            phone: updatedInfo.telephone || '',
-            business: updatedInfo.entreprise || ''
-          });
-        }
-      }
-    }
-    
-    console.log('📋 Infos client extraites AMÉLIORÉES:', updatedInfo);
+    console.log('📋 Infos client FINALES:', updatedInfo);
     return updatedInfo;
   }
 }
