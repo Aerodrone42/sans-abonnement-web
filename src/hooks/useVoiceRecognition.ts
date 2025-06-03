@@ -33,20 +33,15 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
   const speechSynthesis = useRef(new SpeechSynthesisService()).current;
   const restartTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
-  // États de contrôle simplifiés
-  const shouldContinueRef = useRef(false);
-  const isActiveSessionRef = useRef(false);
-  const lastTranscriptRef = useRef("");
-  const isRecognitionRunningRef = useRef(false);
+  // CORRECTION: Variables de contrôle simplifiées
+  const shouldStayActiveRef = useRef(false);
+  const currentTranscriptRef = useRef("");
 
-  const cleanup = () => {
-    console.log('🧹 Nettoyage COMPLET microphone');
+  const stopEverything = () => {
+    console.log('🛑 ARRÊT TOTAL du microphone');
     
-    // Arrêter TOUT
-    shouldContinueRef.current = false;
-    isActiveSessionRef.current = false;
-    isRecognitionRunningRef.current = false;
-    
+    // Désactiver TOUT
+    shouldStayActiveRef.current = false;
     setIsListening(false);
     setIsConversationActive(false);
     setIsProcessing(false);
@@ -71,7 +66,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     if (recognitionRef.current) {
       try {
         recognitionRef.current.stop();
-        console.log('🔇 Recognition ARRÊTÉE');
+        console.log('🔇 Recognition STOP forcé');
       } catch (error) {
         console.log('Recognition déjà arrêtée');
       }
@@ -79,54 +74,14 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
 
     // Arrêter la synthèse vocale
     speechSynthesis.stop();
-    console.log('✅ Nettoyage TERMINÉ');
-  };
-
-  const stopSpeaking = () => {
-    console.log('🛑 ARRÊT TOTAL demandé par utilisateur');
-    cleanup();
-  };
-
-  const startRecognitionSafely = () => {
-    // Vérifications de sécurité STRICTES
-    if (!recognitionRef.current) {
-      console.log('❌ Recognition non disponible');
-      return false;
-    }
-
-    if (!shouldContinueRef.current || !isActiveSessionRef.current) {
-      console.log('❌ Session non active, arrêt du démarrage');
-      return false;
-    }
-
-    if (!chatGPT) {
-      console.log('❌ ChatGPT non disponible');
-      return false;
-    }
-
-    if (isRecognitionRunningRef.current) {
-      console.log('⚠️ Recognition déjà en cours, ignorer');
-      return false;
-    }
-
-    try {
-      isRecognitionRunningRef.current = true;
-      recognitionRef.current.start();
-      console.log('✅ Recognition démarrée');
-      return true;
-    } catch (error) {
-      console.error('❌ Erreur démarrage recognition:', error);
-      isRecognitionRunningRef.current = false;
-      setIsListening(false);
-      return false;
-    }
+    console.log('✅ ARRÊT TOTAL terminé');
   };
 
   const processAIResponse = async (finalTranscript: string) => {
-    console.log('🤖 DÉBUT TRAITEMENT IA:', finalTranscript);
+    console.log('🤖 Traitement IA:', finalTranscript);
     
-    if (!shouldContinueRef.current || !isActiveSessionRef.current) {
-      console.log('❌ Session arrêtée, abandon traitement IA');
+    if (!shouldStayActiveRef.current) {
+      console.log('❌ Session arrêtée, abandon traitement');
       return;
     }
     
@@ -136,27 +91,12 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     }
 
     setIsProcessing(true);
-    
-    // Arrêter temporairement le micro pendant traitement IA
-    if (recognitionRef.current && isRecognitionRunningRef.current) {
-      try {
-        recognitionRef.current.stop();
-        isRecognitionRunningRef.current = false;
-      } catch (error) {
-        console.log('Erreur arrêt micro pour IA');
-      }
-    }
 
     if (!chatGPT) {
-      console.log('❌ ChatGPT indisponible, mode dictée');
+      console.log('❌ ChatGPT indisponible');
       setTimeout(() => {
         setIsProcessing(false);
         onTranscript(finalTranscript, "message");
-        
-        // Redémarrer le micro si session active
-        if (shouldContinueRef.current && isActiveSessionRef.current) {
-          setTimeout(() => startRecognitionSafely(), 1000);
-        }
       }, 500);
       return;
     }
@@ -166,17 +106,12 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       setTimeout(() => {
         setIsProcessing(false);
         onTranscript(finalTranscript, "message");
-        
-        // Redémarrer le micro si session active
-        if (shouldContinueRef.current && isActiveSessionRef.current) {
-          setTimeout(() => startRecognitionSafely(), 1000);
-        }
       }, 1500);
       return;
     }
 
     try {
-      console.log('🚀 ENVOI À ChatGPT:', finalTranscript);
+      console.log('🚀 Envoi à ChatGPT:', finalTranscript);
       const response = await chatGPT.sendMessage(finalTranscript);
       console.log('✅ Réponse ChatGPT:', response);
       setLastResponse(response);
@@ -188,10 +123,17 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
         setIsSpeaking(false);
         setIsProcessing(false);
         
-        // Redémarrer le micro SEULEMENT si session toujours active
-        if (shouldContinueRef.current && isActiveSessionRef.current && chatGPT) {
+        // Redémarrer seulement si encore actif
+        if (shouldStayActiveRef.current && chatGPT) {
           setTimeout(() => {
-            startRecognitionSafely();
+            if (shouldStayActiveRef.current && recognitionRef.current) {
+              try {
+                recognitionRef.current.start();
+                console.log('🔄 Redémarrage après IA');
+              } catch (error) {
+                console.log('Erreur redémarrage après IA');
+              }
+            }
           }, 1000);
         }
       });
@@ -199,11 +141,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     } catch (error) {
       console.error('❌ Erreur ChatGPT:', error);
       setIsProcessing(false);
-      
-      // Redémarrer le micro même en cas d'erreur si session active
-      if (shouldContinueRef.current && isActiveSessionRef.current) {
-        setTimeout(() => startRecognitionSafely(), 2000);
-      }
     }
   };
 
@@ -211,7 +148,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     console.log('🎯 DÉMARRAGE conversation');
     
     if (!recognitionRef.current || !chatGPT) {
-      console.log('❌ Conditions non remplies pour démarrer');
+      console.log('❌ Conditions non remplies');
       return;
     }
 
@@ -236,32 +173,28 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       }
 
       // ACTIVER la session
-      shouldContinueRef.current = true;
-      isActiveSessionRef.current = true;
+      shouldStayActiveRef.current = true;
       setIsConversationActive(true);
-      
-      // Reset des refs
-      lastTranscriptRef.current = "";
+      currentTranscriptRef.current = "";
       setTranscript("");
 
-      console.log('🚀 Démarrage reconnaissance vocale');
-      startRecognitionSafely();
+      console.log('🚀 Démarrage reconnaissance');
+      recognitionRef.current.start();
       
     } catch (error) {
       console.error('❌ Erreur démarrage:', error);
-      cleanup();
+      stopEverything();
     }
   };
 
   const stopListening = () => {
-    console.log('🛑 ARRÊT conversation demandé');
-    
-    // DÉSACTIVER la session
-    shouldContinueRef.current = false;
-    isActiveSessionRef.current = false;
-    setIsConversationActive(false);
-    
-    cleanup();
+    console.log('🛑 ARRÊT demandé par utilisateur');
+    stopEverything();
+  };
+
+  const stopSpeaking = () => {
+    console.log('🛑 ARRÊT COMPLET demandé');
+    stopEverything();
   };
 
   useEffect(() => {
@@ -280,7 +213,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       recognition.onstart = () => {
         console.log('🎤 Recognition DÉMARRÉE');
         setIsListening(true);
-        isRecognitionRunningRef.current = true;
       };
 
       recognition.onresult = (event) => {
@@ -297,31 +229,41 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
         }
         
         if (interimTranscript) {
-          const displayText = lastTranscriptRef.current + interimTranscript;
+          const displayText = currentTranscriptRef.current + interimTranscript;
           setTranscript(displayText);
         }
         
+        // CORRECTION: Quand on a un transcript final, on ARRÊTE la reconnaissance et on traite
         if (finalTranscript.trim()) {
           console.log('🎯 TRANSCRIPT FINAL:', finalTranscript);
-          lastTranscriptRef.current += finalTranscript;
-          setTranscript(lastTranscriptRef.current);
+          currentTranscriptRef.current += finalTranscript;
+          setTranscript(currentTranscriptRef.current);
           
-          // CORRECTION: Déclencher immédiatement le traitement IA
-          if (shouldContinueRef.current && 
-              isActiveSessionRef.current && 
-              lastTranscriptRef.current.trim() &&
+          // ARRÊTER la reconnaissance pour traiter l'IA
+          if (recognitionRef.current) {
+            try {
+              recognitionRef.current.stop();
+              console.log('🔇 Arrêt pour traitement IA');
+            } catch (error) {
+              console.log('Erreur arrêt pour IA');
+            }
+          }
+          
+          // Traiter avec l'IA si en mode conversation
+          if (shouldStayActiveRef.current && 
+              currentTranscriptRef.current.trim() &&
               chatGPT &&
               conversationMode) {
             
-            console.log('🚀 TRAITEMENT IA IMMÉDIAT');
-            processAIResponse(lastTranscriptRef.current.trim());
-            lastTranscriptRef.current = "";
+            console.log('🚀 Traitement IA');
+            processAIResponse(currentTranscriptRef.current.trim());
+            currentTranscriptRef.current = "";
             setTranscript("");
           } else if (!conversationMode) {
-            // En mode dictée, juste remplir le formulaire
+            // Mode dictée
             setTimeout(() => {
-              onTranscript(lastTranscriptRef.current.trim(), "message");
-              lastTranscriptRef.current = "";
+              onTranscript(currentTranscriptRef.current.trim(), "message");
+              currentTranscriptRef.current = "";
               setTranscript("");
             }, 1000);
           }
@@ -331,17 +273,15 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       recognition.onerror = (event) => {
         console.error('❌ Erreur recognition:', event.error);
         setIsListening(false);
-        isRecognitionRunningRef.current = false;
         
         if (event.error === 'not-allowed') {
-          console.error('❌ Permission microphone refusée');
-          stopListening();
+          console.error('❌ Permission refusée');
+          stopEverything();
           return;
         }
         
-        // Redémarrer UNIQUEMENT si session active et pas de conflit
-        if (shouldContinueRef.current && 
-            isActiveSessionRef.current && 
+        // Ne redémarre QUE si vraiment nécessaire
+        if (shouldStayActiveRef.current && 
             chatGPT &&
             !isProcessing &&
             !isSpeaking &&
@@ -349,8 +289,12 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
           
           console.log('🔄 Redémarrage après erreur');
           restartTimeoutRef.current = setTimeout(() => {
-            if (shouldContinueRef.current && isActiveSessionRef.current) {
-              startRecognitionSafely();
+            if (shouldStayActiveRef.current && recognitionRef.current) {
+              try {
+                recognitionRef.current.start();
+              } catch (error) {
+                console.log('Erreur redémarrage');
+              }
             }
           }, 1000);
         }
@@ -359,30 +303,16 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       recognition.onend = () => {
         console.log('🏁 Recognition terminée');
         setIsListening(false);
-        isRecognitionRunningRef.current = false;
         
-        // Redémarrer UNIQUEMENT si session active
-        if (shouldContinueRef.current && 
-            isActiveSessionRef.current && 
-            chatGPT &&
-            !isProcessing &&
-            !isSpeaking) {
-          
-          console.log('🔄 Auto-restart recognition');
-          restartTimeoutRef.current = setTimeout(() => {
-            if (shouldContinueRef.current && isActiveSessionRef.current) {
-              startRecognitionSafely();
-            }
-          }, 500);
-        } else {
-          console.log('🚫 Auto-restart ignoré - session inactive');
-        }
+        // CORRECTION: Ne redémarre PAS automatiquement ici
+        // Le redémarrage se fait uniquement après traitement IA ou en cas d'erreur
+        console.log('🚫 Pas de redémarrage automatique');
       };
       
       console.log('🎙️ Speech Recognition PRÊTE');
     }
 
-    return cleanup;
+    return stopEverything;
   }, []);
 
   return {
@@ -395,6 +325,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     startListening,
     stopListening,
     stopSpeaking,
-    cleanupMicrophone: cleanup
+    cleanupMicrophone: stopEverything
   };
 };
