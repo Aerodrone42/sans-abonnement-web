@@ -63,8 +63,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
   private extractClientInfo(message: string): void {
     const lowerMessage = message.toLowerCase();
     
-    // CORRECTION CRITIQUE: Ne plus extraire automatiquement le métier depuis n'importe quel message
-    // Seulement extraire si on est dans la phase de qualification du métier
+    // Extraire le métier SEULEMENT si on est dans la phase d'accueil
     if (this.clientInfo.conversationStage === 'accueil' && !this.clientInfo.metier) {
       if (lowerMessage.includes('artisan') || lowerMessage.includes('plombier') || lowerMessage.includes('électricien') || lowerMessage.includes('maçon') || lowerMessage.includes('menuisier') || lowerMessage.includes('peintre') || lowerMessage.includes('chauffagiste') || lowerMessage.includes('couvreur')) {
         this.clientInfo.metier = 'Artisan du bâtiment';
@@ -79,29 +78,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
       }
     }
     
-    // Extraction de la situation SEULEMENT si on est dans cette phase
-    if (this.clientInfo.conversationStage === 'qualification_besoin' && !this.clientInfo.situation) {
-      if (lowerMessage.includes('pas de site') || lowerMessage.includes('aucun site') || lowerMessage.includes('pas encore')) {
-        this.clientInfo.situation = 'Aucun site web actuellement';
-      } else if (lowerMessage.includes('ancien site') || lowerMessage.includes('obsolète') || lowerMessage.includes('refaire')) {
-        this.clientInfo.situation = 'Site existant à moderniser';
-      } else if (lowerMessage.includes('améliorer') || lowerMessage.includes('optimiser')) {
-        this.clientInfo.situation = 'Site à améliorer';
-      }
-    }
-    
-    // Extraction de la zone SEULEMENT si on est dans cette phase
-    if (this.clientInfo.conversationStage === 'qualification_zone' && !this.clientInfo.zone) {
-      if (lowerMessage.includes('ville') || lowerMessage.includes('local') || lowerMessage.includes('quartier')) {
-        this.clientInfo.zone = 'Local (20 villes recommandées)';
-      } else if (lowerMessage.includes('département') || lowerMessage.includes('région') || lowerMessage.includes('plusieurs villes')) {
-        this.clientInfo.zone = 'Départemental/Régional (50 villes)';
-      } else if (lowerMessage.includes('national') || lowerMessage.includes('france') || lowerMessage.includes('partout')) {
-        this.clientInfo.zone = 'National';
-      }
-    }
-
-    // Détecter le choix de contact SEULEMENT après la proposition
+    // Extraction du choix de contact SEULEMENT après la proposition
     if (this.clientInfo.conversationStage === 'proposition_contact') {
       if (lowerMessage.includes('formulaire') || lowerMessage.includes('email') || lowerMessage.includes('écrit') || lowerMessage.includes('devis')) {
         this.clientInfo.choixContact = 'formulaire';
@@ -167,11 +144,8 @@ export class EnhancedChatGPTService extends ChatGPTService {
       // Déterminer l'étape actuelle de la conversation
       this.updateConversationStage(userMessage);
       
-      // Construire le prompt système avec les bonnes instructions
-      const systemPrompt = this.buildSystemPrompt();
-      
-      // Envoyer le message avec le prompt système approprié
-      const response = await super.sendMessage(userMessage, systemPrompt);
+      // CORRECTION: Appeler la méthode parent avec un seul argument
+      const response = await super.sendMessage(userMessage);
       console.log('🎯 Réponse IA reçue STABLE:', response);
       
       // Remplir le formulaire SEULEMENT si le client a choisi "formulaire"
@@ -216,18 +190,31 @@ Reste naturelle, professionnelle et guide la conversation étape par étape.`;
   private updateConversationStage(message: string): void {
     const lowerMessage = message.toLowerCase();
     
-    // CORRECTION: Progression plus intelligente sans répétitions
     if (this.clientInfo.conversationStage === 'accueil' && this.clientInfo.metier) {
       this.clientInfo.conversationStage = 'qualification_besoin';
       console.log('📋 Passage à la qualification du besoin');
     }
-    else if (this.clientInfo.conversationStage === 'qualification_besoin' && this.clientInfo.situation) {
-      this.clientInfo.conversationStage = 'qualification_zone';
-      console.log('📋 Passage à la qualification de zone');
+    else if (this.clientInfo.conversationStage === 'qualification_besoin') {
+      if (lowerMessage.includes('pas de site') || lowerMessage.includes('aucun site') || lowerMessage.includes('pas encore')) {
+        this.clientInfo.situation = 'Aucun site web actuellement';
+        this.clientInfo.conversationStage = 'qualification_zone';
+        console.log('📋 Passage à la qualification de zone');
+      } else if (lowerMessage.includes('ancien site') || lowerMessage.includes('obsolète') || lowerMessage.includes('refaire')) {
+        this.clientInfo.situation = 'Site existant à moderniser';
+        this.clientInfo.conversationStage = 'qualification_zone';
+        console.log('📋 Passage à la qualification de zone');
+      }
     }
-    else if (this.clientInfo.conversationStage === 'qualification_zone' && this.clientInfo.zone) {
-      this.clientInfo.conversationStage = 'proposition_adaptee';
-      console.log('📋 Passage à la proposition adaptée');
+    else if (this.clientInfo.conversationStage === 'qualification_zone') {
+      if (lowerMessage.includes('ville') || lowerMessage.includes('local') || lowerMessage.includes('quartier')) {
+        this.clientInfo.zone = 'Local (20 villes recommandées)';
+        this.clientInfo.conversationStage = 'proposition_adaptee';
+        console.log('📋 Passage à la proposition adaptée');
+      } else if (lowerMessage.includes('département') || lowerMessage.includes('région') || lowerMessage.includes('plusieurs villes')) {
+        this.clientInfo.zone = 'Départemental/Régional (50 villes)';
+        this.clientInfo.conversationStage = 'proposition_adaptee';
+        console.log('📋 Passage à la proposition adaptée');
+      }
     }
     else if (this.clientInfo.conversationStage === 'proposition_adaptee') {
       if (lowerMessage.includes('intéresse') || lowerMessage.includes('oui') || lowerMessage.includes('d\'accord') || lowerMessage.includes('ok')) {
@@ -235,10 +222,9 @@ Reste naturelle, professionnelle et guide la conversation étape par étape.`;
         console.log('📋 Passage à la proposition de contact');
       }
     }
-    // Les transitions vers collecte_infos sont gérées dans extractClientInfo
   }
 
-  // CORRECTION CRITIQUE: Remplir le formulaire SEULEMENT si le client a choisi "formulaire" ET étape par étape
+  // CORRECTION: Remplir le formulaire étape par étape avec les VRAIES informations
   private fillFormProgressively(): void {
     if (!this.fillFormCallback || this.clientInfo.choixContact !== 'formulaire') {
       console.log('❌ Pas de remplissage - client n\'a pas choisi formulaire ou callback manquant');
@@ -248,31 +234,35 @@ Reste naturelle, professionnelle et guide la conversation étape par étape.`;
     const formData: any = {};
     let hasNewData = false;
     
-    // Remplir SEULEMENT le champ correspondant à l'étape actuelle
-    if (this.clientInfo.formulaireEtape === 'nom' && this.clientInfo.nom) {
-      formData.name = this.clientInfo.nom.trim();
+    // Remplir le nom si on l'a
+    if (this.clientInfo.nom && this.clientInfo.formulaireEtape === 'email') {
+      formData.name = this.clientInfo.nom;
       hasNewData = true;
       console.log('📝 Remplissage du NOM:', formData.name);
     }
     
-    if (this.clientInfo.formulaireEtape === 'email' && this.clientInfo.email) {
-      formData.email = this.clientInfo.email.trim();
+    // Remplir l'email si on l'a
+    if (this.clientInfo.email && this.clientInfo.formulaireEtape === 'tel') {
+      formData.email = this.clientInfo.email;
       hasNewData = true;
       console.log('📝 Remplissage de l\'EMAIL:', formData.email);
     }
     
-    if (this.clientInfo.formulaireEtape === 'tel' && this.clientInfo.telephone) {
-      formData.phone = this.clientInfo.telephone.trim();
+    // Remplir le téléphone si on l'a
+    if (this.clientInfo.telephone && this.clientInfo.formulaireEtape === 'entreprise') {
+      formData.phone = this.clientInfo.telephone;
       hasNewData = true;
       console.log('📝 Remplissage du TÉLÉPHONE:', formData.phone);
     }
     
-    if (this.clientInfo.formulaireEtape === 'entreprise' && this.clientInfo.metier) {
-      formData.business = this.clientInfo.metier.trim();
+    // Remplir l'entreprise si on l'a
+    if (this.clientInfo.entreprise && this.clientInfo.formulaireEtape === 'message') {
+      formData.business = this.clientInfo.entreprise;
       hasNewData = true;
       console.log('📝 Remplissage de l\'ENTREPRISE:', formData.business);
     }
     
+    // Remplir le message final avec un résumé
     if (this.clientInfo.formulaireEtape === 'message' && this.clientInfo.metier) {
       let message = `Secteur d'activité: ${this.clientInfo.metier || 'Non spécifié'}\n`;
       message += `Zone d'intervention: ${this.clientInfo.zone || 'Non spécifiée'}\n`;
@@ -283,12 +273,10 @@ Reste naturelle, professionnelle et guide la conversation étape par étape.`;
       console.log('📝 Remplissage du MESSAGE:', formData.message);
     }
     
-    // Remplir le formulaire SEULEMENT si on a de nouvelles données ET que le client a choisi "formulaire"
-    if (hasNewData && this.clientInfo.choixContact === 'formulaire') {
-      console.log('📝 REMPLISSAGE FORMULAIRE STABLE (étape par étape):', formData);
+    // Remplir le formulaire SEULEMENT si on a de nouvelles données
+    if (hasNewData) {
+      console.log('📝 REMPLISSAGE FORMULAIRE PROGRESSIF:', formData);
       this.fillFormCallback(formData);
-    } else {
-      console.log('❌ Pas de remplissage formulaire - conditions non remplies ou pas de nouvelles données');
     }
   }
 
