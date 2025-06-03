@@ -14,17 +14,17 @@ export class ClientInfoExtractor {
     const lowerMessage = message.toLowerCase();
     const updatedInfo = { ...clientInfo };
     
-    // FORCER LE REMPLISSAGE À CHAQUE EXTRACTION
+    // Données pour le remplissage automatique du formulaire
     let formDataToFill: any = {};
     let hasNewInfo = false;
 
-    // EXTRACTION DU NOM - FORCÉE et AGRESSIVE
+    // EXTRACTION DU NOM
     if (!updatedInfo.nom) {
       console.log('🔍 Tentative extraction NOM');
       
       let extractedName = '';
       
-      // Pattern agressif pour le nom
+      // Pattern pour le nom
       if (lowerMessage.includes('je m\'appelle') || lowerMessage.includes('mon nom est') || lowerMessage.includes('c\'est') || lowerMessage.includes('je suis')) {
         const nameMatch = message.match(/(?:je m'appelle|mon nom est|c'est|je suis)\s+([a-zA-ZÀ-ÿ\s-]{2,30})/i);
         if (nameMatch) {
@@ -48,7 +48,7 @@ export class ClientInfoExtractor {
       }
     }
 
-    // EXTRACTION EMAIL - TRÈS AGRESSIVE
+    // EXTRACTION EMAIL
     if (!updatedInfo.email) {
       console.log('🔍 Tentative extraction EMAIL');
       
@@ -106,17 +106,17 @@ export class ClientInfoExtractor {
       }
     }
 
-    // REMPLISSAGE FORCÉ DU FORMULAIRE SI NOUVELLES INFOS
+    // REMPLISSAGE AUTOMATIQUE DU FORMULAIRE
     console.log('🎯 Nouvelles données détectées:', hasNewInfo);
     console.log('🎯 Données à remplir:', formDataToFill);
     
     if (hasNewInfo && fillFormCallback) {
-      console.log('🚀 REMPLISSAGE FORCÉ DU FORMULAIRE IMMÉDIAT !');
+      console.log('🚀 REMPLISSAGE AUTOMATIQUE DU FORMULAIRE !');
       try {
         fillFormCallback(formDataToFill);
-        console.log('✅ Callback exécuté avec succès - Formulaire mis à jour');
+        console.log('✅ Formulaire rempli automatiquement');
       } catch (error) {
-        console.error('❌ Erreur callback:', error);
+        console.error('❌ Erreur remplissage formulaire:', error);
       }
     } else if (hasNewInfo && !fillFormCallback) {
       console.error('❌ NOUVELLES INFOS DÉTECTÉES MAIS PAS DE CALLBACK !');
