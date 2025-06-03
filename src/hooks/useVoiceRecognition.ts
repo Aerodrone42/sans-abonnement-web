@@ -55,7 +55,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     setIsListening(false);
     setIsConversationActive(false);
     
-    // CORRECTION: Nettoyer tous les timeouts pour éviter les redémarrages
     if (restartTimeoutRef.current) {
       clearTimeout(restartTimeoutRef.current);
       restartTimeoutRef.current = null;
@@ -110,7 +109,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     microphoneMutedRef.current = false;
     
     setTimeout(() => {
-      // CORRECTION: Vérifications plus strictes pour éviter les redémarrages intempestifs
       if (conversationActiveRef.current && 
           !isStoppedRef.current && 
           !speakingRef.current && 
@@ -136,7 +134,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       return false;
     }
 
-    // CORRECTION: Vérifier que la conversation est active
     if (!conversationActiveRef.current) {
       console.log('❌ Conversation non active, arrêt du démarrage');
       return false;
@@ -159,7 +156,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
   const processAIResponse = async (finalTranscript: string) => {
     console.log('🤖 DÉBUT TRAITEMENT IA:', finalTranscript);
     
-    // CORRECTION: Vérifications plus strictes
     if (isStoppedRef.current || !conversationActiveRef.current) {
       console.log('❌ Traitement annulé - conversation arrêtée');
       return;
@@ -176,14 +172,39 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     
     muteMicrophoneForSpeech();
 
+    // CORRECTION CRITIQUE : Attendre l'initialisation de ChatGPT au lieu de passer en mode dictée
     if (!chatGPT) {
-      console.log('❌ ChatGPT non initialisé, mode dictée seulement');
-      setTimeout(() => {
-        setIsProcessing(false);
-        processingRef.current = false;
-        unmuteMicrophoneAfterSpeech();
-        onTranscript(finalTranscript, "message");
-      }, 500);
+      console.log('⏳ ChatGPT en cours d\'initialisation, attente...');
+      
+      // Attendre maximum 10 secondes pour l'initialisation
+      let waitTime = 0;
+      const maxWaitTime = 10000; // 10 secondes
+      const checkInterval = 500; // Vérifier toutes les 500ms
+      
+      const waitForChatGPT = setInterval(() => {
+        waitTime += checkInterval;
+        
+        if (chatGPT) {
+          console.log('✅ ChatGPT maintenant disponible, traitement du message');
+          clearInterval(waitForChatGPT);
+          // Relancer le traitement maintenant que ChatGPT est disponible
+          processAIResponse(finalTranscript);
+          return;
+        }
+        
+        if (waitTime >= maxWaitTime) {
+          console.log('❌ Timeout - ChatGPT non disponible après 10s, passage en mode dictée');
+          clearInterval(waitForChatGPT);
+          setTimeout(() => {
+            setIsProcessing(false);
+            processingRef.current = false;
+            unmuteMicrophoneAfterSpeech();
+            onTranscript(finalTranscript, "message");
+          }, 500);
+          return;
+        }
+      }, checkInterval);
+      
       return;
     }
     
@@ -203,6 +224,7 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       const response = await chatGPT.sendMessage(finalTranscript);
       
       console.log('✅ Réponse ChatGPT reçue:', response);
+      setLastResponse(response);
       
       setIsSpeaking(true);
       speakingRef.current = true;
@@ -336,7 +358,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
           silenceTimeoutRef.current = setTimeout(() => {
             console.log('⏰ TIMEOUT DÉCLENCHÉ - Vérification conditions');
             
-            // CORRECTION: Conditions plus strictes et claires
             const canProcess = conversationActiveRef.current && 
                               !isStoppedRef.current && 
                               !microphoneMutedRef.current && 
@@ -376,7 +397,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
           return;
         }
         
-        // CORRECTION: Ne redémarrer que si vraiment nécessaire
         if (conversationActiveRef.current && 
             !processingRef.current && 
             !speakingRef.current && 
@@ -400,7 +420,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
         recognitionActiveRef.current = false;
         setIsListening(false);
         
-        // CORRECTION: Ne redémarrer que si toutes les conditions sont remplies
         if (conversationActiveRef.current && 
             !processingRef.current && 
             !speakingRef.current && 
