@@ -1,3 +1,4 @@
+
 import { ChatGPTService } from './chatGptService';
 import { learningService, ConversationData } from './learningService';
 
@@ -29,22 +30,29 @@ export class EnhancedChatGPTService extends ChatGPTService {
   private clientInfo: ClientInfo = {};
   private fillFormCallback: ((data: any) => void) | null = null;
   private submitFormCallback: (() => Promise<void>) | null = null;
+  private isInitialized: boolean = false;
 
   constructor(apiKey: string) {
     super(apiKey);
     this.sessionId = this.generateSessionId();
+    this.isInitialized = true;
     learningService.startConversation(this.sessionId);
-    console.log('🚀 EnhancedChatGPTService initialisé avec session:', this.sessionId);
+    console.log('🚀 EnhancedChatGPTService STABLE initialisé avec session:', this.sessionId);
   }
 
   setFormCallbacks(fillForm: (data: any) => void, submitForm: () => Promise<void>) {
     this.fillFormCallback = fillForm;
     this.submitFormCallback = submitForm;
-    console.log('✅ Callbacks de formulaire configurés');
+    console.log('✅ Callbacks de formulaire configurés STABLE');
   }
 
   async startConversation(): Promise<string> {
-    console.log('🎯 Démarrage automatique de la conversation avec Nova');
+    if (!this.isInitialized) {
+      console.log('❌ Service non initialisé, impossible de démarrer');
+      return "Erreur d'initialisation du service IA";
+    }
+    
+    console.log('🎯 Démarrage STABLE de la conversation avec Nova');
     this.clientInfo.conversationStage = 'accueil';
     return "Bonjour ! Je suis Nova, votre conseillère IA d'Aerodrone Multiservices. Je vais vous poser quelques questions rapides pour vous conseiller au mieux. Quel est votre secteur d'activité ?";
   }
@@ -84,9 +92,9 @@ export class EnhancedChatGPTService extends ChatGPTService {
     // Extraction de la zone - ÉVITER LES DOUBLONS
     if (!this.clientInfo.zone) {
       if (lowerMessage.includes('ville') || lowerMessage.includes('local') || lowerMessage.includes('quartier')) {
-        this.clientInfo.zone = 'Local (1 ville)';
+        this.clientInfo.zone = 'Local (20 villes recommandées)';
       } else if (lowerMessage.includes('département') || lowerMessage.includes('région') || lowerMessage.includes('plusieurs villes')) {
-        this.clientInfo.zone = 'Départemental/Régional';
+        this.clientInfo.zone = 'Départemental/Régional (50 villes)';
       } else if (lowerMessage.includes('national') || lowerMessage.includes('france') || lowerMessage.includes('partout')) {
         this.clientInfo.zone = 'National';
       }
@@ -118,11 +126,11 @@ export class EnhancedChatGPTService extends ChatGPTService {
       }
     }
     
-    // Extraction email - SEULEMENT pendant la collecte d'infos
+    // Extraction email - SEULEMENT pendant la collecte d'infos ET exactement comme donné
     if ((this.clientInfo.conversationStage === 'collecte_infos_formulaire' || this.clientInfo.conversationStage === 'collecte_infos_rappel') && !this.clientInfo.email) {
       const emailMatch = message.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
       if (emailMatch) {
-        this.clientInfo.email = emailMatch[1];
+        this.clientInfo.email = emailMatch[1]; // EXACTEMENT comme donné par le client
       }
     }
     
@@ -134,12 +142,17 @@ export class EnhancedChatGPTService extends ChatGPTService {
       }
     }
     
-    console.log('📋 Infos client extraites:', this.clientInfo);
+    console.log('📋 Infos client extraites STABLE:', this.clientInfo);
   }
 
   async sendMessage(userMessage: string): Promise<string> {
     try {
-      console.log('📝 Message utilisateur reçu:', userMessage);
+      if (!this.isInitialized) {
+        console.log('❌ Service non initialisé pour sendMessage');
+        return "Erreur de service, veuillez rafraîchir la page";
+      }
+
+      console.log('📝 Message utilisateur reçu STABLE:', userMessage);
       
       // Extraire les informations du client progressivement
       this.extractClientInfo(userMessage);
@@ -152,7 +165,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
       
       // Envoyer le message à ChatGPT
       const response = await super.sendMessage(enhancedPrompt);
-      console.log('🎯 Réponse IA reçue:', response);
+      console.log('🎯 Réponse IA reçue STABLE:', response);
       
       // CORRECTION CRITIQUE: Remplir le formulaire SEULEMENT si le client a choisi "formulaire"
       if (this.clientInfo.choixContact === 'formulaire') {
@@ -161,7 +174,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
       
       return response;
     } catch (error) {
-      console.error('Erreur Enhanced ChatGPT:', error);
+      console.error('Erreur Enhanced ChatGPT STABLE:', error);
       return 'Désolé, je rencontre un problème technique. Pouvez-vous répéter votre question ?';
     }
   }
@@ -194,13 +207,13 @@ export class EnhancedChatGPTService extends ChatGPTService {
   private createIntelligentPrompt(userMessage: string): string {
     const catalog = `
 CATALOGUE COMPLET (À UTILISER INTELLIGEMMENT):
-• Site internet: 300€ (pour débuter)
-• Site Local 20 villes: 1000€ (couverture locale)
-• Site Local 50 villes: 1500€ (couverture départementale)
-• Site national: 3000€ (couverture nationale)
-• Site E-commerce: 600€ (vente en ligne locale)
-• Site E-commerce National: 3500€ (vente en ligne nationale)
-• Nova IA: 2000€ + 100€/mois (assistant intelligent 24h/24)`;
+• Site vitrine: 300€ (option référencement 200€ = 5 000 affichages)
+• Site Local 20 villes: 1000€ (15 000 affichages au lancement)
+• Site Local 50 villes: 1500€ (15 000 affichages au lancement)  
+• Site national: 3000€ (15 000 affichages au lancement)
+• Site E-commerce: 600€ (15 000 affichages au lancement)
+• Site E-commerce National: 3500€ (15 000 affichages au lancement)
+• Nova IA: 2000€ + 100€/mois (15 000 affichages au lancement + assistant IA)`;
 
     let basePrompt = `Tu es Nova, conseillère commerciale experte pour Aerodrone Multiservices. 
 
@@ -308,7 +321,8 @@ Infos déjà stockées: Métier=${this.clientInfo.metier}, Situation=${this.clie
 IMPORTANT: 
 - NE REDEMANDE JAMAIS les infos déjà stockées
 - NE REMPLIS LE FORMULAIRE que si choixContact = "formulaire" ET que tu demandes les infos
-- Réponds de manière consultative et intelligente`;
+- Réponds de manière consultative et intelligente
+- RESPECTE EXACTEMENT l'email donné par le client sans le modifier`;
 
     return basePrompt;
   }
@@ -329,7 +343,7 @@ IMPORTANT:
     }
     
     if (this.clientInfo.email && this.clientInfo.email.trim()) {
-      formData.email = this.clientInfo.email.trim().toLowerCase();
+      formData.email = this.clientInfo.email.trim(); // EXACTEMENT comme donné, sans transformation
       hasData = true;
     }
     
@@ -354,7 +368,7 @@ IMPORTANT:
       message += '\n[Demande qualifiée par l\'assistant IA Nova - Aerodrone Multiservices]';
       formData.message = message;
       
-      console.log('📝 REMPLISSAGE FORMULAIRE (client a choisi formulaire):', formData);
+      console.log('📝 REMPLISSAGE FORMULAIRE STABLE (client a choisi formulaire):', formData);
       this.fillFormCallback(formData);
     } else {
       console.log('❌ Pas de remplissage formulaire - conditions non remplies');
@@ -375,7 +389,8 @@ IMPORTANT:
     this.sessionId = this.generateSessionId();
     this.currentStage = 1;
     this.clientInfo = { conversationStage: 'accueil' };
+    this.isInitialized = true; // MAINTENIR L'ÉTAT INITIALISÉ
     learningService.startConversation(this.sessionId);
-    console.log('🔄 Nouvelle session démarrée:', this.sessionId);
+    console.log('🔄 Nouvelle session STABLE démarrée:', this.sessionId);
   }
 }

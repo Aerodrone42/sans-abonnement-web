@@ -1,3 +1,4 @@
+
 import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { Brain, Zap, MessageCircle, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
     const [conversationMode, setConversationMode] = useState(true);
     const [isFormFilled, setIsFormFilled] = useState(false);
     const [initialGreeting, setInitialGreeting] = useState("");
+    const [isStableInitialized, setIsStableInitialized] = useState(false);
     
     const {
       isListening,
@@ -54,38 +56,41 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
     }));
 
     useEffect(() => {
-      // Initialiser ChatGPT automatiquement avec votre clé API
-      console.log('🔵 Initializing Enhanced ChatGPT with company API key');
-      try {
-        const chatGPTInstance = new EnhancedChatGPTService(OPENAI_API_KEY);
-        
-        // Configurer les callbacks pour le remplissage automatique du formulaire
-        if (fillFormFromAI && submitFromAI) {
-          chatGPTInstance.setFormCallbacks(fillFormFromAI, submitFromAI);
-          console.log('✅ Callbacks de formulaire configurés dans ChatGPT');
-        }
-        
-        setChatGPT(chatGPTInstance);
-        
-        // Déclencher automatiquement le message d'accueil
-        const startGreeting = async () => {
-          try {
-            const greeting = await chatGPTInstance.startConversation();
-            setInitialGreeting(greeting);
-            console.log('🎯 Message d\'accueil automatique envoyé:', greeting);
-          } catch (error) {
-            console.error('❌ Erreur message d\'accueil:', error);
-            setInitialGreeting("Bonjour ! Je suis Nova, je vais vous poser quelques questions rapides pour vous conseiller au mieux. Cela vous convient ?");
+      // Initialiser ChatGPT STABLE une seule fois
+      if (!isStableInitialized) {
+        console.log('🔵 Initializing STABLE Enhanced ChatGPT with company API key');
+        try {
+          const chatGPTInstance = new EnhancedChatGPTService(OPENAI_API_KEY);
+          
+          // Configurer les callbacks pour le remplissage automatique du formulaire
+          if (fillFormFromAI && submitFromAI) {
+            chatGPTInstance.setFormCallbacks(fillFormFromAI, submitFromAI);
+            console.log('✅ Callbacks de formulaire configurés STABLE dans ChatGPT');
           }
-        };
-        
-        startGreeting();
-        
-        console.log('✅ Enhanced ChatGPT service with learning capabilities and form integration initialized successfully');
-      } catch (error) {
-        console.error('❌ Error initializing Enhanced ChatGPT service:', error);
+          
+          setChatGPT(chatGPTInstance);
+          setIsStableInitialized(true);
+          
+          // Déclencher automatiquement le message d'accueil
+          const startGreeting = async () => {
+            try {
+              const greeting = await chatGPTInstance.startConversation();
+              setInitialGreeting(greeting);
+              console.log('🎯 Message d\'accueil automatique STABLE envoyé:', greeting);
+            } catch (error) {
+              console.error('❌ Erreur message d\'accueil:', error);
+              setInitialGreeting("Bonjour ! Je suis Nova, je vais vous poser quelques questions rapides pour vous conseiller au mieux. Quel est votre secteur d'activité ?");
+            }
+          };
+          
+          startGreeting();
+          
+          console.log('✅ Enhanced ChatGPT service STABLE with learning capabilities and form integration initialized successfully');
+        } catch (error) {
+          console.error('❌ Error initializing STABLE Enhanced ChatGPT service:', error);
+        }
       }
-    }, [fillFormFromAI, submitFromAI]);
+    }, [fillFormFromAI, submitFromAI, isStableInitialized]);
 
     // Détecter si le formulaire a été rempli par l'IA
     useEffect(() => {
@@ -109,7 +114,7 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
       }
     };
 
-    console.log('🔵 VoiceRecognition render - Enhanced chatGPT connected:', !!chatGPT, 'Conversation active:', isConversationActive);
+    console.log('🔵 VoiceRecognition render STABLE - Enhanced chatGPT connected:', !!chatGPT, 'Conversation active:', isConversationActive, 'Initialized:', isStableInitialized);
 
     return (
       <div className="relative">
@@ -128,7 +133,7 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
             <div className="flex-1 h-px bg-gradient-to-r from-cyan-400/50 to-transparent"></div>
             <div className="flex items-center gap-2 text-sm text-gray-400">
               <Zap className="w-4 h-4 text-yellow-400 animate-pulse" />
-              <span>Assistant Commercial IA {isConversationActive ? '🟢' : '🔴'}</span>
+              <span>Assistant Commercial IA {isConversationActive && isStableInitialized ? '🟢' : '🔴'}</span>
             </div>
           </div>
 
@@ -155,13 +160,7 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
                   🎯 Formulaire automatiquement rempli ! Prêt à envoyer votre demande ?
                 </span>
                 <Button
-                  onClick={async () => {
-                    if (isFormFilled && submitFromAI) {
-                      console.log('🤖 IA déclenche l\'envoi automatique de l\'email');
-                      await submitFromAI();
-                      setIsFormFilled(false);
-                    }
-                  }}
+                  onClick={handleAutoSubmit}
                   size="sm"
                   className="bg-green-500 hover:bg-green-600 text-white"
                 >
