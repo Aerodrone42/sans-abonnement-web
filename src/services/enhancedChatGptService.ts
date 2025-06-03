@@ -1,4 +1,3 @@
-
 import { ChatGPTService } from './chatGptService';
 import { learningService, ConversationData } from './learningService';
 
@@ -160,11 +159,8 @@ export class EnhancedChatGPTService extends ChatGPTService {
       // Déterminer l'étape actuelle de la conversation
       this.updateConversationStage(userMessage);
       
-      // Créer un prompt intelligent selon l'étape
-      const enhancedPrompt = this.createIntelligentPrompt(userMessage);
-      
-      // Envoyer le message à ChatGPT
-      const response = await super.sendMessage(enhancedPrompt);
+      // CORRECTION CRITIQUE: Utiliser le prompt de base sans surcharge
+      const response = await super.sendMessage(userMessage);
       console.log('🎯 Réponse IA reçue STABLE:', response);
       
       // CORRECTION CRITIQUE: Remplir le formulaire SEULEMENT si le client a choisi "formulaire"
@@ -204,128 +200,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
     // Les transitions vers collecte_infos sont gérées dans extractClientInfo
   }
 
-  private createIntelligentPrompt(userMessage: string): string {
-    const catalog = `
-CATALOGUE COMPLET (À UTILISER INTELLIGEMMENT):
-• Site vitrine: 300€ (option référencement 200€ = 5 000 affichages)
-• Site Local 20 villes: 1000€ (15 000 affichages au lancement)
-• Site Local 50 villes: 1500€ (15 000 affichages au lancement)  
-• Site national: 3000€ (15 000 affichages au lancement)
-• Site E-commerce: 600€ (15 000 affichages au lancement)
-• Site E-commerce National: 3500€ (15 000 affichages au lancement)
-• Nova IA: 2000€ + 100€/mois (15 000 affichages au lancement + assistant IA)`;
-
-    let basePrompt = `Tu es Nova, conseillère commerciale experte pour Aerodrone Multiservices. 
-
-RÈGLES DE VENTE INTELLIGENTE:
-- QUALIFIE D'ABORD avant de proposer
-- Ne propose QUE les solutions adaptées au besoin
-- Pose UNE question à la fois
-- Sois naturelle et consultative, pas robotique
-- NE REDEMANDE JAMAIS une info déjà stockée
-- Ne remplis le formulaire QUE si le client choisit "formulaire"
-
-${catalog}`;
-
-    switch (this.clientInfo.conversationStage) {
-      case 'accueil':
-        basePrompt += `
-ÉTAPE 1 - DÉCOUVERTE DU MÉTIER:
-- Accueille chaleureusement
-- Demande le secteur d'activité
-- Montre ton expertise en posant la bonne première question`;
-        break;
-        
-      case 'qualification_besoin':
-        basePrompt += `
-ÉTAPE 2 - QUALIFICATION DU BESOIN:
-Métier détecté: ${this.clientInfo.metier}
-- Demande s'il a déjà un site web
-- Comprends sa situation actuelle
-- Identifie son besoin principal`;
-        break;
-        
-      case 'qualification_zone':
-        basePrompt += `
-ÉTAPE 3 - QUALIFICATION DE LA ZONE:
-Métier: ${this.clientInfo.metier}
-Situation: ${this.clientInfo.situation}
-- Demande sur quelle zone il travaille (ville, département, région, national)
-- Comprends son marché géographique
-- Cette info déterminera quelle solution proposer`;
-        break;
-        
-      case 'proposition_adaptee':
-        basePrompt += `
-ÉTAPE 4 - PROPOSITION CIBLÉE:
-Métier: ${this.clientInfo.metier}
-Situation: ${this.clientInfo.situation}
-Zone: ${this.clientInfo.zone}
-
-PROPOSE INTELLIGEMMENT selon la zone:
-- Si 1 ville → Site Local 20 villes (1000€)
-- Si département/région → Site Local 50 villes (1500€)  
-- Si national → Site national (3000€)
-- Si vente en ligne → E-commerce (600€ local ou 3500€ national)
-- Si veut de l'IA → Nova IA (2000€)
-
-NE propose QUE les 2-3 solutions les plus adaptées à son cas.
-Explique pourquoi ces solutions correspondent à ses besoins.
-Termine OBLIGATOIREMENT par "Cela vous intéresse ?"`;
-        break;
-
-      case 'proposition_contact':
-        basePrompt += `
-ÉTAPE 5 - PROPOSITION DE CONTACT:
-Solution proposée et client intéressé.
-MAINTENANT propose OBLIGATOIREMENT 2 options :
-1. "Souhaitez-vous qu'on vous rappelle pour en discuter directement ?"
-2. "Ou préférez-vous qu'on vous envoie un devis par email ?"
-
-Laisse le client choisir sa préférence de contact.
-NE REMPLIS PAS ENCORE LE FORMULAIRE - attends son choix !`;
-        break;
-        
-      case 'collecte_infos_formulaire':
-        basePrompt += `
-ÉTAPE 6A - COLLECTE D'INFORMATIONS POUR FORMULAIRE:
-Le client a choisi FORMULAIRE. Maintenant collecte progressivement :
-- Demande nom et prénom si pas encore donné
-- Puis email si pas encore donné  
-- Puis téléphone si pas encore donné
-- Une seule info à la fois
-- REMPLIS le formulaire au fur et à mesure`;
-        break;
-
-      case 'collecte_infos_rappel':
-        basePrompt += `
-ÉTAPE 6B - COLLECTE D'INFORMATIONS POUR RAPPEL:
-Le client a choisi RAPPEL. Maintenant collecte :
-- Demande nom et prénom si pas encore donné
-- Puis téléphone OBLIGATOIRE pour le rappel
-- Puis préférence horaire (matin/après-midi/soir)
-- Une seule info à la fois`;
-        break;
-        
-      default:
-        basePrompt += `
-Étape: ${this.clientInfo.conversationStage}
-Continue la conversation de manière naturelle.`;
-    }
-
-    basePrompt += `
-
-Message du client: "${userMessage}"
-Infos déjà stockées: Métier=${this.clientInfo.metier}, Situation=${this.clientInfo.situation}, Zone=${this.clientInfo.zone}, Choix contact=${this.clientInfo.choixContact}
-
-IMPORTANT: 
-- NE REDEMANDE JAMAIS les infos déjà stockées
-- NE REMPLIS LE FORMULAIRE que si choixContact = "formulaire" ET que tu demandes les infos
-- Réponds de manière consultative et intelligente
-- RESPECTE EXACTEMENT l'email donné par le client sans le modifier`;
-
-    return basePrompt;
-  }
+  
 
   // CORRECTION CRITIQUE: Remplir le formulaire SEULEMENT si le client a choisi "formulaire"
   private fillFormProgressively(): void {
