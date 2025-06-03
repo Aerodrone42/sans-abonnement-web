@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { EnhancedChatGPTService } from '@/services/enhancedChatGptService';
 import { SpeechSynthesisService } from '@/services/speechSynthesisService';
@@ -35,6 +34,16 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
   
   const shouldStayActiveRef = useRef(false);
   const currentTranscriptRef = useRef("");
+
+  // DEBUG: Log de l'état chatGPT à chaque changement
+  useEffect(() => {
+    console.log('🔍 HOOK VOICE - chatGPT reçu:', !!chatGPT, 'type:', typeof chatGPT);
+    if (chatGPT) {
+      console.log('✅ HOOK VOICE - Instance ChatGPT DISPONIBLE');
+    } else {
+      console.log('❌ HOOK VOICE - Instance ChatGPT MANQUANTE');
+    }
+  }, [chatGPT]);
 
   const stopEverything = () => {
     console.log('🛑 ARRÊT TOTAL du microphone');
@@ -87,10 +96,15 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     setIsProcessing(true);
     console.log('🔄 IS PROCESSING = TRUE');
 
-    // CORRECTION CRITIQUE : Vérifier le mode conversation ET la disponibilité de chatGPT
-    console.log('🔍 VERIFICATION IA - conversationMode:', conversationMode, 'chatGPT présent:', !!chatGPT);
+    // CORRECTION CRITIQUE : Vérification améliorée de l'IA
+    console.log('🔍 VERIFICATION IA DÉTAILLÉE:');
+    console.log('  - conversationMode:', conversationMode);
+    console.log('  - chatGPT présent:', !!chatGPT);
+    console.log('  - chatGPT type:', typeof chatGPT);
+    console.log('  - chatGPT null?:', chatGPT === null);
+    console.log('  - chatGPT undefined?:', chatGPT === undefined);
     
-    if (conversationMode && chatGPT) {
+    if (conversationMode && chatGPT && typeof chatGPT === 'object') {
       console.log('🤖 MODE CONVERSATION IA ACTIVÉ - ENVOI À L\'IA');
       try {
         console.log('🚀 ENVOI À CHATGPT:', finalTranscript);
@@ -127,7 +141,8 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
       }
     } else {
       // Mode dictée uniquement si pas de mode conversation OU pas de chatGPT
-      console.log('📝 Mode dictée activé - conversationMode:', conversationMode, 'chatGPT disponible:', !!chatGPT);
+      console.log('📝 Mode dictée activé');
+      console.log('  - Raison: conversationMode =', conversationMode, ', chatGPT =', !!chatGPT);
       setTimeout(() => {
         setIsProcessing(false);
         onTranscript(finalTranscript, "message");
