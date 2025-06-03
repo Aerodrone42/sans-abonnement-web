@@ -233,7 +233,9 @@ VOUS VOUS ARRÊTEZ.
 • "Pourquoi vous" → "Pas d'engagement, vous payez une fois, le site vous appartient."
 VOUS VOUS ARRÊTEZ après chaque objection traitée.
 
-ÉTAPE 10 - CLOSING AVEC CHOIX CONTACT ET HORAIRES :
+ÉTAPE 10 - CLOSING AVEC CHOIX CONTACT DIRECT :
+
+⚠️ CORRECTION CRITIQUE : PROPOSER APPEL MAINTENANT OU FORMULAIRE (PAS RAPPEL) :
 
 🕐 SI HORAIRES 8h-19h (lundi-samedi) :
 "Parfait ! Deux options pour vous :
@@ -243,9 +245,9 @@ VOUS VOUS ARRÊTEZ et STOCKEZ sa réponse dans CHOIX_CONTACT.
 
 🕙 SI HORS HORAIRES :
 "Parfait ! Deux possibilités :
-1. Je vous rappelle demain entre 8h-19h - Préférez-vous le matin, l'après-midi ou en fin de journée ?
-2. Ou je remplis votre demande par formulaire maintenant ?"
-VOUS VOUS ARRÊTEZ et STOCKEZ sa réponse dans CHOIX_CONTACT et HORAIRE_RAPPEL.
+1. Je remplis votre demande par formulaire maintenant
+2. Ou cliquez sur le bouton d'appel pour laisser un message ?"
+VOUS VOUS ARRÊTEZ et STOCKEZ sa réponse dans CHOIX_CONTACT.
 
 ÉTAPE 11 - QUESTIONNAIRE FORMULAIRE (⚠️ SEULEMENT si le client a choisi "formulaire") :
 ⚠️ CRITIQUE : NE DÉMARREZ LE QUESTIONNAIRE QUE SI CHOIX_CONTACT = "formulaire" OU "demande" OU "contact"
@@ -295,7 +297,7 @@ ATTENDEZ que le client clique sur "Envoyer".
 • NE REMPLISSEZ LE FORMULAIRE QUE SI LE CLIENT A CHOISI "FORMULAIRE"
 • RESPECTEZ L'ORTHOGRAPHE EXACTE DU NOM/PRÉNOM DONNÉ
 • RESPECTEZ L'EMAIL EXACT DONNÉ PAR LE CLIENT
-• POUR LA ZONE : Si client dit "local" ou "1 ville" → MESSAGE doit dire "Zone d'intervention: Local (20 villes recommandées)"
+• POUR LA ZONE : Si client dit "20-30 villes" ou "département" → MESSAGE doit dire "Zone d'intervention: Départemental/Régional (50 villes recommandées)"
 • POUR L'ENTREPRISE : Utilisez exactement le métier/entreprise donné
 • NE JAMAIS INVENTER D'INFORMATIONS
 
@@ -328,7 +330,8 @@ ATTENDEZ que le client clique sur "Envoyer".
 • Ne pas faire de montée en gamme intelligente
 • ⚠️ CRITIQUE : REMPLIR LE FORMULAIRE AVANT QUE LE CLIENT CHOISISSE "FORMULAIRE"
 • ⚠️ CRITIQUE : SE TROMPER DANS LES INFORMATIONS PERSONNELLES DU CLIENT
-• ⚠️ CRITIQUE : INVENTER DES INFORMATIONS NON DONNÉES PAR LE CLIENT`;
+• ⚠️ CRITIQUE : INVENTER DES INFORMATIONS NON DONNÉES PAR LE CLIENT
+• ⚠️ CRITIQUE : PROPOSER RAPPEL/EMAIL AU LIEU D'APPEL DIRECT/FORMULAIRE`;
 
     this.updateSystemPrompt();
   }
