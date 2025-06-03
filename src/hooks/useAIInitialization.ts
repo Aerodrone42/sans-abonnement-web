@@ -31,10 +31,6 @@ export const useAIInitialization = ({ fillFormFromAI, submitFromAI }: UseAIIniti
       const chatGPTInstance = new EnhancedChatGPTService(OPENAI_API_KEY);
       console.log('✅ Instance ChatGPT créée');
       
-      // CORRECTION: Définir l'instance IMMÉDIATEMENT dans le state
-      setChatGPT(chatGPTInstance);
-      console.log('🎯 Instance ChatGPT définie dans le state IMMÉDIATEMENT');
-      
       if (fillFormFromAI && submitFromAI) {
         chatGPTInstance.setFormCallbacks(fillFormFromAI, submitFromAI);
         console.log('✅ Callbacks configurés');
@@ -42,9 +38,13 @@ export const useAIInitialization = ({ fillFormFromAI, submitFromAI }: UseAIIniti
         console.warn('⚠️ Callbacks manquants - fillFormFromAI:', !!fillFormFromAI, 'submitFromAI:', !!submitFromAI);
       }
       
+      // CORRECTION: Définir l'instance IMMÉDIATEMENT dans le state AVANT tout traitement async
+      setChatGPT(chatGPTInstance);
       setIsInitialized(true);
       setInitError(null);
+      console.log('🎯 Instance ChatGPT définie dans le state IMMÉDIATEMENT');
       
+      // Le greeting peut se faire en arrière-plan APRÈS que l'instance soit disponible
       try {
         console.log('🎯 Génération du message d\'accueil...');
         const greeting = await chatGPTInstance.startConversation();
