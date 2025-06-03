@@ -69,12 +69,14 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
         // Test de connectivité avec OpenAI
         console.log('🔍 Test de connectivité OpenAI...');
         
-        // Définir l'instance ChatGPT
+        // CORRECTION CRITIQUE: Définir l'instance ChatGPT AVANT de générer le message d'accueil
         setChatGPT(chatGPTInstance);
+        console.log('🎯 Instance ChatGPT définie dans le state');
+        
         setIsInitialized(true);
         setInitError(null);
         
-        // Message d'accueil automatique
+        // Message d'accueil automatique APRÈS avoir défini l'instance
         try {
           console.log('🎯 Génération du message d\'accueil...');
           const greeting = await chatGPTInstance.startConversation();
@@ -107,6 +109,9 @@ const VoiceRecognition = forwardRef<VoiceRecognitionRef, VoiceRecognitionProps>(
         initializeChatGPT();
       }
     }, [fillFormFromAI, submitFromAI]);
+    
+    // CORRECTION CRITIQUE: S'assurer que chatGPT est bien transmis
+    console.log('🔍 AVANT useVoiceRecognition - chatGPT:', !!chatGPT, 'isInitialized:', isInitialized);
     
     const {
       isListening,
