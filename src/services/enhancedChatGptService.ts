@@ -1,4 +1,5 @@
 
+
 import { ChatGPTService } from './chatGptService';
 import { learningService, ConversationData } from './learningService';
 
@@ -64,22 +65,24 @@ export class EnhancedChatGPTService extends ChatGPTService {
   private extractClientInfo(message: string): void {
     const lowerMessage = message.toLowerCase();
     
-    // Extraction du métier/secteur - ÉVITER LES DOUBLONS
-    if (!this.clientInfo.metier && (lowerMessage.includes('artisan') || lowerMessage.includes('plombier') || lowerMessage.includes('électricien') || lowerMessage.includes('maçon') || lowerMessage.includes('menuisier') || lowerMessage.includes('peintre') || lowerMessage.includes('chauffagiste') || lowerMessage.includes('couvreur'))) {
-      this.clientInfo.metier = 'Artisan du bâtiment';
-    } else if (!this.clientInfo.metier && (lowerMessage.includes('restaurant') || lowerMessage.includes('café') || lowerMessage.includes('bar') || lowerMessage.includes('boulangerie') || lowerMessage.includes('pâtisserie'))) {
-      this.clientInfo.metier = 'Restauration/Alimentation';
-    } else if (!this.clientInfo.metier && (lowerMessage.includes('coiffeur') || lowerMessage.includes('esthétique') || lowerMessage.includes('massage') || lowerMessage.includes('spa'))) {
-      this.clientInfo.metier = 'Beauté/Bien-être';
-    } else if (!this.clientInfo.metier && (lowerMessage.includes('commerce') || lowerMessage.includes('magasin') || lowerMessage.includes('boutique') || lowerMessage.includes('vente'))) {
-      this.clientInfo.metier = 'Commerce/Retail';
-    } else if (!this.clientInfo.metier && message.trim().length > 0 && this.clientInfo.conversationStage === 'accueil') {
-      // Extraction générale du métier SEULEMENT si pas déjà défini ET dans la phase d'accueil
-      this.clientInfo.metier = message.trim();
+    // CORRECTION CRITIQUE: Ne plus extraire automatiquement le métier depuis n'importe quel message
+    // Seulement extraire si on est dans la phase de qualification du métier
+    if (this.clientInfo.conversationStage === 'accueil' && !this.clientInfo.metier) {
+      if (lowerMessage.includes('artisan') || lowerMessage.includes('plombier') || lowerMessage.includes('électricien') || lowerMessage.includes('maçon') || lowerMessage.includes('menuisier') || lowerMessage.includes('peintre') || lowerMessage.includes('chauffagiste') || lowerMessage.includes('couvreur')) {
+        this.clientInfo.metier = 'Artisan du bâtiment';
+      } else if (lowerMessage.includes('restaurant') || lowerMessage.includes('café') || lowerMessage.includes('bar') || lowerMessage.includes('boulangerie') || lowerMessage.includes('pâtisserie')) {
+        this.clientInfo.metier = 'Restauration/Alimentation';
+      } else if (lowerMessage.includes('coiffeur') || lowerMessage.includes('esthétique') || lowerMessage.includes('massage') || lowerMessage.includes('spa')) {
+        this.clientInfo.metier = 'Beauté/Bien-être';
+      } else if (lowerMessage.includes('commerce') || lowerMessage.includes('magasin') || lowerMessage.includes('boutique') || lowerMessage.includes('vente')) {
+        this.clientInfo.metier = 'Commerce/Retail';
+      } else if (message.trim().length > 0 && !lowerMessage.includes('bonjour') && !lowerMessage.includes('informations')) {
+        this.clientInfo.metier = message.trim();
+      }
     }
     
-    // Extraction de la situation - ÉVITER LES DOUBLONS
-    if (!this.clientInfo.situation) {
+    // Extraction de la situation SEULEMENT si on est dans cette phase
+    if (this.clientInfo.conversationStage === 'qualification_besoin' && !this.clientInfo.situation) {
       if (lowerMessage.includes('pas de site') || lowerMessage.includes('aucun site') || lowerMessage.includes('pas encore')) {
         this.clientInfo.situation = 'Aucun site web actuellement';
       } else if (lowerMessage.includes('ancien site') || lowerMessage.includes('obsolète') || lowerMessage.includes('refaire')) {
@@ -89,8 +92,8 @@ export class EnhancedChatGPTService extends ChatGPTService {
       }
     }
     
-    // Extraction de la zone - ÉVITER LES DOUBLONS
-    if (!this.clientInfo.zone) {
+    // Extraction de la zone SEULEMENT si on est dans cette phase
+    if (this.clientInfo.conversationStage === 'qualification_zone' && !this.clientInfo.zone) {
       if (lowerMessage.includes('ville') || lowerMessage.includes('local') || lowerMessage.includes('quartier')) {
         this.clientInfo.zone = 'Local (20 villes recommandées)';
       } else if (lowerMessage.includes('département') || lowerMessage.includes('région') || lowerMessage.includes('plusieurs villes')) {
@@ -113,29 +116,21 @@ export class EnhancedChatGPTService extends ChatGPTService {
       }
     }
 
-    // Extraction nom/prénom - SEULEMENT pendant la collecte d'infos
-    if ((this.clientInfo.conversationStage === 'collecte_infos_formulaire' || this.clientInfo.conversationStage === 'collecte_infos_rappel') && !this.clientInfo.nom) {
-      if (lowerMessage.includes('je suis') || lowerMessage.includes('je m\'appelle') || lowerMessage.includes('mon nom')) {
-        const nameMatch = message.match(/(?:je suis|je m'appelle|mon nom est)\s+([A-Za-zÀ-ÿ\s]+)/i);
-        if (nameMatch) {
-          this.clientInfo.nom = nameMatch[1].trim();
-        }
-      } else if (this.clientInfo.formulaireEtape === 'nom') {
-        // Si on est dans l'étape nom du formulaire, tout le message est le nom
-        this.clientInfo.nom = message.trim();
-      }
+    // Extraction nom/prénom SEULEMENT pendant la collecte d'infos ET dans l'étape nom
+    if (this.clientInfo.conversationStage === 'collecte_infos_formulaire' && this.clientInfo.formulaireEtape === 'nom' && !this.clientInfo.nom) {
+      this.clientInfo.nom = message.trim();
     }
     
-    // Extraction email - SEULEMENT pendant la collecte d'infos ET exactement comme donné
-    if ((this.clientInfo.conversationStage === 'collecte_infos_formulaire' || this.clientInfo.conversationStage === 'collecte_infos_rappel') && !this.clientInfo.email) {
+    // Extraction email SEULEMENT pendant la collecte d'infos ET dans l'étape email
+    if (this.clientInfo.conversationStage === 'collecte_infos_formulaire' && this.clientInfo.formulaireEtape === 'email' && !this.clientInfo.email) {
       const emailMatch = message.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
       if (emailMatch) {
-        this.clientInfo.email = emailMatch[1]; // EXACTEMENT comme donné par le client
+        this.clientInfo.email = emailMatch[1];
       }
     }
     
-    // Extraction téléphone - SEULEMENT pendant la collecte d'infos
-    if ((this.clientInfo.conversationStage === 'collecte_infos_formulaire' || this.clientInfo.conversationStage === 'collecte_infos_rappel') && !this.clientInfo.telephone) {
+    // Extraction téléphone SEULEMENT pendant la collecte d'infos ET dans l'étape téléphone
+    if (this.clientInfo.conversationStage === 'collecte_infos_formulaire' && this.clientInfo.formulaireEtape === 'tel' && !this.clientInfo.telephone) {
       const phoneMatch = message.match(/(\+33|0)[1-9](\d{8}|\s\d{2}\s\d{2}\s\d{2}\s\d{2})/);
       if (phoneMatch) {
         this.clientInfo.telephone = phoneMatch[0];
@@ -164,8 +159,8 @@ export class EnhancedChatGPTService extends ChatGPTService {
       const response = await super.sendMessage(userMessage);
       console.log('🎯 Réponse IA reçue STABLE:', response);
       
-      // CORRECTION CRITIQUE: Remplir le formulaire SEULEMENT si le client a choisi "formulaire"
-      if (this.clientInfo.choixContact === 'formulaire') {
+      // CORRECTION CRITIQUE: Remplir le formulaire SEULEMENT si le client a choisi "formulaire" ET qu'on est dans la bonne étape
+      if (this.clientInfo.choixContact === 'formulaire' && this.clientInfo.formulaireEtape) {
         this.fillFormProgressively();
       }
       
@@ -201,7 +196,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
     // Les transitions vers collecte_infos sont gérées dans extractClientInfo
   }
 
-  // CORRECTION CRITIQUE: Remplir le formulaire SEULEMENT si le client a choisi "formulaire"
+  // CORRECTION CRITIQUE: Remplir le formulaire SEULEMENT si le client a choisi "formulaire" ET étape par étape
   private fillFormProgressively(): void {
     if (!this.fillFormCallback || this.clientInfo.choixContact !== 'formulaire') {
       console.log('❌ Pas de remplissage - client n\'a pas choisi formulaire ou callback manquant');
@@ -209,43 +204,49 @@ export class EnhancedChatGPTService extends ChatGPTService {
     }
     
     const formData: any = {};
-    let hasData = false;
+    let hasNewData = false;
     
-    if (this.clientInfo.nom && this.clientInfo.nom.trim()) {
+    // Remplir SEULEMENT le champ correspondant à l'étape actuelle
+    if (this.clientInfo.formulaireEtape === 'nom' && this.clientInfo.nom) {
       formData.name = this.clientInfo.nom.trim();
-      hasData = true;
+      hasNewData = true;
+      console.log('📝 Remplissage du NOM:', formData.name);
     }
     
-    if (this.clientInfo.email && this.clientInfo.email.trim()) {
-      formData.email = this.clientInfo.email.trim(); // EXACTEMENT comme donné, sans transformation
-      hasData = true;
+    if (this.clientInfo.formulaireEtape === 'email' && this.clientInfo.email) {
+      formData.email = this.clientInfo.email.trim();
+      hasNewData = true;
+      console.log('📝 Remplissage de l\'EMAIL:', formData.email);
     }
     
-    if (this.clientInfo.telephone && this.clientInfo.telephone.trim()) {
+    if (this.clientInfo.formulaireEtape === 'tel' && this.clientInfo.telephone) {
       formData.phone = this.clientInfo.telephone.trim();
-      hasData = true;
+      hasNewData = true;
+      console.log('📝 Remplissage du TÉLÉPHONE:', formData.phone);
     }
     
-    if (this.clientInfo.metier || this.clientInfo.entreprise) {
-      const business = (this.clientInfo.metier || this.clientInfo.entreprise || '').trim();
-      if (business) {
-        formData.business = business;
-        hasData = true;
-      }
+    if (this.clientInfo.formulaireEtape === 'entreprise' && this.clientInfo.metier) {
+      formData.business = this.clientInfo.metier.trim();
+      hasNewData = true;
+      console.log('📝 Remplissage de l\'ENTREPRISE:', formData.business);
     }
     
-    // Remplir le formulaire SEULEMENT si on a des données ET que le client a choisi "formulaire"
-    if (hasData && this.clientInfo.choixContact === 'formulaire') {
+    if (this.clientInfo.formulaireEtape === 'message' && this.clientInfo.metier) {
       let message = `Secteur d'activité: ${this.clientInfo.metier || 'Non spécifié'}\n`;
       message += `Zone d'intervention: ${this.clientInfo.zone || 'Non spécifiée'}\n`;
       message += `Situation actuelle: ${this.clientInfo.situation || 'Non spécifiée'}\n`;
       message += '\n[Demande qualifiée par l\'assistant IA Nova - Aerodrone Multiservices]';
       formData.message = message;
-      
-      console.log('📝 REMPLISSAGE FORMULAIRE STABLE (client a choisi formulaire):', formData);
+      hasNewData = true;
+      console.log('📝 Remplissage du MESSAGE:', formData.message);
+    }
+    
+    // Remplir le formulaire SEULEMENT si on a de nouvelles données ET que le client a choisi "formulaire"
+    if (hasNewData && this.clientInfo.choixContact === 'formulaire') {
+      console.log('📝 REMPLISSAGE FORMULAIRE STABLE (étape par étape):', formData);
       this.fillFormCallback(formData);
     } else {
-      console.log('❌ Pas de remplissage formulaire - conditions non remplies');
+      console.log('❌ Pas de remplissage formulaire - conditions non remplies ou pas de nouvelles données');
     }
   }
 
@@ -263,8 +264,9 @@ export class EnhancedChatGPTService extends ChatGPTService {
     this.sessionId = this.generateSessionId();
     this.currentStage = 1;
     this.clientInfo = { conversationStage: 'accueil' };
-    this.isInitialized = true; // MAINTENIR L'ÉTAT INITIALISÉ
+    this.isInitialized = true;
     learningService.startConversation(this.sessionId);
     console.log('🔄 Nouvelle session STABLE démarrée:', this.sessionId);
   }
 }
+
