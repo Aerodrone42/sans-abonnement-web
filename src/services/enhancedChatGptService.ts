@@ -1,4 +1,3 @@
-
 import { ChatGPTService } from './chatGptService';
 import { learningService, ConversationData } from './learningService';
 
@@ -66,8 +65,8 @@ export class EnhancedChatGPTService extends ChatGPTService {
       this.clientInfo.metier = 'Beauté/Bien-être';
     } else if (!this.clientInfo.metier && (lowerMessage.includes('commerce') || lowerMessage.includes('magasin') || lowerMessage.includes('boutique') || lowerMessage.includes('vente'))) {
       this.clientInfo.metier = 'Commerce/Retail';
-    } else if (!this.clientInfo.metier && message.trim().length > 0) {
-      // Extraction générale du métier SEULEMENT si pas déjà défini
+    } else if (!this.clientInfo.metier && message.trim().length > 0 && this.clientInfo.conversationStage === 'accueil') {
+      // Extraction générale du métier SEULEMENT si pas déjà défini ET dans la phase d'accueil
       this.clientInfo.metier = message.trim();
     }
     
@@ -92,25 +91,43 @@ export class EnhancedChatGPTService extends ChatGPTService {
         this.clientInfo.zone = 'National';
       }
     }
-    
-    // Extraction nom/prénom - ÉVITER LES DOUBLONS
-    if (!this.clientInfo.nom && (lowerMessage.includes('je suis') || lowerMessage.includes('je m\'appelle') || lowerMessage.includes('mon nom'))) {
-      const nameMatch = message.match(/(?:je suis|je m'appelle|mon nom est)\s+([A-Za-zÀ-ÿ\s]+)/i);
-      if (nameMatch) {
-        this.clientInfo.nom = nameMatch[1].trim();
+
+    // Détecter le choix de contact SEULEMENT après la proposition
+    if (this.clientInfo.conversationStage === 'proposition_contact') {
+      if (lowerMessage.includes('formulaire') || lowerMessage.includes('email') || lowerMessage.includes('écrit') || lowerMessage.includes('devis')) {
+        this.clientInfo.choixContact = 'formulaire';
+        this.clientInfo.conversationStage = 'collecte_infos_formulaire';
+        console.log('📋 Client a choisi le FORMULAIRE - début collecte infos');
+      } else if (lowerMessage.includes('appel') || lowerMessage.includes('téléphone') || lowerMessage.includes('rappel')) {
+        this.clientInfo.choixContact = 'appel';
+        this.clientInfo.conversationStage = 'collecte_infos_rappel';
+        console.log('📞 Client a choisi l\'APPEL - début collecte infos');
+      }
+    }
+
+    // Extraction nom/prénom - SEULEMENT pendant la collecte d'infos
+    if ((this.clientInfo.conversationStage === 'collecte_infos_formulaire' || this.clientInfo.conversationStage === 'collecte_infos_rappel') && !this.clientInfo.nom) {
+      if (lowerMessage.includes('je suis') || lowerMessage.includes('je m\'appelle') || lowerMessage.includes('mon nom')) {
+        const nameMatch = message.match(/(?:je suis|je m'appelle|mon nom est)\s+([A-Za-zÀ-ÿ\s]+)/i);
+        if (nameMatch) {
+          this.clientInfo.nom = nameMatch[1].trim();
+        }
+      } else if (this.clientInfo.formulaireEtape === 'nom') {
+        // Si on est dans l'étape nom du formulaire, tout le message est le nom
+        this.clientInfo.nom = message.trim();
       }
     }
     
-    // Extraction email - ÉVITER LES DOUBLONS
-    if (!this.clientInfo.email) {
+    // Extraction email - SEULEMENT pendant la collecte d'infos
+    if ((this.clientInfo.conversationStage === 'collecte_infos_formulaire' || this.clientInfo.conversationStage === 'collecte_infos_rappel') && !this.clientInfo.email) {
       const emailMatch = message.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
       if (emailMatch) {
         this.clientInfo.email = emailMatch[1];
       }
     }
     
-    // Extraction téléphone - ÉVITER LES DOUBLONS
-    if (!this.clientInfo.telephone) {
+    // Extraction téléphone - SEULEMENT pendant la collecte d'infos
+    if ((this.clientInfo.conversationStage === 'collecte_infos_formulaire' || this.clientInfo.conversationStage === 'collecte_infos_rappel') && !this.clientInfo.telephone) {
       const phoneMatch = message.match(/(\+33|0)[1-9](\d{8}|\s\d{2}\s\d{2}\s\d{2}\s\d{2})/);
       if (phoneMatch) {
         this.clientInfo.telephone = phoneMatch[0];
@@ -137,8 +154,10 @@ export class EnhancedChatGPTService extends ChatGPTService {
       const response = await super.sendMessage(enhancedPrompt);
       console.log('🎯 Réponse IA reçue:', response);
       
-      // CORRECTION CRITIQUE: Remplir le formulaire dès qu'on a des infos de contact
-      this.fillFormProgressively();
+      // CORRECTION CRITIQUE: Remplir le formulaire SEULEMENT si le client a choisi "formulaire"
+      if (this.clientInfo.choixContact === 'formulaire') {
+        this.fillFormProgressively();
+      }
       
       return response;
     } catch (error) {
@@ -169,15 +188,7 @@ export class EnhancedChatGPTService extends ChatGPTService {
         console.log('📋 Passage à la proposition de contact');
       }
     }
-    else if (this.clientInfo.conversationStage === 'proposition_contact') {
-      if (lowerMessage.includes('appel') || lowerMessage.includes('téléphone') || lowerMessage.includes('rappel')) {
-        this.clientInfo.conversationStage = 'collecte_infos';
-        console.log('📋 Passage à la collecte d\'informations pour rappel');
-      } else if (lowerMessage.includes('formulaire') || lowerMessage.includes('écrit') || lowerMessage.includes('email') || lowerMessage.includes('contact')) {
-        this.clientInfo.conversationStage = 'collecte_infos';
-        console.log('📋 Passage à la collecte d\'informations pour formulaire');
-      }
-    }
+    // Les transitions vers collecte_infos sont gérées dans extractClientInfo
   }
 
   private createIntelligentPrompt(userMessage: string): string {
@@ -199,6 +210,7 @@ RÈGLES DE VENTE INTELLIGENTE:
 - Pose UNE question à la fois
 - Sois naturelle et consultative, pas robotique
 - NE REDEMANDE JAMAIS une info déjà stockée
+- Ne remplis le formulaire QUE si le client choisit "formulaire"
 
 ${catalog}`;
 
@@ -257,18 +269,29 @@ MAINTENANT propose OBLIGATOIREMENT 2 options :
 1. "Souhaitez-vous qu'on vous rappelle pour en discuter directement ?"
 2. "Ou préférez-vous qu'on vous envoie un devis par email ?"
 
-Laisse le client choisir sa préférence de contact.`;
+Laisse le client choisir sa préférence de contact.
+NE REMPLIS PAS ENCORE LE FORMULAIRE - attends son choix !`;
         break;
         
-      case 'collecte_infos':
+      case 'collecte_infos_formulaire':
         basePrompt += `
-ÉTAPE 6 - COLLECTE D'INFORMATIONS:
-Le client a choisi son mode de contact, maintenant collecte les infos :
+ÉTAPE 6A - COLLECTE D'INFORMATIONS POUR FORMULAIRE:
+Le client a choisi FORMULAIRE. Maintenant collecte progressivement :
 - Demande nom et prénom si pas encore donné
-- Puis email si pas encore donné
+- Puis email si pas encore donné  
 - Puis téléphone si pas encore donné
 - Une seule info à la fois
 - REMPLIS le formulaire au fur et à mesure`;
+        break;
+
+      case 'collecte_infos_rappel':
+        basePrompt += `
+ÉTAPE 6B - COLLECTE D'INFORMATIONS POUR RAPPEL:
+Le client a choisi RAPPEL. Maintenant collecte :
+- Demande nom et prénom si pas encore donné
+- Puis téléphone OBLIGATOIRE pour le rappel
+- Puis préférence horaire (matin/après-midi/soir)
+- Une seule info à la fois`;
         break;
         
       default:
@@ -280,17 +303,22 @@ Continue la conversation de manière naturelle.`;
     basePrompt += `
 
 Message du client: "${userMessage}"
-Infos déjà stockées: Métier=${this.clientInfo.metier}, Situation=${this.clientInfo.situation}, Zone=${this.clientInfo.zone}
+Infos déjà stockées: Métier=${this.clientInfo.metier}, Situation=${this.clientInfo.situation}, Zone=${this.clientInfo.zone}, Choix contact=${this.clientInfo.choixContact}
 
-IMPORTANT: NE REDEMANDE JAMAIS les infos déjà stockées.
-Réponds de manière consultative et intelligente.`;
+IMPORTANT: 
+- NE REDEMANDE JAMAIS les infos déjà stockées
+- NE REMPLIS LE FORMULAIRE que si choixContact = "formulaire" ET que tu demandes les infos
+- Réponds de manière consultative et intelligente`;
 
     return basePrompt;
   }
 
-  // CORRECTION CRITIQUE: Nouvelle fonction pour remplir progressivement
+  // CORRECTION CRITIQUE: Remplir le formulaire SEULEMENT si le client a choisi "formulaire"
   private fillFormProgressively(): void {
-    if (!this.fillFormCallback) return;
+    if (!this.fillFormCallback || this.clientInfo.choixContact !== 'formulaire') {
+      console.log('❌ Pas de remplissage - client n\'a pas choisi formulaire ou callback manquant');
+      return;
+    }
     
     const formData: any = {};
     let hasData = false;
@@ -318,16 +346,18 @@ Réponds de manière consultative et intelligente.`;
       }
     }
     
-    // CORRECTION: Remplir le formulaire dès qu'on a des données
-    if (hasData) {
+    // Remplir le formulaire SEULEMENT si on a des données ET que le client a choisi "formulaire"
+    if (hasData && this.clientInfo.choixContact === 'formulaire') {
       let message = `Secteur d'activité: ${this.clientInfo.metier || 'Non spécifié'}\n`;
       message += `Zone d'intervention: ${this.clientInfo.zone || 'Non spécifiée'}\n`;
       message += `Situation actuelle: ${this.clientInfo.situation || 'Non spécifiée'}\n`;
       message += '\n[Demande qualifiée par l\'assistant IA Nova - Aerodrone Multiservices]';
       formData.message = message;
       
-      console.log('📝 REMPLISSAGE PROGRESSIF du formulaire:', formData);
+      console.log('📝 REMPLISSAGE FORMULAIRE (client a choisi formulaire):', formData);
       this.fillFormCallback(formData);
+    } else {
+      console.log('❌ Pas de remplissage formulaire - conditions non remplies');
     }
   }
 
