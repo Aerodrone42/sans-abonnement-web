@@ -31,17 +31,16 @@ export const useAIInitialization = ({ fillFormFromAI, submitFromAI }: UseAIIniti
       const chatGPTInstance = new EnhancedChatGPTService(OPENAI_API_KEY);
       console.log('✅ Instance ChatGPT créée');
       
+      // CORRECTION: Définir l'instance IMMÉDIATEMENT dans le state
+      setChatGPT(chatGPTInstance);
+      console.log('🎯 Instance ChatGPT définie dans le state IMMÉDIATEMENT');
+      
       if (fillFormFromAI && submitFromAI) {
         chatGPTInstance.setFormCallbacks(fillFormFromAI, submitFromAI);
         console.log('✅ Callbacks configurés');
       } else {
         console.warn('⚠️ Callbacks manquants - fillFormFromAI:', !!fillFormFromAI, 'submitFromAI:', !!submitFromAI);
       }
-      
-      console.log('🔍 Test de connectivité OpenAI...');
-      
-      setChatGPT(chatGPTInstance);
-      console.log('🎯 Instance ChatGPT définie dans le state');
       
       setIsInitialized(true);
       setInitError(null);
@@ -79,10 +78,15 @@ export const useAIInitialization = ({ fillFormFromAI, submitFromAI }: UseAIIniti
   };
 
   useEffect(() => {
-    if (!isInitialized && !initError) {
+    if (!isInitialized && !initError && !chatGPT) {
       initializeChatGPT();
     }
   }, [fillFormFromAI, submitFromAI]);
+
+  // CORRECTION: Debug du state
+  useEffect(() => {
+    console.log('🔍 STATE AI HOOK - chatGPT:', !!chatGPT, 'isInitialized:', isInitialized);
+  }, [chatGPT, isInitialized]);
 
   return {
     chatGPT,
