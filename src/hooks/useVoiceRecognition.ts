@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { EnhancedChatGPTService } from '@/services/enhancedChatGptService';
 import { SpeechSynthesisService } from '@/services/speechSynthesisService';
@@ -87,58 +86,50 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
     setIsProcessing(true);
     console.log('🔄 IS PROCESSING = TRUE');
 
-    if (!chatGPT) {
-      console.log('❌ ChatGPT indisponible - Mode dictée forcé');
-      setTimeout(() => {
+    // CORRECTION CRITIQUE : Vérifier le mode conversation ET la disponibilité de chatGPT
+    if (conversationMode && chatGPT) {
+      console.log('🤖 MODE CONVERSATION IA ACTIVÉ');
+      try {
+        console.log('🚀 ENVOI À CHATGPT:', finalTranscript);
+        const response = await chatGPT.sendMessage(finalTranscript);
+        console.log('✅ RÉPONSE CHATGPT REÇUE:', response);
+        setLastResponse(response);
+        
+        setIsSpeaking(true);
+        console.log('🔊 DÉBUT synthèse vocale');
+        
+        speechSynthesis.speak(response, () => {
+          console.log('✅ Synthèse vocale terminée');
+          setIsSpeaking(false);
+          setIsProcessing(false);
+          
+          // Redémarrer seulement si encore actif
+          if (shouldStayActiveRef.current && chatGPT) {
+            setTimeout(() => {
+              if (shouldStayActiveRef.current && recognitionRef.current) {
+                try {
+                  console.log('🔄 REDÉMARRAGE après IA');
+                  recognitionRef.current.start();
+                } catch (error) {
+                  console.log('❌ Erreur redémarrage après IA:', error);
+                }
+              }
+            }, 1000);
+          }
+        });
+        
+      } catch (error) {
+        console.error('❌ ERREUR ChatGPT:', error);
         setIsProcessing(false);
-        onTranscript(finalTranscript, "message");
-        console.log('✅ Dictée terminée');
-      }, 500);
-      return;
-    }
-    
-    if (!conversationMode) {
-      console.log('📝 Mode dictée activé');
+      }
+    } else {
+      // Mode dictée uniquement si pas de mode conversation OU pas de chatGPT
+      console.log('📝 Mode dictée activé - conversationMode:', conversationMode, 'chatGPT disponible:', !!chatGPT);
       setTimeout(() => {
         setIsProcessing(false);
         onTranscript(finalTranscript, "message");
         console.log('✅ Dictée terminée');
       }, 1000);
-      return;
-    }
-
-    try {
-      console.log('🚀 ENVOI À CHATGPT:', finalTranscript);
-      const response = await chatGPT.sendMessage(finalTranscript);
-      console.log('✅ RÉPONSE CHATGPT REÇUE:', response);
-      setLastResponse(response);
-      
-      setIsSpeaking(true);
-      console.log('🔊 DÉBUT synthèse vocale');
-      
-      speechSynthesis.speak(response, () => {
-        console.log('✅ Synthèse vocale terminée');
-        setIsSpeaking(false);
-        setIsProcessing(false);
-        
-        // Redémarrer seulement si encore actif
-        if (shouldStayActiveRef.current && chatGPT) {
-          setTimeout(() => {
-            if (shouldStayActiveRef.current && recognitionRef.current) {
-              try {
-                console.log('🔄 REDÉMARRAGE après IA');
-                recognitionRef.current.start();
-              } catch (error) {
-                console.log('❌ Erreur redémarrage après IA:', error);
-              }
-            }
-          }, 1000);
-        }
-      });
-      
-    } catch (error) {
-      console.error('❌ ERREUR ChatGPT:', error);
-      setIsProcessing(false);
     }
   };
 
@@ -228,7 +219,6 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
           setTranscript(displayText);
         }
         
-        // CORRECTION CRITIQUE : Traitement immédiat du transcript final
         if (finalTranscript.trim()) {
           console.log('🎯 TRANSCRIPT FINAL REÇU:', finalTranscript);
           currentTranscriptRef.current += finalTranscript;
@@ -244,26 +234,17 @@ export const useVoiceRecognition = ({ onTranscript, conversationMode, chatGPT }:
             }
           }
           
-          // TRAITEMENT IMMÉDIAT - CORRECTION DU BUG
+          // TRAITEMENT IMMÉDIAT
           const textToProcess = currentTranscriptRef.current.trim();
-          console.log('🚀 DÉCLENCHEMENT IMMÉDIAT du traitement IA pour:', textToProcess);
+          console.log('🚀 DÉCLENCHEMENT IMMÉDIAT du traitement pour:', textToProcess);
           
           // Reset du transcript
           currentTranscriptRef.current = "";
           setTranscript("");
           
-          // TRAITEMENT IA IMMÉDIAT
+          // TRAITEMENT IMMÉDIAT
           if (shouldStayActiveRef.current && textToProcess) {
-            if (chatGPT && conversationMode) {
-              console.log('🤖 APPEL processAIResponse IMMÉDIAT');
-              processAIResponse(textToProcess);
-            } else {
-              // Mode dictée
-              console.log('📝 Mode dictée - envoi au formulaire');
-              setTimeout(() => {
-                onTranscript(textToProcess, "message");
-              }, 500);
-            }
+            processAIResponse(textToProcess);
           }
         }
       };
